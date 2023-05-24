@@ -256,22 +256,20 @@ const DatingEditProfile = (props) => {
     if (isarray) {
       const updatedData = selectedPassions?.filter(el => el.id != value.id)
       setSelectedPassions(updatedData)
-      console.log("changeSelectedupdatedData", updatedData);
+      // console.log("changeSelectedupdatedData", updatedData);
     } else {
       setSelectedPassions([...selectedPassions, value])
-      console.log("changeSelectedPselectedPassions", selectedPassions);
+      // console.log("changeSelectedPselectedPassions", selectedPassions);
     }
-
-
-
-  }
+}
 
   const changeSelectedLanguage = (value) => {
-    if (selectedLanguage?.includes(value.id)) {
-      const updatedData = selectedLanguage?.filter(el => el !== value.id)
-      setSelectedLanguage([...updatedData])
+    const isarray = selectedLanguage.some(el => el.id == value.id)
+    if (isarray) {
+      const updatedData = selectedLanguage?.filter(el => el.id != value.id)
+      setSelectedLanguage(updatedData)
     } else {
-      setSelectedLanguage([...selectedLanguage, value.id])
+      setSelectedLanguage([...selectedLanguage, value])
     }
   }
 
@@ -491,7 +489,7 @@ const DatingEditProfile = (props) => {
     var passiondata = selectedPassions?.map(el => attribute.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
 
     var languagedata = selectedLanguage?.map(el => attribute1.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
-    console.log("EditprofileDATA::", passiondata);
+    console.log("EditprofileDATA::", languagedata);
     // setLoading(true)
 
     var data = {
@@ -621,8 +619,30 @@ const DatingEditProfile = (props) => {
             </View>
 
             <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', marginBottom: 10, marginTop: 15 }}>Language</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#fff1f6', padding: 20, borderRadius: 10 }}>
-              <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{selectedLanguage != '' ? selectedLanguage?.map(el => attribute1.find(att => att.id === el)?.name).join(', ') : 'Select Language'}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#fff1f6', padding: 20, borderRadius: 10,width: '100%'  }}>
+            <View style={{ width: "90%", flexWrap: 'wrap', flexDirection: 'row', }}>
+            {
+                  selectedLanguage.length > 0 ?
+                    (<>
+                      {
+                        selectedLanguage.map((item, index) => {
+                          return (
+                            <View style={{ flexDirection: 'row', }}>
+                              <View style={styles.showMeImageView}>
+                                <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
+                              </View>
+                              <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{item.name}</Text>
+                            </View>
+                          )
+                        })
+                      }
+                    </>)
+                    :
+                    <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>Select Language</Text>
+
+                }
+                </View>
+              {/* <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{selectedLanguage != '' ? selectedLanguage?.map(el => attribute1.find(att => att.id === el)?.name).join(', ') : 'Select Language'}</Text> */}
               <TouchableOpacity onPress={() => { setShowPassionsModal2(true), GetLanguageAttributes('dating_language') }}>
                 <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 20, width: 20, }} resizeMode='contain' />
               </TouchableOpacity>
@@ -915,9 +935,7 @@ const DatingEditProfile = (props) => {
                     const isarray = selectedPassions.some(e => e.id == item.id)
                     return (
                       <TouchableOpacity onPress={() => { changeSelectedPassions(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: isarray ? '#fff1f6' : '#fff', borderColor: isarray ? '#ff3b7f' : '#e3d0d7' }]}>
-                        <View style={[styles.showMeImageView,
-                          // { backgroundColor: selectedPassions?.includes(item.id) ? '#ff3b7f' : '#e3d0d7' }
-                        ]}>
+                        <View style={styles.showMeImageView}>
                           <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
                         </View>
                         <Text style={styles.showMeText}>{item.name}</Text>
@@ -975,12 +993,14 @@ const DatingEditProfile = (props) => {
                   numColumns={3}
                   keyExtractor={item => item.id}
                   renderItem={({ item, index }) => {
+                    const isarray = selectedLanguage.some(e => e.id == item.id)
                     return (
-                      <TouchableOpacity onPress={() => { changeSelectedLanguage(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: selectedLanguage?.includes(item.id) ? '#fff1f6' : '#fff', borderColor: selectedLanguage?.includes(item.id) ? '#ff3b7f' : '#e3d0d7' }]}>
+                      <TouchableOpacity onPress={() => { changeSelectedLanguage(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: isarray ? '#fff1f6' : '#fff', borderColor: isarray ? '#ff3b7f' : '#e3d0d7' }]}>
+                        <View style={styles.showMeImageView}>
+                          <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
+                        </View>
                         <Text style={styles.showMeText}>{item.name}</Text>
-                        {/* <View style={[styles.showMeImageView, { backgroundColor: selectedLanguage?.includes(item.id) ? '#ff3b7f' : '#e3d0d7' }]}>
-                          <Image source={require('../../../assets/images/dating-selected-arrow.png')} style={styles.showMeImage} resizeMode='contain' />
-                        </View> */}
+                        
                       </TouchableOpacity>
                     )
                   }}
