@@ -24,6 +24,7 @@ const onlinePersonImageWidth = 50
 const onlineDotWidth = 12
 const DatingEditProfile = (props) => {
   const User = useSelector(state => state.user.user_details)
+  const inputRef = useRef([]);
   const [searchValue, setsearchValue] = useState('')
   const [loading, setLoading] = useState(false)
   const [My_Alert, setMy_Alert] = useState(false)
@@ -70,6 +71,22 @@ const DatingEditProfile = (props) => {
     { label: '182 cm', value: '182 cm' },
     { label: '183 cm', value: '183 cm' },
     { label: '184 cm', value: '184 cm' },
+    { label: '185 cm', value: '185 cm' },
+    { label: '186 cm', value: '186 cm' },
+    { label: '187 cm', value: '187 cm' },
+    { label: '188 cm', value: '188 cm' },
+    { label: '189 cm', value: '189 cm' },
+    { label: '190 cm', value: '190 cm' },
+    { label: '191 cm', value: '191 cm' },
+    { label: '192 cm', value: '192 cm' },
+    { label: '193 cm', value: '193 cm' },
+    { label: '194 cm', value: '194 cm' },
+    { label: '195 cm', value: '195 cm' },
+    { label: '196 cm', value: '196 cm' },
+    { label: '197 cm', value: '197 cm' },
+    { label: '198 cm', value: '198 cm' },
+    { label: '199 cm', value: '199 cm' },
+    { label: '200 cm', value: '200 cm' },
   ]);
   const [scrollEnabled, setScrollEnabled] = useState(false)
   const myTextInput = useRef()
@@ -1570,21 +1587,21 @@ const DatingEditProfile = (props) => {
               {/* <Modal isVisible={showPassionsModal12}>
          
       </Modal> */}
-              {/* <FlatList
+              <FlatList
+                ref={inputRef}
                 data={menutypedate}
-                showsHorizontalScrollIndicator={false}
-                style={{ height: 40 }}
+                // showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+                style={{ height: 100, width: '100%' }}
                 keyExtractor={item => item.id}
                 renderItem={({ item, index }) => {
                   return (
-                    <View>
-<Text>
-
-</Text>
-                    </View>
+                    <TouchableOpacity  onPress={() => { setHeightSelect(item.label) }} style={{ justifyContent: 'center', alignItems: "center", width: '100%', }}>
+                      <Text style={{ color: heightselect == item.label ? '#ff3b7f' : '#ccbbc1', fontSize: 14, lineHeight: 40 }}>{item.label}</Text>
+                    </TouchableOpacity>
                   )
                 }}
-              /> */}
+              />
               {/* <View style={{ width: '95%', alignSelf: 'center', marginTop: 9,backgroundColor:'lightgray',paddingHorizontal: 10,
                     paddingVertical: 8,
                     borderWidth: 0.6,
