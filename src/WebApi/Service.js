@@ -45,12 +45,10 @@ export const  shop_eat_order_id=`shop/eat/order/id/`;
 export const  connect_dating_profile=`connect/dating/profile`;
 export const  connect_dating_editprofile=`connect/dating/profile`; 
 export const  common_master_attributes=`common/master-attributes?master_type=`; 
- 
-
-
 export const  connect_dating_location=`connect/dating/location`; 
-export const  driver_ride_details=`driver/ride_details?ride_id=`; 
-export const user_notifications = 'user/notifications'
+export const  connect_dating_profile_list=`connect/dating/profile-list`;
+export const connect_dating_active_status = 'connect/dating/status' 
+
 export const user_notification_change = 'user/notification_change'
 export const driver_logout = 'driver/logout' 
 export const driver_change_status = 'driver/change_status'

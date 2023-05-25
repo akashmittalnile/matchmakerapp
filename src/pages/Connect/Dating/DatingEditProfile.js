@@ -92,7 +92,7 @@ const DatingEditProfile = (props) => {
   const myTextInput = useRef()
   const [userMessage, setUserMessage] = useState('')
   const [filepath, setfilepath] = useState(null)
-  const [pick1, setpick] = useState('')
+  const [pick, setpick] = useState('')
   const [aboutme, setAboutMe] = useState('');
 
   const [multiSliderValue, setMultiSliderValue] = useState([18, 24])
@@ -559,12 +559,12 @@ const DatingEditProfile = (props) => {
                   <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
                 </View>
               </View>
-              {/* <View style={{ marginLeft: 20 }}>
-                <Image source={require('../../../assets/images/dating-message-image.png')} style={{ width: 100, height: 100, borderRadius: 2 }} resizeMode='contain' />
-                <View style={styles.deleteIconView}>
+              <View style={{ marginLeft: 20 }}>
+                <Image source={{uri:pick != '' ? `${pick.uri}`: null}} style={{ width: 100, height: 100, borderRadius: 2 }} resizeMode='contain' />
+                {/* <View style={styles.deleteIconView}>
                   <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
-                </View>
-              </View> */}
+                </View> */}
+              </View>
               <TouchableOpacity onPress={() => { requestCameraPermission() }} style={styles.plusIconSuperView}>
                 <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
                 <View style={styles.plusIconView}>
@@ -792,7 +792,7 @@ const DatingEditProfile = (props) => {
               <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'gray', marginTop: 5 }}>Cover the thinks most people are curious about</Text>
             </View>
 
-            {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
                 <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Show me</Text>
@@ -803,7 +803,7 @@ const DatingEditProfile = (props) => {
                   <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 14, width: 14, }} resizeMode='contain' />
                 </TouchableOpacity>
               </View>
-            </View> */}
+            </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
