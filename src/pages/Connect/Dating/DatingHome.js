@@ -14,9 +14,7 @@ import Toast from 'react-native-toast-message';
 import Geocoder from "react-native-geocoding";
 import { GoogleApiKey } from '../../../WebApi/GoogleApiKey';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-
-Geocoder.init(GoogleApiKey);
-const GOOGLE_MAPS_APIKEY = GoogleApiKey;
+ 
 const PeopleHome = (props) => {
   const [searchValue,setsearchValue]=useState('')
   const [scrollEnabled, setScrollEnabled] = useState(false)

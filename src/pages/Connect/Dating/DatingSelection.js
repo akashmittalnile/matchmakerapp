@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setRestorentLocation } from '../../../redux/actions/latLongAction';
 import Carousel from './Components/Carousel/Carousel';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { connect_dating_active_status, connect_dating_location, connect_dating_profile_list, requestGetApi, requestPostApi } from '../../../WebApi/Service';
+import { connect_dating_active_status, connect_dating_home_data, connect_dating_location, connect_dating_profile_list, requestGetApi, requestPostApi } from '../../../WebApi/Service';
 import DatingCard from "../../../component/DatingCard";
 import Loader from '../../../WebApi/Loader';
 
@@ -41,14 +41,16 @@ const PeopleHome = (props) => {
   const [My_Alert, setMy_Alert] = useState(false)
   const [alert_sms, setalert_sms] = useState('')
   const myTextInput = useRef()
+  const dispatch = useDispatch();
   const [googleAddress, setGoogleAddress] = useState('');
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [googleLatLng, setGoogleLatLng] = useState({});
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100])
   const [ageRangeSliderValue, setAgeRangeSliderValue] = useState([18, 60])
-  const [distanceSliderValue, setDistanceSliderValue] = useState([10, 60])
-  const [interstedInValue, setInterstedInValue] = useState(['Boys', 'Girls', 'Both']);
+  const [distanceSliderValue, setDistanceSliderValue] = useState([50, 60])
+  const [interstedInValue, setInterstedInValue] = useState(['Male', 'Female', 'Transgender']);
   const [interstedInselect, setInterstedInSelect] = useState('');
+  const [isprofiles, setProfiles] = useState([]);
 
   const [filterByStatus, setFilterByStatus] = useState(['All', 'Online', 'New']);
   const [filterBySelect, setFilterBySelect] = useState('');
@@ -115,7 +117,7 @@ const PeopleHome = (props) => {
       image: `https://cdn.britannica.com/64/182864-050-8975B127/Scene-The-Incredible-Hulk-Louis-Leterrier.jpg`,
       title: "HULK",
       age: '20',
-      name: '@hulk',
+      fullname: '@hulk',
       distance: '5'
     },
     {
@@ -123,7 +125,7 @@ const PeopleHome = (props) => {
       image: `https://cdn.britannica.com/49/182849-050-4C7FE34F/scene-Iron-Man.jpg`,
       title: "IRON MAN",
       age: '30',
-      name: '@Iron Man',
+      fullname: '@Iron Man',
       distance: '2'
     },
     {
@@ -131,7 +133,7 @@ const PeopleHome = (props) => {
       image: `https://cdn.britannica.com/30/182830-050-96F2ED76/Chris-Evans-title-character-Joe-Johnston-Captain.jpg`,
       title: "CAPTAIN AMERICA",
       age: '10',
-      name: '@CAPTAIN AMERICA',
+      fullname: '@CAPTAIN AMERICA',
       distance: '6'
     },
     {
@@ -139,55 +141,64 @@ const PeopleHome = (props) => {
       image: `https://upload.wikimedia.org/wikipedia/en/d/d6/Superman_Man_of_Steel.jpg`,
       title: "SUPER MAN",
       age: '60',
-      name: '@SUPER MAN',
+      fullname: '@SUPER MAN',
       distance: '8'
     },
   ]);
+  // useEffect(() => {
+  //   if (!images.length) {
+  //     setImages([
+  //       {
+  //         id: 1,
+  //         image: `https://cdn.britannica.com/64/182864-050-8975B127/Scene-The-Incredible-Hulk-Louis-Leterrier.jpg`,
+  //         title: "HULK",
+  //         age: '20',
+  //         name: '@hulk',
+  //         distance: '5'
+  //       },
+  //       {
+  //         id: 2,
+  //         image: `https://cdn.britannica.com/49/182849-050-4C7FE34F/scene-Iron-Man.jpg`,
+  //         title: "IRON MAN",
+  //         age: '30',
+  //         name: '@Iron Man',
+  //         distance: '2'
+  //       },
+  //       {
+  //         id: 3,
+  //         image: `https://cdn.britannica.com/30/182830-050-96F2ED76/Chris-Evans-title-character-Joe-Johnston-Captain.jpg`,
+  //         title: "CAPTAIN AMERICA",
+  //         age: '10',
+  //         name: '@CAPTAIN AMERICA',
+  //         distance: '6'
+  //       },
+  //       {
+  //         id: 4,
+  //         image: `https://upload.wikimedia.org/wikipedia/en/d/d6/Superman_Man_of_Steel.jpg`,
+  //         title: "SUPER MAN",
+  //         age: '60',
+  //         name: '@SUPER MAN',
+  //         distance: '8'
+  //       },
+  //     ]);
+  //   }
+  //   return () => { };
+  // }, [images]);
+  const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
   useEffect(() => {
-    if (!images.length) {
-      setImages([
-        {
-          id: 1,
-          image: `https://cdn.britannica.com/64/182864-050-8975B127/Scene-The-Incredible-Hulk-Louis-Leterrier.jpg`,
-          title: "HULK",
-          age: '20',
-          name: '@hulk',
-          distance: '5'
-        },
-        {
-          id: 2,
-          image: `https://cdn.britannica.com/49/182849-050-4C7FE34F/scene-Iron-Man.jpg`,
-          title: "IRON MAN",
-          age: '30',
-          name: '@Iron Man',
-          distance: '2'
-        },
-        {
-          id: 3,
-          image: `https://cdn.britannica.com/30/182830-050-96F2ED76/Chris-Evans-title-character-Joe-Johnston-Captain.jpg`,
-          title: "CAPTAIN AMERICA",
-          age: '10',
-          name: '@CAPTAIN AMERICA',
-          distance: '6'
-        },
-        {
-          id: 4,
-          image: `https://upload.wikimedia.org/wikipedia/en/d/d6/Superman_Man_of_Steel.jpg`,
-          title: "SUPER MAN",
-          age: '60',
-          name: '@SUPER MAN',
-          distance: '8'
-        },
-      ]);
-    }
-    return () => { };
-  }, [images]);
+    // if (!isprofiles.length) {
+    //   setProfiles([...isprofiles])
+    // }
+    Profiledatas()
+    Geodummy()
+    Activestatus()
+  }, [])
 
   const swipe = useRef(new Animated.ValueXY()).current;
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: (_, { dx, dy }) => {
-      console.log("dx", dx, "dy", dy);
+      // console.log("dx", dx, "dy", dy);
       swipe.setValue({ x: dx, y: dy });
     },
     onPanResponderRelease: (_, { dx, dy }) => {
@@ -207,7 +218,7 @@ const PeopleHome = (props) => {
         }).start();
       }
 
-      console.log("RELEASE dx", dx, "dy", dy);
+      // console.log("RELEASE dx", dx, "dy", dy);
     },
   });
   const handleSelection = useCallback(
@@ -221,7 +232,7 @@ const PeopleHome = (props) => {
     [removeCard]
   );
   const removeCard = useCallback(() => {
-    setImages((prevState) => prevState.slice(1));
+    setProfiles((prevState) => prevState.slice(1));
     swipe.setValue({ x: 0, y: 0 });
   }, []);
 
@@ -229,11 +240,7 @@ const PeopleHome = (props) => {
 
 
 
-  const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
-  useEffect(() => {
-    Geodummy()
-    Activestatus()
-  }, [])
+
   const Geodummy = async () => {
     let My_cord = { latitude: '28.5355', longitude: '77.3910' }
     homePage('28.5355', '77.3910')
@@ -257,22 +264,22 @@ const PeopleHome = (props) => {
 
 
   const homePage = async (l, lo) => {
-    console.log("Userlatlog........", mapdata);
+    // console.log("Userlatlog........", mapdata);
     // address: addre   
-    console.log('the res==>>DatingSelection', l, lo)
+    // console.log('the res==>>DatingSelection', l, lo)
     setLoading(true)
     var data = {
       // "location_name": "Office",
       latitude: l,
       longitude: lo,
-      address: "Dummy address"
+      address: "Dummy address"    //addre
     }
-    console.log("addres........", data);
+    // console.log("addres........", data);
     const { responseJson, err } = await requestPostApi(connect_dating_location, data, 'PUT', User.token)
     setLoading(false)
-    console.log('the res==>>homePage', responseJson)
+    // console.log('the res==>>homePage', responseJson)
     if (responseJson.headers.success == 1) {
-      console.log('the res==>>Home.body.vendors', responseJson.body)
+      // console.log('the res==>>Home.body.vendors', responseJson.body)
       // setresData(responseJson.body)
     } else {
       setalert_sms(err)
@@ -286,29 +293,45 @@ const PeopleHome = (props) => {
     var data = {
       activity_status: "Online" //Offline, Online
     }
-    console.log("aActivestatus........", data);
+    // console.log("aActivestatus........", data);
     const { responseJson, err } = await requestPostApi(connect_dating_active_status, data, 'PUT', User.token)
     setLoading(false)
-    console.log('the res==>>Activestatuse', responseJson)
+    // console.log('the res==>>Activestatuse', responseJson)
     if (responseJson.headers.success == 1) {
-      console.log('the res==>>Home.body.vendors', responseJson.body)
+      // console.log('the res==>>Home.body.vendors', responseJson.body)
       // setresData(responseJson.body)
     } else {
       setalert_sms(err)
       setMy_Alert(true)
     }
   };
+  const Profiledatas = async () => {
+    // console.log("the res==>>Profiledatas", distanceSliderValue[0])
+    setLoading(true);
+
+    const { responseJson, err } = await requestGetApi(connect_dating_home_data + distanceSliderValue[0], "", "GET", User.token);
+    setLoading(false);
+    // console.log("the res==>>ProfilePage", responseJson);
+    if (responseJson.headers.success == 1) {
+      // console.log("the res==>>ProfilePage", responseJson.body);
+      setProfiles(responseJson.body.profiles);
+    } else {
+      setalert_sms(err);
+      setMy_Alert(true);
+    }
+  };
 
   const Profilelist = async () => {
-    console.log("the res==>>Profilelist", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0])
+    setShowFilterModal(false)
+    // console.log("the res==>>Profilelist", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0])
     setLoading(true);
 
     const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&activity_status=' + filterBySelect, "", "GET", User.token);
     setLoading(false);
-    console.log("the res==>>ProfilePage", responseJson);
+    // console.log("the res==>>ProfilePage", responseJson);
     if (responseJson.headers.success == 1) {
-      console.log("the res==>>ProfilePage", responseJson.body);
-      setProfileData(responseJson.body);
+      // console.log("the res==>>ProfilePage", responseJson.body);
+      // setProfileData(responseJson.body);
     } else {
       setalert_sms(err);
       setMy_Alert(true);
@@ -330,19 +353,23 @@ const PeopleHome = (props) => {
   }
 
   const onReject = (id) => {
-    console.log('id rejected', id);
+    // console.log('id rejected', id);
     props.navigation.navigate('DatingChat')
   }
   const onLove = (id) => {
-    console.log('id loved', id);
+    // console.log('id loved', id);
     props.navigation.navigate('DatingMessages')
   }
+
+
+
+
   const onRefresh = (id) => {
     console.log('id refreshed', id);
-    props.navigation.navigate('DatingProfile')
+    props.navigation.navigate('DatingMoreInfo',{selectprofile:id ,from:'PeopleHome'})
   }
   const onChangeInterested = (value) => {
-    console.log("onChangeInterested", value);
+    // console.log("onChangeInterested", value);
     if (interstedInselect === value) {
       return
     }
@@ -387,9 +414,9 @@ const PeopleHome = (props) => {
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => props.navigation.navigate('DatingProfile')} style={{ justifyContent: 'center', alignItems: 'center' }}>
               <Image source={require('../../../assets/images/dating-home-header-left-image.png')} style={{ height: 40, width: 40, borderRadius: 20, borderColor: '#e42f5e', borderWidth: 2 }} />
-            </View>
+            </TouchableOpacity>
           </View>
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#31313f' }}>Personal connect</Text>
@@ -498,7 +525,7 @@ const PeopleHome = (props) => {
                 },
               }}
               onPress={(data, details = null) => {
-                console.log(data, details);
+                // console.log(data, details);
                 // 'details' is provided when fetchDetails = true
                 // setShowPlacesList(false)
                 homePage(details.geometry.location.lat, details.geometry.location.lng)
@@ -545,25 +572,41 @@ const PeopleHome = (props) => {
 
 
         {/* <View style={{borderBottomColor: '#ffb0ba', borderBottomWidth: StyleSheet.hairlineWidth, marginTop:10}}/> */}
-        <View style={{ marginTop: 0 }}>
-          {images.length > 0
-            ? images
+        <View style={{}}>
+          {/* {isprofiles.length > 0 ?
+            isprofiles
+              .map((item, index) => {
+
+                return (
+                  <View style={{ justifyContent: 'center' }}>
+                    <Text style={{ color: 'black', fontSize: 20 }}>
+                      {item.first_name}
+                    </Text>
+                  </View>
+                );
+              })
+            :
+            <Text style={{ color: 'black', fontSize: 20 }}>
+              no  data foung
+            </Text>
+
+          } */}
+          {isprofiles.length > 0
+            ? isprofiles
               .map((item, index) => {
                 let isFirst = index === 0;
                 let dragHandlers = isFirst ? panResponder.panHandlers : {};
                 return (
-                  // <TouchableOpacity onPress={()=>onRefresh()}>
                   <DatingCard
                     item={item}
                     isFirst={isFirst}
                     swipe={swipe}
                     heartPress={() => handleSelection(1)}
                     nopePress={() => handleSelection(-1)}
-                    nextPress={() => handleSelection(+1)}
-                    currentprofileopen={() => onRefresh()}
+                    nextPress={() => removeCard()}
+                    currentprofileopen={() => onRefresh(item)}
                     {...dragHandlers}
                   />
-                  // </TouchableOpacity>
                 );
               })
               .reverse()

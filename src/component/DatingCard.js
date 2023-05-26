@@ -42,6 +42,7 @@ const DatingCard = ({
       <>
         <Animated.View
           style={{
+            backgroundColor:'yellow',
             position: "absolute",
             top: 60,
             left: 20,
@@ -86,7 +87,7 @@ const DatingCard = ({
     >
       <TouchableOpacity onPress={currentprofileopen}>
       <Image
-        source={{ uri: item.image }}
+        source={{ uri: `https://cdn.britannica.com/64/182864-050-8975B127/Scene-The-Incredible-Hulk-Louis-Leterrier.jpg` }}
         style={{
           width: "100%",
           height: "85%",
@@ -146,9 +147,11 @@ const DatingCard = ({
           {item.title}
         </Text>
         <View style={{ flexDirection: "row", justifyContent: "center" }}>
-          <Text style={{ color: "pink" }}>@{item.name}</Text>
-          <Text> | {item.age} | </Text>
-          <Text>{item.distance} Mile Away</Text>
+          <Text style={{ color: "pink" }}>{item.fullname}</Text>
+          <Text style={{color:'black'}}> | {item.age} | </Text>
+          <Text style={{color:'black'}}>{item.intrest_in}
+           {/* Mile Away */}
+           </Text>
         </View>
       </View>
 

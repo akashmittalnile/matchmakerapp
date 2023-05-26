@@ -85,13 +85,18 @@ const DatingMoreInfo = (props) => {
   const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
 
   useEffect(() => {
-    ProfilePage()
+    console.log("DatingMoreInfo useeffect",props.route.params.selectprofile);
+    if(props.route.params.from == 'PeopleHome'){
+      setProfileData(props.route.params.selectprofile)
+    }else{
+      ProfilePage()
+    }
+    
   }, [])
 
   const ProfilePage = async () => {
     console.log('the res==>>ProfilePage')
     setLoading(true)
-
     const { responseJson, err } = await requestGetApi(connect_dating_profile, '', 'GET', User.token)
     setLoading(false)
     console.log('the res==>>ProfilePage', responseJson)

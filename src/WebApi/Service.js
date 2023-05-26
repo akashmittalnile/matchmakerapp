@@ -47,9 +47,9 @@ export const  connect_dating_editprofile=`connect/dating/profile`;
 export const  common_master_attributes=`common/master-attributes?master_type=`; 
 export const  connect_dating_location=`connect/dating/location`; 
 export const  connect_dating_profile_list=`connect/dating/profile-list`;
-export const connect_dating_active_status = 'connect/dating/status' 
+export const connect_dating_active_status = 'connect/dating/status'
+export const connect_dating_home_data = 'connect/dating/home?lat&long&distance=';
 
-export const user_notification_change = 'user/notification_change'
 export const driver_logout = 'driver/logout' 
 export const driver_change_status = 'driver/change_status'
 export const booking_bid_price = 'booking/bid_price?ride_id='  

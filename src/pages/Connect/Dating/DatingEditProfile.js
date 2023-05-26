@@ -559,12 +559,26 @@ const DatingEditProfile = (props) => {
                   <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
                 </View>
               </View>
-              <View style={{ marginLeft: 20 }}>
-                <Image source={{uri:pick != '' ? `${pick.uri}`: null}} style={{ width: 100, height: 100, borderRadius: 2 }} resizeMode='contain' />
-                {/* <View style={styles.deleteIconView}>
-                  <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
-                </View> */}
-              </View>
+              
+                {
+                  pick != '' ?
+                  (<View style={{ marginLeft: 20,width:100,height: 100,borderRadius: 8}}>
+                    <Image resizeMode='stretch' source={{uri:pick != '' ? `${pick.uri}`: null}} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
+                    <TouchableOpacity style={styles.deleteIconView}>
+                    <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                  </TouchableOpacity>
+                </View> )
+                :
+                (
+                  <TouchableOpacity onPress={() => { requestCameraPermission() }} style={styles.plusIconSuperView}>
+                <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                <View style={styles.plusIconView}>
+                  <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                </View>
+              </TouchableOpacity>
+                )
+                }
+                
               <TouchableOpacity onPress={() => { requestCameraPermission() }} style={styles.plusIconSuperView}>
                 <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
                 <View style={styles.plusIconView}>
