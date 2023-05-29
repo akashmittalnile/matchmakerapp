@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground, Animated, PanResponder } from 'react-native';
+import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, InteractionManager, Animated, PanResponder } from 'react-native';
 import HomeHeaderRoundBottom from '../../../component/HomeHeaderRoundBottom';
 import HomeHeader from '../../../component/HomeHeader';
 import SearchInput2 from '../../../component/SearchInput2';
@@ -145,6 +145,13 @@ const PeopleHome = (props) => {
       distance: '8'
     },
   ]);
+  useEffect(() => {
+  const interactionPromise = InteractionManager.runAfterInteractions(() =>
+  onShown(),
+);
+return () => interactionPromise.cancel();
+}, [onShown]);
+
   // useEffect(() => {
   //   if (!images.length) {
   //     setImages([
@@ -323,13 +330,14 @@ const PeopleHome = (props) => {
 
   const Profilelist = async () => {
     setShowFilterModal(false)
-    // console.log("the res==>>Profilelist", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0])
+    console.log("the res==>>Profilelist", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0])
     setLoading(true);
 
     const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&activity_status=' + filterBySelect, "", "GET", User.token);
     setLoading(false);
-    // console.log("the res==>>ProfilePage", responseJson);
+    console.log("the res==>>Profilelist", responseJson);
     if (responseJson.headers.success == 1) {
+      setProfiles(responseJson.body.data);
       // console.log("the res==>>ProfilePage", responseJson.body);
       // setProfileData(responseJson.body);
     } else {
@@ -1024,10 +1032,10 @@ const PeopleHome = (props) => {
             </View>
 
             <View style={{ width: '95%', alignSelf: 'center' }}>
-              <TouchableOpacity onPress={() => { Profilelist() }} style={styles.applyButtonStyle}>
+              <TouchableOpacity onPress={() => Profilelist()} style={styles.applyButtonStyle}>
                 <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#fff', }}>Apply</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ marginTop: 20, marginBottom: 50 }}>
+              <TouchableOpacity onPress={() => { Profiledatas() }} style={{ marginTop: 20, marginBottom: 50 }}>
                 <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', alignSelf: 'center' }}>Reset</Text>
               </TouchableOpacity>
             </View>

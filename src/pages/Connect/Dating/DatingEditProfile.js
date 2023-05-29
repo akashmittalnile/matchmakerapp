@@ -18,10 +18,11 @@ import { baseUrl, login, shop_eat_business, requestPostApi, requestGetApi, conne
 import { useSelector, useDispatch } from 'react-redux';
 import DropDownPicker from 'react-native-dropdown-picker';
 import RNPickerSelect from 'react-native-picker-select';
-
+// import ValuePicker from "rn-value-picker";
 const image1 = require('../../../assets/images/people-following-person.png')
 const onlinePersonImageWidth = 50
 const onlineDotWidth = 12
+
 const DatingEditProfile = (props) => {
   const User = useSelector(state => state.user.user_details)
   const inputRef = useRef([]);
@@ -35,6 +36,9 @@ const DatingEditProfile = (props) => {
   const [collegename, setCollegename] = useState('');
   const [menutypeOpen, setmenutypeOpen] = useState(false);
   const [menutypevalue, setmenutypevalue] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
+  const [myHeight, setMyHeight] = useState("");
+
   const [menutypedate, setmenutypedate] = useState([
     { label: '150 cm', value: '150 cm' },
     { label: '151 cm', value: '151 cm' },
@@ -120,7 +124,14 @@ const DatingEditProfile = (props) => {
 
   const [selectedZodiac, setSelectedZodiac] = useState('')
 
-  const [allZodiac, setZodiac] = useState(['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Saggitarius', 'Capricorn', 'Aquarius', 'Pisces']);
+  const [allZodiac, setZodiac] = useState([
+    'Aries', 
+    'Taurus', 
+    'Gemini', 
+    'Cancer', 
+    'Leo', 
+    'Virgo', 
+    'Libra', 'Scorpio', 'Saggitarius', 'Capricorn', 'Aquarius', 'Pisces']);
 
   const [heightselect, setHeightSelect] = useState('');
   const [genderValue, setGenderValue] = useState(['Men', 'Women', 'Transgender']);
@@ -489,7 +500,7 @@ const DatingEditProfile = (props) => {
     var passiondata = selectedPassions?.map(el => attribute.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
 
     var languagedata = selectedLanguage?.map(el => attribute1.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
-    console.log("EditprofileDATA::", languagedata);
+    console.log("EditprofileDATA::", collegename);
     // setLoading(true)
 
     var data = {
@@ -499,8 +510,8 @@ const DatingEditProfile = (props) => {
       // dob: "1991-01-01",
       // age_preference: multiSliderValue[1],
       // activity_status: "Online",
-      // intrest_in: showMeselect,
-      gender: "Male",
+      intrest_in: showMeselect,
+      gender: genderselect,
       qualification: qualification,
       university: collegename,
       height: heightselect,
@@ -521,8 +532,8 @@ const DatingEditProfile = (props) => {
     if (responseJson.headers.success == 1) {
       //  Toast.show(responseJson.headers.message)
       Toast.show({ text1: responseJson.headers.message });
-      menuList(menutypevalue)
-      //  props.navigation.navigate('ShopCart')
+      // menuList(menutypevalue)
+       props.navigation.goBack('')
     } else {
       Toast.show({ text1: responseJson.headers.message });
       // setalert_sms(err)
@@ -767,8 +778,8 @@ const DatingEditProfile = (props) => {
                 <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Education</Text>
               </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
-                <Text style={{ fontSize: 14, color: '#ff5e96', fontStyle: 'italic', textAlign: 'center', marginRight: 8 }}>{qualification != '' ? qualification + ' at ' + collegename : 'Add'}</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '60%', height: 60, alignItems: 'center', }}>
+                <Text style={{ fontSize: 14, color: '#ff5e96', fontStyle: 'italic', textAlign: 'center', marginRight: 8 }}>{qualification || collegename != '' ? qualification + ' at ' + collegename : 'Add'}</Text>
                 <TouchableOpacity onPress={() => setShowPassionsModal10(true)} >
                   <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 14, width: 14, }} resizeMode='contain' />
                 </TouchableOpacity>
@@ -1069,6 +1080,9 @@ const DatingEditProfile = (props) => {
                   renderItem={({ item, index }) => {
                     return (
                       <TouchableOpacity onPress={() => { changeSelectedzodiac(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: selectedZodiac == item ? '#fff1f6' : '#fff', borderColor: selectedZodiac == item ? '#ff3b7f' : '#e3d0d7' }]}>
+                        <View style={styles.showMeImageView}>
+                          <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
+                        </View>
                         <Text style={styles.showMeText}>{item}</Text>
                         {/* <View style={[styles.showMeImageView, { backgroundColor: selectedZodiac == item ? '#ff3b7f' : '#e3d0d7' }]}>
                           <Image source={require('../../../assets/images/dating-selected-arrow.png')} style={styles.showMeImage} resizeMode='contain' />
@@ -1630,6 +1644,51 @@ const DatingEditProfile = (props) => {
                 keyExtractor={item => item.id}
                 renderItem={({ item, index }) => {
                   return (
+                  //   <View
+                  //   style={{
+                  //     flex: 1,
+                  //   }}
+                  // >
+                  //   <View
+                  //     style={{
+                  //       flex: 1,
+                  //       justifyContent: "center",
+                  //       alignItems: "center",
+                  //     }}
+                  //   >
+                  //     <TouchableOpacity
+                  //       onPress={() => setShowPicker(true)}
+                  //       style={{
+                  //         height: 50,
+                  //         backgroundColor: "red",
+                  //         justifyContent: "center",
+                  //         alignItems: "center",
+                  //         width: "50%",
+                  //         borderRadius: 10,
+                  //       }}
+                  //     >
+                  //       <Text
+                  //         style={{
+                  //           color: "white",
+                  //           fontSize: 18,
+                  //           fontWeight: "bold",
+                  //         }}
+                  //       >
+                  //         App {myHeight}
+                  //       </Text>
+                  //     </TouchableOpacity>
+                  //   </View>
+                  //   {/* use here before last view end  */}
+                  //   <ValuePicker
+                  //     visible={showPicker}
+                  //     setVisibility={setShowPicker}
+                  //     Title="Your Weight"
+                  //     unit="kg"
+                  //     minValue={20}
+                  //     maxValue={150}
+                  //     setValue={setMyHeight}
+                  //   />
+                  // </View>
                     <TouchableOpacity  onPress={() => { setHeightSelect(item.label) }} style={{ justifyContent: 'center', alignItems: "center", width: '100%', }}>
                       <Text style={{ color: heightselect == item.label ? '#ff3b7f' : '#ccbbc1', fontSize: 14, lineHeight: 40 }}>{item.label}</Text>
                     </TouchableOpacity>

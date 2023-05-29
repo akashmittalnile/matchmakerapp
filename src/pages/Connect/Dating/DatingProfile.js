@@ -176,7 +176,7 @@ const DatingProfile = (props) => {
                 source={require("../../../assets/images/dating-edit-profile-top-image.png")}
                 style={{ width: "100%", height: 220 }}
               ><TouchableOpacity onPress={() =>
-                props.navigation.navigate("DatingMoreInfo")
+                props.navigation.navigate("DatingMoreInfo",{from:'DatingProfile'})
               }>
                   <Image
                     source={require("../../../assets/images/dating-message-image.png")}
