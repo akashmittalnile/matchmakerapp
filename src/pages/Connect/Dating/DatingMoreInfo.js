@@ -13,9 +13,10 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Modal from 'react-native-modal';
 import Loader from '../../../WebApi/Loader';
 import LinearGradient from 'react-native-linear-gradient';
-import { baseUrl, login, shop_eat_business, requestPostApi, requestGetApi, connect_dating_profile, } from '../../../WebApi/Service'
+import { baseUrl, login, shop_eat_business, requestPostApi, requestGetApi, connect_dating_profile, connect_dating_swipe_profile, } from '../../../WebApi/Service'
 import { useSelector, useDispatch } from 'react-redux';
 import ViewMoreText from 'react-native-view-more-text';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
 const DatingMoreInfo = (props) => {
   const User = useSelector(state => state.user.user_details);
@@ -96,6 +97,36 @@ const DatingMoreInfo = (props) => {
 
   }, [])
 
+  const SwipeProfile = async (type) => {
+    console.log("SwipeProfile........", profiledata.userid, type);
+    // setLoading(true)
+let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting response.'
+    var data = {
+      userid: profiledata.userid,
+      swipe_type: type
+    }
+    console.log("addres........", data);
+    const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile, data, 'POST', User.token)
+    setLoading(false)
+    // console.log('the res==>>homePage', responseJson)
+    if (responseJson.headers.success == 1) {
+      if (type == "R") {
+        Toast.show({ text2:message  });
+        props.navigation.goBack()
+
+      } else if (type == "L") {
+       
+        props.navigation.goBack()
+      }
+
+      // console.log('the res==>>Home.body.vendors', responseJson.body)
+
+    } else {
+      setalert_sms(err)
+      setMy_Alert(true)
+    }
+  }
+
   const ProfilePage = async () => {
     console.log('the res==>>ProfilePage')
     setLoading(true)
@@ -126,28 +157,34 @@ const DatingMoreInfo = (props) => {
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ backgroundColor: '#fff5f7', height: '100%' }}>
 
       <ScrollView>
-        <View style={{ width: '100%', }}>
-          <ImageSlider
-            //  localImg={true}
-            data={[
-              // require('../../assets/Group75972.png'),
-              { img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5a5uCP-n4teeW2SApcIqUrcQApev8ZVCJkA&usqp=CAU' },
-              { img: 'https://thumbs.dreamstime.com/b/environment-earth-day-hands-trees-growing-seedlings-bokeh-green-background-female-hand-holding-tree-nature-field-gra-130247647.jpg' },
-              { img: 'https://cdn.pixabay.com/photo/2015/04/19/08/32/marguerite-729510__340.jpg' }
-            ]}
-            // onClick={(item, index) => {alert('hello'+index)}}
-            // autoPlay={true}
-            // onItemChanged={(item) => console.log("item", item)}
+        <View style={{ height: dimensions.SCREEN_HEIGHT * 46 / 100, width: '100%' }}>
 
-            // activeIndicatorStyle={{backgroundColor:'#FF4989'}}
-            indicatorContainerStyle={{ top: -5 }}
-            caroselImageStyle={{ resizeMode: 'cover', height: 400 }}
-            closeIconColor="#fff"
-            headerStyle={{ padding: 0, backgroundColor: 'rgba(0,0,0, 0.6)', }}
-            showHeader
-            preview={false}
-          />
 
+
+          <View style={{ overflow: 'hidden', width: '100%', alignSelf: 'center', zIndex: -999 }}>
+            <ImageSlider
+              //  localImg={true}
+              data={[
+                // require('../../assets/Group75972.png'),
+                { img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5a5uCP-n4teeW2SApcIqUrcQApev8ZVCJkA&usqp=CAU' },
+                { img: 'https://thumbs.dreamstime.com/b/environment-earth-day-hands-trees-growing-seedlings-bokeh-green-background-female-hand-holding-tree-nature-field-gra-130247647.jpg' },
+                { img: 'https://cdn.pixabay.com/photo/2015/04/19/08/32/marguerite-729510__340.jpg' }
+              ]}
+              // onClick={(item, index) => {alert('hello'+index)}}
+              // autoPlay={true}
+              // onItemChanged={(item) => console.log("item", item)}
+
+              // activeIndicatorStyle={{backgroundColor:'#FF4989'}}
+              indicatorContainerStyle={{ top: -5 }}
+
+              caroselImageStyle={{ resizeMode: 'cover', height: 400 }}
+              closeIconColor="#fff"
+              headerStyle={{ padding: 0, backgroundColor: 'rgba(0,0,0, 0.6)', }}
+              showHeader
+            // preview={true}
+            />
+
+          </View>
         </View>
         <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ position: 'absolute', top: 40, left: 20, }}>
           <Image source={require('../../../assets/images/dating-white-back-button.png')} style={{ width: 25, height: 15 }} resizeMode='contain' />
@@ -161,7 +198,7 @@ const DatingMoreInfo = (props) => {
                 {/* <Text style={{fontSize:10, color:'#e10f51', marginTop:5}}>@marry</Text> */}
                 <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{profiledata.job_title}</Text>
               </View>
-              <TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat') }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
+              <TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: profiledata }) }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
                 <Image source={require('../../../assets/images/dating-home-header-right-image.png')} style={{ width: 20, height: 20 }} />
               </TouchableOpacity>
 
@@ -206,11 +243,11 @@ const DatingMoreInfo = (props) => {
                 renderItem={({ item, index }) => {
                   // if(item.mutual){
                   return (
-                    <View key={item.name} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+                    <View key={item.name} style={[styles.showMeView, { width: '31%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
                       {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
                       <View style={styles.showMeImageView}>
-                          <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
-                        </View>
+                        <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                      </View>
                       <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
                     </View>
                   )
@@ -238,12 +275,12 @@ const DatingMoreInfo = (props) => {
                     <View key={item.name} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
                       {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
                       <View style={styles.showMeImageView}>
-                          <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
-                        </View>
+                        <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                      </View>
                       <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
                     </View>
                   )
-                
+
                 }}
               />
             </View>
@@ -252,83 +289,110 @@ const DatingMoreInfo = (props) => {
               <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', marginBottom: 10 }}>My basics</Text>
             </View>
             <View style={{
-              flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ff3b7f', borderRadius: 5,
-              borderWidth: 0.5, padding: 15, paddingLeft: 16
+              flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
+              borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
             }}>
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ width: '100%', justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', }}>
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', }}>
                   <Image resizeMode='contain' source={require('../../../assets/dating_workicon.png')} style={{ heigh: 20, width: 20, marginRight: 7 }} />
-                  <View style={{ height:40,width: '90%',alignItems: 'center',justifyContent:'center' }}>
-                  <Text numberOfLines={1} style={{ fontSize: 12, color: '#4a4c52',}}>{profiledata.job_company}</Text>
+                  <View style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text numberOfLines={1} style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.job_company}</Text>
                   </View>
-                  
+
                 </View>
               </View>
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', marginLeft: 10, height: 40 }]}>
-                <View style={{ width: '100%', justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
                   <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.gender}</Text>
                 </View>
               </View>
 
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ width: '100%', justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
                   <Image resizeMode='contain' source={require('../../../assets/icons-ruler.png')} style={{ heigh: 22, width: 22, marginRight: 7, marginLeft: -2 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.height} cm</Text>
                 </View>
               </View>
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', marginLeft: 10, height: 40 }]}>
-                <View style={{ width: '100%', justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.kids}</Text>
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                  <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.university}</Text>
+                </View>
+              </View>
+              <View style={[styles.showMeView, { backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                  <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.qualification}</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={{ width: '90%', marginTop: 10, marginBottom: 10 }}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', }}>More about me</Text>
+
+            </View>
+            <View style={{
+              flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
+              borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
+            }}>
+
+
+
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                  <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
+                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.intrest_in}</Text>
                 </View>
               </View>
 
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ width: '100%', justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                  <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.smoking}</Text>
+                </View>
+              </View>
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                  <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.kids}</Text>
+                </View>
+              </View>
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                  <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.drinking}</Text>
+                </View>
+              </View>
+
+
+
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
                   <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.zodiac}</Text>
                 </View>
               </View>
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', marginLeft: 10, height: 40 }]}>
-                <View style={{ width: '100%', justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
                   <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.politics}</Text>
                 </View>
               </View>
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ width: '100%', justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.university}</Text>
-                </View>
-              </View>
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', marginLeft: 10, height: 40 }]}>
-                <View style={{ width: '100%', justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.qualification}</Text>
-                </View>
-              </View>
-
-
-
-
-
 
 
             </View>
 
-
-
             <View style={styles.buttonsRow}>
-              <TouchableOpacity onPress={() => { }} style={styles.buttonViewOne}>
+              <TouchableOpacity onPress={() => { SwipeProfile('L') }} style={styles.buttonViewOne}>
                 <Image source={require('../../../assets/images/dating-more-info-reject.png')} style={{ width: 20, height: 20, top: 0, }} resizeMode='contain' />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { }} style={styles.buttonViewTwo}>
+              <TouchableOpacity onPress={() => { SwipeProfile('R') }} style={styles.buttonViewTwo}>
                 <Image source={require('../../../assets/images/dating-more-info-heart.png')} style={{ width: 40, height: 40, top: 0, }} resizeMode='contain' />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => { }} style={styles.buttonViewOne}>
@@ -568,11 +632,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     // justifyContent:'space-between',
-    width: '48%',
+    width: 'auto',
     padding: 10,
+    backgroundColor: '#fff1f6',
     // paddingHorizontal:15, 
-    borderRadius: 5,
-    borderWidth: 0.5
+    borderRadius: 30,
+    // borderWidth: 0.5
+    marginRight: 6
   },
   showMeText: {
     fontSize: 10,
@@ -587,8 +653,8 @@ const styles = StyleSheet.create({
     marginLeft: 0,
   },
   showMeImage: {
-    height: 15,
-    width: 15
+    height: 18,
+    width: 18
   },
   buttonsRow: {
     flexDirection: 'row',

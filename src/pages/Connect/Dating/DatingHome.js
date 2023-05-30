@@ -12,11 +12,13 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Modal from 'react-native-modal';
 import Toast from 'react-native-toast-message';
 import Geocoder from "react-native-geocoding";
+import { useSelector, useDispatch } from "react-redux";
 import { GoogleApiKey } from '../../../WebApi/GoogleApiKey';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
  
 const PeopleHome = (props) => {
   const [searchValue,setsearchValue]=useState('')
+  const dispatch = useDispatch();
   const [scrollEnabled, setScrollEnabled] = useState(false)
   const myTextInput = useRef()
   const [googleAddress, setGoogleAddress] = useState('');

@@ -76,6 +76,16 @@ const DatingCard = ({
           alignSelf: "center",
           position: "absolute",
           backgroundColor: "#FFFFFF",
+          // shadowColor: '#ffb0ba',
+          // shadowOffset: {
+          //   width: 0,
+          //   height: 3
+          // },
+          // shadowRadius: 1,
+          // shadowOpacity: 1,
+          // elevation: 6,
+          // borderColor: '#ffb0ba',
+          // borderWidth:1,
           top: 20,
           borderRadius: 30,
         },
@@ -136,7 +146,7 @@ const DatingCard = ({
           onPress={nextPress}
         />
       </View>
-      <View>
+      <View style={{top:-70}}>
         <Text
           style={{
             textAlign: "center",
@@ -167,6 +177,7 @@ const ActionButton = ({ imageJsx, size = 50, onPress = () => {}, style }) => {
     <TouchableOpacity
       onPress={onPress}
       style={{
+        top:-70,
         height: size,
         width: size,
         shadowColor: "#000",

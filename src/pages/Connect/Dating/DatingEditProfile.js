@@ -10,15 +10,16 @@ import MyButtons from '../../../component/MyButtons';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Modal from 'react-native-modal';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from "react-native-image-picker"
 import MyAlert from '../../../component/MyAlert';
 import Toast from 'react-native-toast-message';
 import Loader from '../../../WebApi/Loader';
 import LinearGradient from 'react-native-linear-gradient';
-import { baseUrl, login, shop_eat_business, requestPostApi, requestGetApi, connect_dating_profile, connect_dating_editprofile, common_master_attributes, } from '../../../WebApi/Service'
+import { baseUrl, login, shop_eat_business, requestPostApi, requestGetApi, connect_dating_profile, connect_dating_editprofile, common_master_attributes, connect_dating_profile_image_get, } from '../../../WebApi/Service'
 import { useSelector, useDispatch } from 'react-redux';
 import DropDownPicker from 'react-native-dropdown-picker';
 import RNPickerSelect from 'react-native-picker-select';
-// import ValuePicker from "rn-value-picker";
+import ValuePicker from "rn-value-picker";
 const image1 = require('../../../assets/images/people-following-person.png')
 const onlinePersonImageWidth = 50
 const onlineDotWidth = 12
@@ -39,65 +40,66 @@ const DatingEditProfile = (props) => {
   const [showPicker, setShowPicker] = useState(false);
   const [myHeight, setMyHeight] = useState("");
 
-  const [menutypedate, setmenutypedate] = useState([
-    { label: '150 cm', value: '150 cm' },
-    { label: '151 cm', value: '151 cm' },
-    { label: '152 cm', value: '152 cm' },
-    { label: '153 cm', value: '153 cm' },
-    { label: '154 cm', value: '154 cm' },
-    { label: '155 cm', value: '155 cm' },
-    { label: '156 cm', value: '156 cm' },
-    { label: '157 cm', value: '157 cm' },
-    { label: '158 cm', value: '158 cm' },
-    { label: '159 cm', value: '159 cm' },
-    { label: '160 cm', value: '160 cm' },
-    { label: '161 cm', value: '161 cm' },
-    { label: '162 cm', value: '162 cm' },
-    { label: '163 cm', value: '163 cm' },
-    { label: '164 cm', value: '164 cm' },
-    { label: '165 cm', value: '165 cm' },
-    { label: '166 cm', value: '166 cm' },
-    { label: '167 cm', value: '167 cm' },
-    { label: '168 cm', value: '168 cm' },
-    { label: '169 cm', value: '169 cm' },
-    { label: '170 cm', value: '170 cm' },
-    { label: '171 cm', value: '171 cm' },
-    { label: '172 cm', value: '172 cm' },
-    { label: '173 cm', value: '173 cm' },
-    { label: '174 cm', value: '174 cm' },
-    { label: '175 cm', value: '175 cm' },
-    { label: '176 cm', value: '176 cm' },
-    { label: '177 cm', value: '177 cm' },
-    { label: '178 cm', value: '178 cm' },
-    { label: '179 cm', value: '179 cm' },
-    { label: '180 cm', value: '180 cm' },
-    { label: '181 cm', value: '181 cm' },
-    { label: '182 cm', value: '182 cm' },
-    { label: '183 cm', value: '183 cm' },
-    { label: '184 cm', value: '184 cm' },
-    { label: '185 cm', value: '185 cm' },
-    { label: '186 cm', value: '186 cm' },
-    { label: '187 cm', value: '187 cm' },
-    { label: '188 cm', value: '188 cm' },
-    { label: '189 cm', value: '189 cm' },
-    { label: '190 cm', value: '190 cm' },
-    { label: '191 cm', value: '191 cm' },
-    { label: '192 cm', value: '192 cm' },
-    { label: '193 cm', value: '193 cm' },
-    { label: '194 cm', value: '194 cm' },
-    { label: '195 cm', value: '195 cm' },
-    { label: '196 cm', value: '196 cm' },
-    { label: '197 cm', value: '197 cm' },
-    { label: '198 cm', value: '198 cm' },
-    { label: '199 cm', value: '199 cm' },
-    { label: '200 cm', value: '200 cm' },
-  ]);
+  // const [menutypedate, setmenutypedate] = useState([
+  //   { label: '150 cm', value: '150 cm' },
+  //   { label: '151 cm', value: '151 cm' },
+  //   { label: '152 cm', value: '152 cm' },
+  //   { label: '153 cm', value: '153 cm' },
+  //   { label: '154 cm', value: '154 cm' },
+  //   { label: '155 cm', value: '155 cm' },
+  //   { label: '156 cm', value: '156 cm' },
+  //   { label: '157 cm', value: '157 cm' },
+  //   { label: '158 cm', value: '158 cm' },
+  //   { label: '159 cm', value: '159 cm' },
+  //   { label: '160 cm', value: '160 cm' },
+  //   { label: '161 cm', value: '161 cm' },
+  //   { label: '162 cm', value: '162 cm' },
+  //   { label: '163 cm', value: '163 cm' },
+  //   { label: '164 cm', value: '164 cm' },
+  //   { label: '165 cm', value: '165 cm' },
+  //   { label: '166 cm', value: '166 cm' },
+  //   { label: '167 cm', value: '167 cm' },
+  //   { label: '168 cm', value: '168 cm' },
+  //   { label: '169 cm', value: '169 cm' },
+  //   { label: '170 cm', value: '170 cm' },
+  //   { label: '171 cm', value: '171 cm' },
+  //   { label: '172 cm', value: '172 cm' },
+  //   { label: '173 cm', value: '173 cm' },
+  //   { label: '174 cm', value: '174 cm' },
+  //   { label: '175 cm', value: '175 cm' },
+  //   { label: '176 cm', value: '176 cm' },
+  //   { label: '177 cm', value: '177 cm' },
+  //   { label: '178 cm', value: '178 cm' },
+  //   { label: '179 cm', value: '179 cm' },
+  //   { label: '180 cm', value: '180 cm' },
+  //   { label: '181 cm', value: '181 cm' },
+  //   { label: '182 cm', value: '182 cm' },
+  //   { label: '183 cm', value: '183 cm' },
+  //   { label: '184 cm', value: '184 cm' },
+  //   { label: '185 cm', value: '185 cm' },
+  //   { label: '186 cm', value: '186 cm' },
+  //   { label: '187 cm', value: '187 cm' },
+  //   { label: '188 cm', value: '188 cm' },
+  //   { label: '189 cm', value: '189 cm' },
+  //   { label: '190 cm', value: '190 cm' },
+  //   { label: '191 cm', value: '191 cm' },
+  //   { label: '192 cm', value: '192 cm' },
+  //   { label: '193 cm', value: '193 cm' },
+  //   { label: '194 cm', value: '194 cm' },
+  //   { label: '195 cm', value: '195 cm' },
+  //   { label: '196 cm', value: '196 cm' },
+  //   { label: '197 cm', value: '197 cm' },
+  //   { label: '198 cm', value: '198 cm' },
+  //   { label: '199 cm', value: '199 cm' },
+  //   { label: '200 cm', value: '200 cm' },
+  // ]);
   const [scrollEnabled, setScrollEnabled] = useState(false)
   const myTextInput = useRef()
   const [userMessage, setUserMessage] = useState('')
   const [filepath, setfilepath] = useState(null)
   const [pick, setpick] = useState('')
   const [aboutme, setAboutMe] = useState('');
+  const [images, setImages] = useState([]);
 
   const [multiSliderValue, setMultiSliderValue] = useState([18, 24])
   // const [slidervalue,setSLiderValue]=useState('');
@@ -125,12 +127,12 @@ const DatingEditProfile = (props) => {
   const [selectedZodiac, setSelectedZodiac] = useState('')
 
   const [allZodiac, setZodiac] = useState([
-    'Aries', 
-    'Taurus', 
-    'Gemini', 
-    'Cancer', 
-    'Leo', 
-    'Virgo', 
+    'Aries',
+    'Taurus',
+    'Gemini',
+    'Cancer',
+    'Leo',
+    'Virgo',
     'Libra', 'Scorpio', 'Saggitarius', 'Capricorn', 'Aquarius', 'Pisces']);
 
   const [heightselect, setHeightSelect] = useState('');
@@ -183,6 +185,40 @@ const DatingEditProfile = (props) => {
       img: require('../../../assets/images/dating-message-image.png'),
     },
   ])
+
+
+  const selectImages = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        mediaType: 'photo',
+        selectionLimit: 5,
+        quality: 1,
+        includeBase64: false,
+        multiple: true
+      },
+      response => {
+        if (response.didCancel) {
+          console.log('Image selection cancelled');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else {
+          const selectedImages = response.assets.map(asset => ({ uri: asset.uri }));
+          setImages(prevImages => [...prevImages, ...selectedImages]);
+        }
+      }
+    );
+  };
+
+  const renderImages = () => {
+    return images.map((image, index) => (
+      <View style={{   }}>
+        <Image key={index} source={image} style={{ width: 200, height: 100,borderRadius:10 }} />
+        <View style={styles.plusIconView}>
+          <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+        </View>
+      </View>
+    ));
+  };
 
   // const changeShowMeValue = (index) => {
   //   if (showMeValue === index) {
@@ -272,7 +308,7 @@ const DatingEditProfile = (props) => {
       setSelectedPassions([...selectedPassions, value])
       // console.log("changeSelectedPselectedPassions", selectedPassions);
     }
-}
+  }
 
   const changeSelectedLanguage = (value) => {
     const isarray = selectedLanguage.some(el => el.id == value.id)
@@ -336,6 +372,12 @@ const DatingEditProfile = (props) => {
 
     let options = {
       title: 'Image Picker',
+
+      mediaType: 'photo',
+      selectionLimit: 5,
+      quality: 1,
+      includeBase64: false,
+      multiple: true,
       // mediaType: 'mixed',
       storageOptions: {
         skipBackup: true,
@@ -366,6 +408,7 @@ const DatingEditProfile = (props) => {
           name: image.assets[0].fileName
         };
         console.log("image", photo);
+        setImages(photo)
         setpick(photo)
         setfilepath(image)
       }
@@ -500,7 +543,7 @@ const DatingEditProfile = (props) => {
     var passiondata = selectedPassions?.map(el => attribute.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
 
     var languagedata = selectedLanguage?.map(el => attribute1.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
-    console.log("EditprofileDATA::", collegename);
+    console.log("EditprofileDATA::", myHeight);
     // setLoading(true)
 
     var data = {
@@ -514,7 +557,7 @@ const DatingEditProfile = (props) => {
       gender: genderselect,
       qualification: qualification,
       university: collegename,
-      height: heightselect,
+      height: myHeight,       // or heightselect,
       job_title: jobtitle,
       job_company: jobcompany,
       smoking: smokingdata,
@@ -533,7 +576,7 @@ const DatingEditProfile = (props) => {
       //  Toast.show(responseJson.headers.message)
       Toast.show({ text1: responseJson.headers.message });
       // menuList(menutypevalue)
-       props.navigation.goBack('')
+      props.navigation.goBack('')
     } else {
       Toast.show({ text1: responseJson.headers.message });
       // setalert_sms(err)
@@ -541,6 +584,62 @@ const DatingEditProfile = (props) => {
     }
   }
 
+  const GetProfileImages = async () => {
+    // console.log("the res==>>GetLanguageAttributes", hob);
+    setLoading(true);
+
+    const { responseJson, err } = await requestGetApi(
+      connect_dating_profile_image_get,
+      "",
+      "GET",
+      User.token
+    );
+    setLoading(false);
+    console.log("the res==>>GetLanguageAttributes", responseJson);
+    if (responseJson.headers.success == 1) {
+      console.log("the res==>>GetLanguageAttributes", responseJson.body);
+      setImagsGet(responseJson.body);
+    } else {
+      setalert_sms(err);
+      setMy_Alert(true);
+    }
+
+  };
+
+  const Createpost = async () => {
+    console.log("pick UPLOAD", pick);
+    const formData = new FormData();
+    formData.append('image', pick);
+    const headers = {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${User.token}`,
+    };
+    const url = 'http://54.153.75.225/backend/api/v1/connect/dating/profile-image';
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      const responseJson = await response.json();
+      console.log(responseJson, 'my response');
+      if (responseJson.headers.success == 1) {
+        props.navigation.goBack('')
+        Toast.show({ text1: responseJson.headers.message });
+      } else {
+
+        setalert_sms(err)
+        setMy_Alert(true)
+      }
+
+
+    } catch (error) {
+      console.log('Error uploading data:', error);
+    }
+
+  }
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ flex: 1, }}>
       <LinearGradient
@@ -564,33 +663,34 @@ const DatingEditProfile = (props) => {
 
             <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', marginBottom: 10 }}>Edit Profile Photo</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View>
+              {/* <View>
                 <Image source={require('../../../assets/images/dating-message-image.png')} style={{ width: 100, height: 100, borderRadius: 2 }} resizeMode='contain' />
                 <View style={styles.deleteIconView}>
                   <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
                 </View>
-              </View>
-              
-                {
-                  pick != '' ?
-                  (<View style={{ marginLeft: 20,width:100,height: 100,borderRadius: 8}}>
-                    <Image resizeMode='stretch' source={{uri:pick != '' ? `${pick.uri}`: null}} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
+              </View> */}
+
+              {/* {
+                pick.length != '5' ?
+                  (<View style={{ marginLeft: 20, width: 100, height: 100, borderRadius: 8 }}>
+                    <Image resizeMode='stretch' source={{ uri: pick != '' ? `${pick.uri}` : null }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
                     <TouchableOpacity style={styles.deleteIconView}>
-                    <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
-                  </TouchableOpacity>
-                </View> )
-                :
-                (
-                  <TouchableOpacity onPress={() => { requestCameraPermission() }} style={styles.plusIconSuperView}>
-                <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
-                <View style={styles.plusIconView}>
-                  <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
-                </View>
-              </TouchableOpacity>
-                )
-                }
-                
-              <TouchableOpacity onPress={() => { requestCameraPermission() }} style={styles.plusIconSuperView}>
+                      <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                    </TouchableOpacity>
+                  </View>)
+                  :
+                  (
+                    <TouchableOpacity onPress={() => { requestCameraPermission() }} style={styles.plusIconSuperView}>
+                      <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                      <View style={styles.plusIconView}>
+                        <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                      </View>
+                    </TouchableOpacity>
+                  )
+              } */}
+              <View style={{ flexDirection: 'row' }}>{renderImages()}</View>
+
+              <TouchableOpacity onPress={() => selectImages()} style={styles.plusIconSuperView}>
                 <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
                 <View style={styles.plusIconView}>
                   <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
@@ -644,9 +744,9 @@ const DatingEditProfile = (props) => {
             </View>
 
             <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', marginBottom: 10, marginTop: 15 }}>Language</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#fff1f6', padding: 20, borderRadius: 10,width: '100%'  }}>
-            <View style={{ width: "90%", flexWrap: 'wrap', flexDirection: 'row', }}>
-            {
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#fff1f6', padding: 20, borderRadius: 10, width: '100%' }}>
+              <View style={{ width: "90%", flexWrap: 'wrap', flexDirection: 'row', }}>
+                {
                   selectedLanguage.length > 0 ?
                     (<>
                       {
@@ -666,7 +766,7 @@ const DatingEditProfile = (props) => {
                     <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>Select Language</Text>
 
                 }
-                </View>
+              </View>
               {/* <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{selectedLanguage != '' ? selectedLanguage?.map(el => attribute1.find(att => att.id === el)?.name).join(', ') : 'Select Language'}</Text> */}
               <TouchableOpacity onPress={() => { setShowPassionsModal2(true), GetLanguageAttributes('dating_language') }}>
                 <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 20, width: 20, }} resizeMode='contain' />
@@ -805,7 +905,7 @@ const DatingEditProfile = (props) => {
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Height</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
-                <Text style={{ fontSize: 14, color: '#ff5e96', fontStyle: 'italic', textAlign: 'center', marginRight: 8 }}>{heightselect != '' ? heightselect : 'Add'}</Text>
+                <Text style={{ fontSize: 14, color: '#ff5e96', fontStyle: 'italic', textAlign: 'center', marginRight: 8 }}>{myHeight != '' ? myHeight : 'Add'}</Text>
                 <TouchableOpacity onPress={() => setShowPassionsModal12(true)} >
                   <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 14, width: 14, }} resizeMode='contain' />
                 </TouchableOpacity>
@@ -899,7 +999,7 @@ const DatingEditProfile = (props) => {
 
             <View style={{ height: 50 }} />
 
-            <MyButtons title="Save" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { Editprofile() }} marginHorizontal={20} fontSize={11}
+            <MyButtons title="Save" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { Editprofile(), Createpost() }} marginHorizontal={20} fontSize={11}
               titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
 
             <View style={{ width: '100%', alignSelf: 'center', marginTop: 20, backgroundColor: '#F8F8F8' }}>
@@ -1025,7 +1125,7 @@ const DatingEditProfile = (props) => {
                           <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
                         </View>
                         <Text style={styles.showMeText}>{item.name}</Text>
-                        
+
                       </TouchableOpacity>
                     )
                   }}
@@ -1602,7 +1702,7 @@ const DatingEditProfile = (props) => {
           backdropColor='transparent'
           style={{ justifyContent: 'flex-end', margin: 0, backgroundColor: 'rgba(0,0,0,0.5)' }}
         >
-          <View style={{ height: '38%', backgroundColor: '#fff', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20 }}>
+          <View style={{ height: '26%', backgroundColor: '#fff', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20 }}>
             <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 30, marginTop: 10 }}>
@@ -1635,7 +1735,53 @@ const DatingEditProfile = (props) => {
               {/* <Modal isVisible={showPassionsModal12}>
          
       </Modal> */}
-              <FlatList
+              <View
+                style={{
+                  flex: 1,
+                }}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => setShowPicker(true)}
+                    style={{
+                      height: 50,
+                      backgroundColor: "#ffb0cb",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "50%",
+                      borderRadius: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 18,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {myHeight != '' ? myHeight : 'Select height'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                {/* use here before last view end  */}
+                <ValuePicker
+                  visible={showPicker}
+                  confirmButtonStyle={{ backgroundColor: '#ffb0cb' }}
+                  setVisibility={setShowPicker}
+                  Title="Your Height"
+                  unit="cm"
+                  minValue={150}
+                  maxValue={250}
+                  setValue={setMyHeight}
+                />
+              </View>
+              {/* <FlatList
                 ref={inputRef}
                 data={menutypedate}
                 // showsHorizontalScrollIndicator={false}
@@ -1644,57 +1790,13 @@ const DatingEditProfile = (props) => {
                 keyExtractor={item => item.id}
                 renderItem={({ item, index }) => {
                   return (
-                  //   <View
-                  //   style={{
-                  //     flex: 1,
-                  //   }}
-                  // >
-                  //   <View
-                  //     style={{
-                  //       flex: 1,
-                  //       justifyContent: "center",
-                  //       alignItems: "center",
-                  //     }}
-                  //   >
-                  //     <TouchableOpacity
-                  //       onPress={() => setShowPicker(true)}
-                  //       style={{
-                  //         height: 50,
-                  //         backgroundColor: "red",
-                  //         justifyContent: "center",
-                  //         alignItems: "center",
-                  //         width: "50%",
-                  //         borderRadius: 10,
-                  //       }}
-                  //     >
-                  //       <Text
-                  //         style={{
-                  //           color: "white",
-                  //           fontSize: 18,
-                  //           fontWeight: "bold",
-                  //         }}
-                  //       >
-                  //         App {myHeight}
-                  //       </Text>
-                  //     </TouchableOpacity>
-                  //   </View>
-                  //   {/* use here before last view end  */}
-                  //   <ValuePicker
-                  //     visible={showPicker}
-                  //     setVisibility={setShowPicker}
-                  //     Title="Your Weight"
-                  //     unit="kg"
-                  //     minValue={20}
-                  //     maxValue={150}
-                  //     setValue={setMyHeight}
-                  //   />
-                  // </View>
+                   
                     <TouchableOpacity  onPress={() => { setHeightSelect(item.label) }} style={{ justifyContent: 'center', alignItems: "center", width: '100%', }}>
                       <Text style={{ color: heightselect == item.label ? '#ff3b7f' : '#ccbbc1', fontSize: 14, lineHeight: 40 }}>{item.label}</Text>
                     </TouchableOpacity>
                   )
                 }}
-              />
+              /> */}
               {/* <View style={{ width: '95%', alignSelf: 'center', marginTop: 9,backgroundColor:'lightgray',paddingHorizontal: 10,
                     paddingVertical: 8,
                     borderWidth: 0.6,

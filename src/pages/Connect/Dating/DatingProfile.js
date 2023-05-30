@@ -23,6 +23,7 @@ import MyButtons from "../../../component/MyButtons";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import Modal from "react-native-modal";
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MyAlert from "../../../component/MyAlert";
 import Loader from "../../../WebApi/Loader";
 import LinearGradient from "react-native-linear-gradient";

@@ -50,6 +50,14 @@ const PeopleHome = (props) => {
   const [distanceSliderValue, setDistanceSliderValue] = useState([50, 60])
   const [interstedInValue, setInterstedInValue] = useState(['Male', 'Female', 'Transgender']);
   const [interstedInselect, setInterstedInSelect] = useState('');
+  const [smokingValue, setSmokingValue] = useState(['Yes', 'No', 'Occassionally']);
+  const [smokingselect, setSmokingSelect] = useState('');
+
+  const [drinkingValue, setDrinkingValue] = useState(['Yes', 'No', 'Occassionally']);
+  const [drinkingselect, setDrinkingSelect] = useState('');
+  const [kidsValue, setKidsValue] = useState(['Open to kids', 'Don`t want', 'Not sure yet']);
+  const [kidsSelect, setKidsSelect] = useState('');
+
   const [isprofiles, setProfiles] = useState([]);
 
   const [filterByStatus, setFilterByStatus] = useState(['All', 'Online', 'New']);
@@ -145,12 +153,35 @@ const PeopleHome = (props) => {
       distance: '8'
     },
   ]);
+  //   useEffect(() => {
+  //   const interactionPromise = InteractionManager.runAfterInteractions(() =>
+  //   onShown(),
+  // );
+  // return () => interactionPromise.cancel();
+  // }, [onShown]);
+
   useEffect(() => {
-  const interactionPromise = InteractionManager.runAfterInteractions(() =>
-  onShown(),
-);
-return () => interactionPromise.cancel();
-}, [onShown]);
+    // Schedule a task to run after interactions have completed
+    InteractionManager.runAfterInteractions(() => {
+      fetchData();
+    });
+  }, []);
+
+  const fetchData = () => {
+    // Simulating a network request that takes some time
+
+    setTimeout(() => {
+      // Updating component state with fetched data
+      // ...
+      Profilelist()
+
+      // Signal the end of the interaction
+      InteractionManager.clearInteractionHandle(interactionHandle);
+    }, 2000);
+  };
+
+  const interactionHandle = InteractionManager.createInteractionHandle();
+
 
   // useEffect(() => {
   //   if (!images.length) {
@@ -193,12 +224,14 @@ return () => interactionPromise.cancel();
   // }, [images]);
   const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
   useEffect(() => {
-    // if (!isprofiles.length) {
-    //   setProfiles([...isprofiles])
-    // }
-    Profiledatas()
     Geodummy()
     Activestatus()
+    const unsubscribe = props.navigation.addListener('focus', () => {
+      Profiledatas()
+
+    })
+    return unsubscribe;
+
   }, [])
 
   const swipe = useRef(new Animated.ValueXY()).current;
@@ -244,6 +277,22 @@ return () => interactionPromise.cancel();
   }, []);
 
 
+  const navigateToNextScreen = (id) => {
+    console.log("DatingMoreInfo");
+    props.navigation.navigate('DatingMoreInfo', { selectprofile: id, from: 'PeopleHome' })
+  };
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const handleButtonPress = (id) => {
+    Animated.timing(scaleValue, {
+      toValue: 0.8,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      // Animation complete, navigate to the next screen
+      navigateToNextScreen(id);
+    });
+  };
+
 
 
 
@@ -285,7 +334,7 @@ return () => interactionPromise.cancel();
     const { responseJson, err } = await requestPostApi(connect_dating_location, data, 'PUT', User.token)
     setLoading(false)
     // console.log('the res==>>homePage', responseJson)
-    if (responseJson.headers.success == 1) {
+    if (responseJson?.headers?.success == 1) {
       // console.log('the res==>>Home.body.vendors', responseJson.body)
       // setresData(responseJson.body)
     } else {
@@ -304,7 +353,7 @@ return () => interactionPromise.cancel();
     const { responseJson, err } = await requestPostApi(connect_dating_active_status, data, 'PUT', User.token)
     setLoading(false)
     // console.log('the res==>>Activestatuse', responseJson)
-    if (responseJson.headers.success == 1) {
+    if (responseJson?.headers?.success == 1) {
       // console.log('the res==>>Home.body.vendors', responseJson.body)
       // setresData(responseJson.body)
     } else {
@@ -316,10 +365,13 @@ return () => interactionPromise.cancel();
     // console.log("the res==>>Profiledatas", distanceSliderValue[0])
     setLoading(true);
 
-    const { responseJson, err } = await requestGetApi(connect_dating_home_data + distanceSliderValue[0], "", "GET", User.token);
+    const { responseJson, err } = await requestGetApi(connect_dating_home_data
+      //  + 'lat='+ 28.5355 + '&long=' + 77.3910 
+      + '&distance=' + distanceSliderValue[0], "", "GET", User.token);
     setLoading(false);
     // console.log("the res==>>ProfilePage", responseJson);
-    if (responseJson.headers.success == 1) {
+    if (responseJson?.headers?.success == 1) {
+
       // console.log("the res==>>ProfilePage", responseJson.body);
       setProfiles(responseJson.body.profiles);
     } else {
@@ -332,12 +384,12 @@ return () => interactionPromise.cancel();
     setShowFilterModal(false)
     console.log("the res==>>Profilelist", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0])
     setLoading(true);
-
-    const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&activity_status=' + filterBySelect, "", "GET", User.token);
+    //  &smoking=No&drinking=No&kids=No 
+    const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&smoking=' + smokingselect + '&drinking=' + drinkingselect + '&kids=No' + kidsSelect + '&activity_status=' + filterBySelect + '&limit=' + 10, "", "GET", User.token);
     setLoading(false);
     console.log("the res==>>Profilelist", responseJson);
-    if (responseJson.headers.success == 1) {
-      setProfiles(responseJson.body.data);
+    if (responseJson?.headers?.success == 1) {
+      setProfiles(responseJson?.body?.data);
       // console.log("the res==>>ProfilePage", responseJson.body);
       // setProfileData(responseJson.body);
     } else {
@@ -372,10 +424,12 @@ return () => interactionPromise.cancel();
 
 
 
-  const onRefresh = (id) => {
-    console.log('id refreshed', id);
-    props.navigation.navigate('DatingMoreInfo',{selectprofile:id ,from:'PeopleHome'})
-  }
+
+
+  // const onRefresh = (id) => {
+  //   console.log('id refreshed', id);
+  //   props.navigation.navigate('DatingMoreInfo',{selectprofile:id ,from:'PeopleHome'})
+  // }
   const onChangeInterested = (value) => {
     // console.log("onChangeInterested", value);
     if (interstedInselect === value) {
@@ -383,11 +437,36 @@ return () => interactionPromise.cancel();
     }
     setInterstedInSelect(value)
   }
+
   const onChangeFilterByStatus = (value) => {
     if (filterBySelect === value) {
       return
     }
     setFilterBySelect(value)
+  }
+
+  const onChangeSmoking = (value) => {
+    // console.log("onChangeInterested", value);
+    if (smokingselect === value) {
+      return
+    }
+    setSmokingSelect(value)
+  }
+
+  const onChangeDrinking = (value) => {
+    // console.log("onChangeInterested", value);
+    if (drinkingselect === value) {
+      return
+    }
+    setDrinkingSelect(value)
+  }
+
+  const onChangeKids = (value) => {
+    // console.log("onChangeInterested", value);
+    if (kidsSelect === value) {
+      return
+    }
+    setKidsSelect(value)
   }
 
   function renderDescription(rowData) {
@@ -612,7 +691,7 @@ return () => interactionPromise.cancel();
                     heartPress={() => handleSelection(1)}
                     nopePress={() => handleSelection(-1)}
                     nextPress={() => removeCard()}
-                    currentprofileopen={() => onRefresh(item)}
+                    currentprofileopen={() => handleButtonPress(item)}
                     {...dragHandlers}
                   />
                 );
@@ -867,7 +946,7 @@ return () => interactionPromise.cancel();
                   renderItem={({ item, index }) => {
                     return (
 
-                      <TouchableOpacity onPress={() => { onChangeInterested(item) }} style={[styles.interestedView1, { width: 100, marginBottom: 1, backgroundColor: interstedInselect == item ? '#FF4989' : '#fff' }]}>
+                      <TouchableOpacity onPress={() => { onChangeInterested(item) }} style={[styles.interestedView1, { width: 110, marginBottom: 1, backgroundColor: interstedInselect == item ? '#FF4989' : '#fff' }]}>
                         <Text style={interstedInselect == item ? styles.interestedText1 : styles.interestedText2}>{item}</Text>
 
                       </TouchableOpacity>
@@ -880,8 +959,6 @@ return () => interactionPromise.cancel();
 
               <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 10 }}>Filter by</Text>
               <View style={{ width: '100%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
-
-
                 <FlatList
                   horizontal
                   data={filterByStatus}
@@ -890,7 +967,7 @@ return () => interactionPromise.cancel();
                   renderItem={({ item, index }) => {
                     return (
 
-                      <TouchableOpacity onPress={() => { onChangeFilterByStatus(item) }} style={[styles.interestedView1, { width: 100, marginBottom: 1, backgroundColor: filterBySelect == item ? '#FF4989' : '#fff' }]}>
+                      <TouchableOpacity onPress={() => { onChangeFilterByStatus(item) }} style={[styles.interestedView1, { width: 110, marginBottom: 1, backgroundColor: filterBySelect == item ? '#FF4989' : '#fff' }]}>
                         <Text style={filterBySelect == item ? styles.interestedText1 : styles.interestedText2}>{item}</Text>
 
                       </TouchableOpacity>
@@ -900,6 +977,67 @@ return () => interactionPromise.cancel();
                 />
               </View>
 
+
+              <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 20 }}>Smoking</Text>
+              <View style={{ width: '99%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
+
+
+                <FlatList
+                  data={smokingValue}
+                  // showsHorizontalScrollIndicator={false}
+                  horizontal
+                  keyExtractor={item => item.id}
+
+                  renderItem={({ item, index }) => {
+                    return (
+
+                      <TouchableOpacity onPress={() => { onChangeSmoking(item) }} style={[styles.interestedView1, { width: 110, marginBottom: 1, backgroundColor: smokingselect == item ? '#FF4989' : '#fff' }]}>
+                        <Text style={smokingselect == item ? styles.interestedText1 : styles.interestedText2}>{item}</Text>
+
+                      </TouchableOpacity>
+
+                    )
+                  }}
+                />
+              </View>
+
+              <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 20 }}>Drinking</Text>
+              <View style={{ width: '99%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
+                <FlatList
+                  data={drinkingValue}
+                  horizontal
+                  keyExtractor={item => item.id}
+                  renderItem={({ item, index }) => {
+                    return (
+
+                      <TouchableOpacity onPress={() => { onChangeDrinking(item) }} style={[styles.interestedView1, { width: 110, marginBottom: 1, backgroundColor: drinkingselect == item ? '#FF4989' : '#fff' }]}>
+                        <Text style={drinkingselect == item ? styles.interestedText1 : styles.interestedText2}>{item}</Text>
+
+                      </TouchableOpacity>
+
+                    )
+                  }}
+                />
+              </View>
+
+              <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 20 }}>Kid's</Text>
+              <View style={{ width: '99%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
+                <FlatList
+                  data={kidsValue}
+                  horizontal
+                  keyExtractor={item => item.id}
+                  renderItem={({ item, index }) => {
+                    return (
+
+                      <TouchableOpacity onPress={() => { onChangeKids(item) }} style={[styles.interestedView1, { width: 110, marginBottom: 1, backgroundColor: kidsSelect == item ? '#FF4989' : '#fff' }]}>
+                        <Text style={kidsSelect == item ? styles.interestedText1 : styles.interestedText2}>{item}</Text>
+
+                      </TouchableOpacity>
+
+                    )
+                  }}
+                />
+              </View>
 
 
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, marginTop: 15 }}>
@@ -1035,7 +1173,7 @@ return () => interactionPromise.cancel();
               <TouchableOpacity onPress={() => Profilelist()} style={styles.applyButtonStyle}>
                 <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#fff', }}>Apply</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { Profiledatas() }} style={{ marginTop: 20, marginBottom: 50 }}>
+              <TouchableOpacity onPress={() => { Profiledatas(), setShowFilterModal(false) }} style={{ marginTop: 20, marginBottom: 50 }}>
                 <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', alignSelf: 'center' }}>Reset</Text>
               </TouchableOpacity>
             </View>
