@@ -1,5 +1,5 @@
 import React, { useEffect,useState ,useRef,useCallback} from 'react';
-import {View,Image,Text,StyleSheet,TextInput,FlatList,Alert,TouchableOpacity, ScrollView, ImageBackground, Keyboard} from 'react-native';
+import {View,Image,Text,StyleSheet,TextInput,FlatList,Alert,TouchableOpacity, ScrollView, ImageBackground, Keyboard,KeyboardAvoidingView,ActivityIndicator} from 'react-native';
 import HomeHeaderRoundBottom from '../../../component/HomeHeaderRoundBottom';
 import SearchInput2 from '../../../component/SearchInput2';
 import SearchInputEnt from '../../../component/SearchInputEnt';
@@ -10,17 +10,31 @@ import MyButtons from '../../../component/MyButtons';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Modal from 'react-native-modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// import { GiftedChat} from 'react-native-gifted-chat'
+import {  useSelector, useDispatch } from 'react-redux';
+import firestore from '@react-native-firebase/firestore';
+ //third parties
+import moment from 'moment';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import Hyperlink from 'react-native-hyperlink';
 
 const image1 = require('../../../assets/images/people-following-person.png')
 const image2 = require('../../../assets/images/people-sender-image.png')
 
 const DatingChat = (props) => {
-  const [searchValue,setsearchValue]=useState('')
+  const flatListRef = useRef();
+  const user_details  = useSelector(state => state.user.user_details)
+  const [searchValue,setsearchValue]=useState('');
+  const [showLoader, setshowLoader] = useState(false);
+  const [MessagesData, setMessagesData] = useState([]);
+  const [UserId,setuid]=useState('')
+    const [driver_id,setDriverid]=useState('')
   const [messages, setMessages] = useState([]);
   const [scrollEnabled, setScrollEnabled] = useState(false)
   const myTextInput = useRef()
-  const [userMessage, setUserMessage] = useState('')
+  const [userMessage, setUserMessage] = useState('');
+  const [ChatImage, setChatImage] = useState('');
+  const [ChatDocument, setChatDocument] = useState('');
+  const [message, setmessage] = useState('');
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100])
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
   const [upData,setupData]=useState([
@@ -56,52 +70,291 @@ const DatingChat = (props) => {
     },
 
   ])
-  const sendMessage = () => {
-    if(userMessage?.trim()?.length === 0){
-      return
+
+ //function : navigation function
+ const gotoFullImageView = image => {
+  navigation?.navigate(ScreenNames.FULL_IMAGE_VIEW, {image: image});
+};
+const gotoPdfView = image =>
+  navigation.navigate(ScreenNames.VIEW_PDF, {
+    pdfUrl: image,
+    pdfTitle: 'Track Sheet',
+    type: 'PDF',
+  });
+//function : imp function
+const openModal = () => {
+  Keyboard.dismiss();
+  setShowAttachment(true);
+};
+
+//function : service function
+// const getUserDetail = async () => {
+//   try {
+//     const resp = await Server.getApiWithToken(
+//       userToken,
+//       Server.GET_USER_DETAIL,
+//     );
+//     if (resp?.data?.status) {
+//       setUserInfo(resp?.data?.data);
+//     }
+//   } catch (error) {
+//     console.log('error in getUserDetail', error);
+//   }
+// };
+
+// const resetChatCount = async () => {
+//   try {
+//     const data = {
+//       receiver_id: UserId,
+//     };
+//     const resp = await Server.postApiWithToken(
+//       userToken,
+//       Server.READ_MSG,
+//       data,
+//     );
+//     if (resp.data.status) {
+//       dispatch(UserAction.setChatCount(0));
+//     }
+//   } catch (error) {
+//     console.log('error in resetChatCount', error);
+//   }
+// };
+const sendMessage = async () => {
+  if (message == '' && ChatImage == '' && ChatDocument == '') {
+  } else {
+    if (ChatImage == '' && ChatDocument == '') {
+      try {
+        const Data = {
+          userId: driver_id,
+          message: message,
+          createdAt: new Date(),
+        };
+        firestore()
+          .collection('Chat')
+          .doc(docid)
+          .collection('Messages')
+          .add({...Data, createdAt: firestore.FieldValue.serverTimestamp()});
+        const tempMsg = message;
+        setmessage('');
+        try {
+          // const data = {
+          //   receiver_id: UserId,
+          //   msg: tempMsg,
+          // };
+          // await Server.postApiWithToken(userToken, Server.SEND_MSG, data);
+        } catch (error) {
+          console.log('error while api call ', error);
+        }
+      } catch (error) {
+        console.log('error in sendMessage', error);
+      }
+    } else {
+      setshowLoader(true);
+      const formData = new FormData();
+      if (ChatDocument == '') {
+        const imageName = ChatImage.path.slice(
+          ChatImage.path.lastIndexOf('/'),
+          ChatImage.path.length,
+        );
+        formData.append('image', {
+          name: imageName,
+          type: ChatImage.mime,
+          uri: ChatImage.path,
+        });  
+      } 
+      // else {
+      //   let documentPath = ChatDocument.uri;
+      //   const docsName = ChatDocument.name;
+      //   formData.append('image', {
+      //     name: docsName,
+      //     type: ChatDocument.type,
+      //     uri: documentPath,
+      //   });
+      // }
+      // formData.append('receiver_id', UserId);
+      // formData.append('msg', message);
+      // try {
+      //   const resp = await Server.postApiWithToken(
+      //     userToken,
+      //     Server.SEND_MSG,
+      //     formData,
+      //   );
+      //   if (resp.data.status) {
+      //     const Data = {
+      //       userId: driver_id,
+      //       message: message,
+      //       createdAt: new Date(),
+      //       image: resp.data.url,
+      //     };
+      //     firestore()
+      //       .collection('Chat')
+      //       .doc(docid)
+      //       .collection('Messages')
+      //       .add({
+      //         ...Data,
+      //         createdAt: firestore.FieldValue.serverTimestamp(),
+      //       });
+      //     setmessage('');
+      //     setChatImage('');
+      //     setChatDocument('');
+      //     setshowLoader(false);
+      //   }
+      // } catch (error) {
+      //   console.log('error while uploading images ', error);
+      //   setshowLoader(false);
+      // }
     }
-    const lastId = upData?.length
-    setupData([...upData, {
-      id:String(lastId+1),
-      message: userMessage,
-      me: true,
-      time: '6:00 pm'
-    }])
-    Keyboard.dismiss()
-    setUserMessage('')
-   }
-  const multiSliderValuesChange = (values) => {setMultiSliderValue(values)}
+  }
+};
+// function : render function
+const chatRenderFunction = ({item}) => {
+  return (
+    <View
+      key={item.id}
+      style={{
+        marginVertical: 10,
+        alignItems: driver_id == item?.userId ? 'flex-end' : 'flex-start',
+      }}>
+      <View
+        style={{
+          backgroundColor:
+          driver_id == item?.userId ? 'white' : 'lightpink',
+          borderRadius: 10,
+          padding: 10,
+        }}>
+        {/* {item.image ? (
+          <TouchableOpacity
+            onPress={() =>
+              item?.image?.includes('pdf')
+                ? gotoPdfView(item.image)
+                : gotoFullImageView(item.image)
+            }>
+            <Image
+              source={{
+                uri: item?.image?.includes('pdf')
+                  ? pdfImageUrl
+                  :pdfImageUrl //Server.BASE_URL + item.image,
+              }}
+              style={{
+                height: 200,
+                width: 200,
+                borderRadius: 10,
+                resizeMode: 'contain',
+              }}
+            />
+          </TouchableOpacity>
+        ) : null} */}
+        {item?.message ? (
+          <Hyperlink
+            linkStyle={{color: '#0000FF'}}
+            onPress={(url, text) => Linking.openURL(url)}>
+            <Text
+              style={{
+                color:
+                driver_id == item?.userId ? 'black' : 'white',
+                fontWeight:'bold',
+                // fontFamily: Fonts.SEMI_BOLD,
+              }}>
+              {item?.message}
+            </Text>
+          </Hyperlink>
+        ) : null}
+      </View>
+      <View style={{}}>
+        <Text
+          style={{
+            color:
+            driver_id == item?.userId ? 'black' : 'black',
+            fontWeight:'bold',
+            // fontFamily: Fonts.SEMI_BOLD,
+            fontSize: 8,
+            marginHorizontal: 5,
+          }}>
+          {moment(item.createdAt).format('lll')}
+        </Text>
+      </View>
+    </View>
+  );
+};
+const docid =
+driver_id > UserId ? UserId + "-" + driver_id : driver_id + "-" + UserId;
+  //useEffect
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-    ])
-  }, [])
+    console.log("Reciver_id",props.route.params.Reciver_id.userid,user_details.userid);
+    // resetChatCount();
+    var UserId=user_details.userid
+    var driver_id=props.route.params.Reciver_id.userid
+    const docid =
+      driver_id > UserId ? UserId + "-" + driver_id : driver_id + "-" + UserId;
+      setuid(UserId)
+      setDriverid(driver_id)
 
-  const onSend = useCallback((messages = []) => {
-    setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-  }, [])
+    
+const MessageRef = firestore()
+      .collection('Chat')
+      .doc(docid)
+      .collection('Messages')
+      .orderBy('createdAt', 'desc');
+    const unSubscribe = MessageRef.onSnapshot(querySnap => {
+      if (querySnap != null) {
+        const AllMsg = querySnap.docs.map(docSnap => {
+          const data = docSnap.data();
+          if (data.createdAt) {
+            return {
+              ...docSnap.data(),
+              createdAt: docSnap.data().createdAt.toDate(),
+            };
+          } else {
+            return {
+              ...docSnap.data(),
+              createdAt: new Date(),
+            };
+          }
+        });
+        setMessagesData(AllMsg);
+        console.log('====================================');
+        console.log(AllMsg);
+        console.log('====================================');
+      } else {
+        setMessagesData([]);
+      }
+    });
+    // Stop listening for updates when no longer required
+    return () => unSubscribe();
+  }, [driver_id]);
+  //useEffect
+  useEffect(() => {
+    // getUserDetail();
 
+    return () => {};
+  }, []);
 
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      PushNotificationIOS?.checkPermissions(async permissions => {
+        if (!permissions?.badge) {
+          try {
+            await PushNotificationIOS?.requestPermissions();
+          } catch (err) {
+            console.log('error', err);
+          }
+        } else {
+          PushNotificationIOS?.setApplicationIconBadgeNumber(0);
+        }
+      });
+    }
+    return () => {};
+  }, []);
+  
+ // function : render function
+ 
   return(
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <SafeAreaView scrollEnabled={scrollEnabled} style={{backgroundColor:'#fff5f7'}}>
-       {/* <GiftedChat
-      messages={messages}
-      onSend={messages => onSend(messages)}
-      user={{
-        _id: 2,
-      }}
-    /> */}
-      {/* <ScrollView>
-<View style={{flexDirection:'row', alignItems:'center', height:80,padding:20, borderBottomLeftRadius:25, borderBottomRightRadius:25}}>
+      
+    <View style={{flexDirection:'row', alignItems:'center', height:80,padding:20, borderBottomLeftRadius:25, borderBottomRightRadius:25}}>
   <TouchableOpacity onPress={()=>{props.navigation.goBack()}}>
     <Image source={require('../../../assets/images/dating-back-arrow.png')} style={{width:25, height:15}} resizeMode='contain'/>
   </TouchableOpacity>
@@ -109,48 +362,37 @@ const DatingChat = (props) => {
     <Image source={require('../../../assets/images/dating-home-header-left-image.png')} style={{height:40, width:40, borderRadius:20, borderColor:'#e42f5e', borderWidth:2}}/>
   </View>
   
-  <Text style={{fontSize:12.5, fontWeight:'bold', color:'#4a4c52', marginLeft:10}}>Aryav Nadkarni</Text>
+  <Text style={{fontSize:12.5, fontWeight:'bold', color:'#4a4c52', marginLeft:10}}>{props.route.params.Reciver_id.fullname}</Text>
 </View>
+      <ScrollView>
+
 <View style={{width:'90%',alignSelf:'center', marginTop:20}}>
   
 
 <View style={{width:'100%',alignSelf:'center',marginTop:20, backgroundColor:'#fff5f7'}}>
-          <FlatList
-                  data={upData}
-                  showsHorizontalScrollIndicator={false}
-                  numColumns={1}
-                  renderItem={({item,index})=>{
-                    return(
-                      <View style={{width:'100%', marginBottom:20}}>
-                        {item.me ?
-                        <View style={{flexDirection:'row'}}>
-                            <View style={{flex:2.5}}/>
-                            <View style={{flex:5.5}}>
-                            <View style={{backgroundColor: '#e42f5e', marginLeft:10, padding:10, borderRadius:15,}}>
-                                <Text style={styles.rightMessage}>{item.message}</Text>
-                              </View>
-                                <Text style={{fontSize:10, fontWeight:'400', color:'#e42f5e', marginTop:2, textAlign:'right'}}>{item.time}</Text>
-                            </View>
-                        </View>
-                        :
-                        <View style={{flexDirection:'row'}}>
-                            <View style={{flex:5.5}}>
-                            <View style={{marginLeft:10, padding:10, borderRadius:5, borderWidth:0.5, borderColor:'#ffb0ba'}}>
-                                <Text style={styles.leftMessage}>{item.message}</Text>
-                              </View>
-                                <Text style={{fontSize:10, fontWeight:'400', color:'#e42f5e', marginTop:2, textAlign:'right'}}>{item.time}</Text>
-                            </View>
-                            <View style={{flex:2.5}}/>
-                        </View>
-                        }
-                      </View>
-                    )
-                  }}
-                  keyExtractor={item => item.id}
-                />
-         </View>
+{MessagesData.length > 0 ? (
+            <FlatList
+              inverted
+              ref={flatListRef}
+              //onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: false })}
+              //onLayout={() => flatListRef.current.scrollToEnd({ animated: false })}
+              showsVerticalScrollIndicator={false}
+              data={MessagesData}
+              renderItem={chatRenderFunction}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          ) : (
+            <>
+              {/* <Text style={{textAlign: 'center'}}>Say hi to start chat</Text> */}
+              <ActivityIndicator
+                animating={showLoader}
+                size="large"
+                color="#f39322"
+              />
+            </>
+          )}
 
-
+</View>
 
 
 
@@ -158,37 +400,38 @@ const DatingChat = (props) => {
  </View>
 <View style={{height:100}} />
 
-</ScrollView> */}
+</ScrollView>
 
-{/* <View style={styles.addCommentContainer}>
+<View style={styles.addCommentContainer}>
 <View style={styles.addCommentView}>
   <TextInput
-    value={userMessage}
+    value={message}
     onChangeText={(text) => {
-      setUserMessage(text)
+      setmessage(text)
     }}
     placeholder="Type a message"
     placeholderTextColor={'#edc4c4'}
     style={[styles.input, {width:'70%'}]}
     multiline
   />
-    <View style={{flexDirection:'row', alignItems:'center', width:'30%'}}>
-        <TouchableOpacity onPress={sendMessage} style={styles.cameraButtonView}>
+    <View style={{flexDirection:'row', alignItems:'center', width:'30%',justifyContent:'flex-end'}}>
+        {/* <TouchableOpacity onPress={sendMessage} style={styles.cameraButtonView}>
             <Image source={require('../../../assets/images/dating-camera-icon.png')}/>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity onPress={sendMessage} style={styles.sendButtonView}>
             <Image source={require('../../../assets/images/dating-send-icon.png')} style={styles.sendButton} resizeMode='contain'/>
         </TouchableOpacity>
     </View>
   </View>
-  </View> */}
+  </View>
     </SafeAreaView>
+    </KeyboardAvoidingView>
      );
   }
 const styles = StyleSheet.create({
   addCommentContainer:{
     position:'absolute', 
-    bottom:20,
+    bottom:0,
     padding:15,
     backgroundColor:'#fff5f7', 
     alignItems:'center', 

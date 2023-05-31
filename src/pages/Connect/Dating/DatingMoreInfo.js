@@ -100,7 +100,7 @@ const DatingMoreInfo = (props) => {
   const SwipeProfile = async (type) => {
     console.log("SwipeProfile........", profiledata.userid, type);
     // setLoading(true)
-let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting response.'
+    let message = 'Interest sent to ' + profiledata.fullname + ' successfully awaiting response.'
     var data = {
       userid: profiledata.userid,
       swipe_type: type
@@ -111,11 +111,11 @@ let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting
     // console.log('the res==>>homePage', responseJson)
     if (responseJson.headers.success == 1) {
       if (type == "R") {
-        Toast.show({ text2:message  });
+        Toast.show({ text2: message });
         props.navigation.goBack()
 
       } else if (type == "L") {
-       
+
         props.navigation.goBack()
       }
 
@@ -128,13 +128,13 @@ let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting
   }
 
   const ProfilePage = async () => {
-    console.log('the res==>>ProfilePage')
+    console.log('the res==>>DatingMoreInfo', User)
     setLoading(true)
     const { responseJson, err } = await requestGetApi(connect_dating_profile, '', 'GET', User.token)
     setLoading(false)
-    console.log('the res==>>ProfilePage', responseJson)
+    console.log('the res==>>DatingMoreInfo', responseJson)
     if (responseJson.headers.success == 1) {
-      console.log('the res==>>ProfilePage', responseJson.body)
+      console.log('the res==>>DatingMoreInfo', responseJson.body)
       setProfileData(responseJson.body)
     } else {
       setalert_sms(err)
@@ -198,9 +198,15 @@ let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting
                 {/* <Text style={{fontSize:10, color:'#e10f51', marginTop:5}}>@marry</Text> */}
                 <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{profiledata.job_title}</Text>
               </View>
-              <TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: profiledata }) }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
-                <Image source={require('../../../assets/images/dating-home-header-right-image.png')} style={{ width: 20, height: 20 }} />
-              </TouchableOpacity>
+              {
+                profiledata.userid != User.userid ?
+                  (<TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: profiledata }) }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
+                    <Image source={require('../../../assets/images/dating-home-header-right-image.png')} style={{ width: 20, height: 20 }} />
+                  </TouchableOpacity>)
+                  :
+                  null
+              }
+
 
             </View>
             <View style={{ marginTop: 20 }} />
@@ -387,18 +393,24 @@ let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting
 
 
             </View>
+            {
 
-            <View style={styles.buttonsRow}>
-              <TouchableOpacity onPress={() => { SwipeProfile('L') }} style={styles.buttonViewOne}>
-                <Image source={require('../../../assets/images/dating-more-info-reject.png')} style={{ width: 20, height: 20, top: 0, }} resizeMode='contain' />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { SwipeProfile('R') }} style={styles.buttonViewTwo}>
-                <Image source={require('../../../assets/images/dating-more-info-heart.png')} style={{ width: 40, height: 40, top: 0, }} resizeMode='contain' />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { }} style={styles.buttonViewOne}>
-                <Image source={require('../../../assets/images/dating-yellow-star.png')} style={{ width: 20, height: 20, top: 0, }} resizeMode='contain' />
-              </TouchableOpacity>
-            </View>
+              profiledata.userid != User.userid ?
+                (<View style={styles.buttonsRow}>
+                  <TouchableOpacity onPress={() => { SwipeProfile('L') }} style={styles.buttonViewOne}>
+                    <Image source={require('../../../assets/images/dating-more-info-reject.png')} style={{ width: 20, height: 20, top: 0, }} resizeMode='contain' />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => { SwipeProfile('R') }} style={styles.buttonViewTwo}>
+                    <Image source={require('../../../assets/images/dating-more-info-heart.png')} style={{ width: 40, height: 40, top: 0, }} resizeMode='contain' />
+                  </TouchableOpacity>
+                  {/* <TouchableOpacity onPress={() => { }} style={styles.buttonViewOne}>
+                    <Image source={require('../../../assets/images/dating-yellow-star.png')} style={{ width: 20, height: 20, top: 0, }} resizeMode='contain' />
+                  </TouchableOpacity> */}
+                </View>)
+                :
+                null
+            }
+
 
 
           </View>

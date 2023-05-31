@@ -86,29 +86,13 @@ const DatingYourMatches = (props) => {
   const GetSwipeProfile = async () => {
     console.log("SwipeProfile........",User.token );
     setLoading(true)
-    // let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting response.'
-    // var data = {
-    //   userid: profiledata.userid,
-    //   swipe_type: type
-    // }
-    
     const { responseJson, err } = await requestGetApi(connect_dating_swipe_profile, '', 'GET', User.token)
     setLoading(false)
     console.log('the res==>>GetSwipeProfile', responseJson)
     if (responseJson.headers.success == 1) {
       setmatchesprofile(responseJson?.body?.data)
-      // if (type == "R") {
-      //   Toast.show({ text2:message  });
-      //   props.navigation.goBack()
-
-      // } else if (type == "L") {
-
-      //   props.navigation.goBack()
-      // }
- 
-
     } else {
-      setalert_sms(err)
+      setalert_sms(responseJson.headers.message)
       setMy_Alert(true)
     }
   }
@@ -117,25 +101,20 @@ const DatingYourMatches = (props) => {
     setLoading(true)
     // let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting response.'
     var data = {
-      swipe_status: t  // Accepted, Rejected, Pending
+      swipe_status: t  // Accepted, Rejected,
     } 
     const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile_id_delete, data, 'PUT', User.token)
     setLoading(false)
     console.log('the res==>>GetSwipeProfile', responseJson)
     if (responseJson.headers.success == 1) {
-      setmatchesprofile(responseJson?.body?.data)
-      // if (type == "R") {
-      //   Toast.show({ text2:message  });
-      //   props.navigation.goBack()
+      
+     
+        props.navigation.goBack()
 
-      // } else if (type == "L") {
-
-      //   props.navigation.goBack()
-      // }
- 
+      
 
     } else {
-      setalert_sms(err)
+      setalert_sms(responseJson.headers.message)
       setMy_Alert(true)
     }
   }
@@ -165,7 +144,7 @@ const DatingYourMatches = (props) => {
               data={matchesprofile}
               showsHorizontalScrollIndicator={false}
               numColumns={2}
-              style={{ alignSelf: 'center' }}
+              // style={{  }}
               keyExtractor={item => item.id}
               renderItem={({ item, index }) => {
                 return (

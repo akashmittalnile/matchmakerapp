@@ -1,43 +1,26 @@
 {
   "project_info": {
-    "project_number": "984454687422",
-    "project_id": "kiningo-8df4e",
-    "storage_bucket": "kiningo-8df4e.appspot.com"
+    "project_number": "268123344964",
+    "project_id": "matchmakingapp-8f8b5",
+    "storage_bucket": "matchmakingapp-8f8b5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:984454687422:android:36b2630481afd12c7e8cef",
+        "mobilesdk_app_id": "1:268123344964:android:99ceaa2a91bf57e1e5ec11",
         "android_client_info": {
           "package_name": "com.kinengo"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "984454687422-9ni133o7fu229fn2cg66f44tq9mlb0n1.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBu1ZBVUsXdk8yBZnFixzMGIgVAhl15rNY"
+          "current_key": "AIzaSyAWnTfxvDK2LNYacCjsWV3CiCELq4CMSQg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "984454687422-9ni133o7fu229fn2cg66f44tq9mlb0n1.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "984454687422-ccp3mdo0gn3gro8crmf7phlimrbr5hmk.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "org.reactjs.native.example.KinenGo"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

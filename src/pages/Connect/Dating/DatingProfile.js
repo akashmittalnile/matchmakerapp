@@ -58,6 +58,7 @@ const DatingProfile = (props) => {
   const [searchValue, setsearchValue] = useState("");
   const [scrollEnabled, setScrollEnabled] = useState(false);
   const myTextInput = useRef();
+  const dispatch = useDispatch();
   const [userMessage, setUserMessage] = useState("");
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100]);
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false);
@@ -177,7 +178,7 @@ const DatingProfile = (props) => {
                 source={require("../../../assets/images/dating-edit-profile-top-image.png")}
                 style={{ width: "100%", height: 220 }}
               ><TouchableOpacity onPress={() =>
-                props.navigation.navigate("DatingMoreInfo",{from:'DatingProfile'})
+                props.navigation.navigate("DatingMoreInfo", { from: 'DatingProfile' })
               }>
                   <Image
                     source={require("../../../assets/images/dating-message-image.png")}

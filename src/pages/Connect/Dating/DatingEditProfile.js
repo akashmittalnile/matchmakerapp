@@ -20,9 +20,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import DropDownPicker from 'react-native-dropdown-picker';
 import RNPickerSelect from 'react-native-picker-select';
 import ValuePicker from "rn-value-picker";
-const image1 = require('../../../assets/images/people-following-person.png')
-const onlinePersonImageWidth = 50
-const onlineDotWidth = 12
+import Draggable from 'react-native-draggable';
+import DragSortableView  from 'react-native-drag-sort'
+// const image1 = require('../../../assets/images/people-following-person.png')
+// const onlinePersonImageWidth = 50
+// const onlineDotWidth = 12
 
 const DatingEditProfile = (props) => {
   const User = useSelector(state => state.user.user_details)
@@ -191,7 +193,7 @@ const DatingEditProfile = (props) => {
     ImagePicker.launchImageLibrary(
       {
         mediaType: 'photo',
-        selectionLimit: 5,
+        selectionLimit: 1,
         quality: 1,
         includeBase64: false,
         multiple: true
@@ -211,11 +213,24 @@ const DatingEditProfile = (props) => {
 
   const renderImages = () => {
     return images.map((image, index) => (
-      <View style={{   }}>
-        <Image key={index} source={image} style={{ width: 200, height: 100,borderRadius:10 }} />
-        <View style={styles.plusIconView}>
-          <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+      <View style={{ marginBottom: 8, width: 200, height: 100 }} >
+
+
+        {/* <Draggable x={30} y={0}   
+            renderSize={80}  
+            onLongPress={()=>console.log('long press')}
+            onShortPressRelease={()=>console.log('press drag')}
+            onPressIn={()=>console.log('in press')}
+            onPressOut={()=>console.log('out press')} >
+              </Draggable> */}
+        <View style={{ marginRight: 5, }}>
+
+          <Image key={index} source={image} style={{ width: 160, height: 100, borderRadius: 10 }} />
+          <TouchableOpacity style={styles.deleteIconView}>
+            <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+          </TouchableOpacity>
         </View>
+
       </View>
     ));
   };
@@ -688,7 +703,31 @@ const DatingEditProfile = (props) => {
                     </TouchableOpacity>
                   )
               } */}
-              <View style={{ flexDirection: 'row' }}>{renderImages()}</View>
+              <View style={{ justifyContent: "flex-start", alignItems: 'center', width: 180,height:images == '' ? 100 : 'auto' }}>{renderImages()}</View>
+
+              {/* <DragSortableView
+                dataSource={images}
+                childrenWidth= {"50%"}
+                childrenHeight={'20%'}
+                keyExtractor={(item, index) => item.id}
+                renderItem={({ item, index }) => {
+                  console.log('==item==================================');
+                  console.log(item);
+                  console.log('=========item===========================');
+                  return (
+                    <View style={{ marginBottom: 8, width: 200, height: 100 }} >
+                      <View style={{ marginRight: 5, }}>
+
+                        <Image key={index} source={item} style={{ width: 160, height: 100, borderRadius: 10 }} />
+                        <TouchableOpacity style={styles.deleteIconView}>
+                          <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                        </TouchableOpacity>
+                      </View>
+
+                    </View>
+                  )
+                }}
+              /> */}
 
               <TouchableOpacity onPress={() => selectImages()} style={styles.plusIconSuperView}>
                 <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
@@ -2028,7 +2067,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ff001e',
     position: 'absolute',
     top: -5,
-    left: 80
+    left: 0
   },
   plusIconView: {
     justifyContent: 'center',
@@ -2039,19 +2078,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#ff3b7f',
     position: 'absolute',
     bottom: -10,
-    left: 40
+    left: 65
   },
   deleteIcon: {
     width: 10,
     height: 10
   },
   plusIconSuperView: {
+    position: 'absolute',
+    right: 0,
+    top: 6,
     marginLeft: 20,
     backgroundColor: '#fde7eb',
     justifyContent: 'center',
     alignItems: 'center',
     height: 100,
-    width: 100,
+    width: 160,
     borderRadius: 10
   }
 });

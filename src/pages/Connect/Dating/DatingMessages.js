@@ -69,7 +69,7 @@ const DatingMessages = (props) => {
 </View>
 <View style={{width:'90%',alignSelf:'center', marginTop:20}}>
   
-{/* <View style={{width:'100%',alignSelf:'center',marginTop:20, backgroundColor:'#fff5f7'}}>
+<View style={{width:'100%',alignSelf:'center',marginTop:20, backgroundColor:'#fff5f7'}}>
           <FlatList
                   data={upData}
                   showsHorizontalScrollIndicator={false}
@@ -101,7 +101,7 @@ const DatingMessages = (props) => {
                   }}
                   keyExtractor={item => item.id}
                 />
-         </View> */}
+         </View>
 
 
 
