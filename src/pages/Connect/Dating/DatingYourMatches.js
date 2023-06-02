@@ -107,13 +107,8 @@ const DatingYourMatches = (props) => {
     setLoading(false)
     console.log('the res==>>GetSwipeProfile', responseJson)
     if (responseJson.headers.success == 1) {
-      
-     
-        props.navigation.goBack()
-
-      
-
-    } else {
+      props.navigation.goBack()
+} else {
       setalert_sms(responseJson.headers.message)
       setMy_Alert(true)
     }

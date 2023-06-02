@@ -15,13 +15,14 @@ import MyAlert from '../../../component/MyAlert';
 import Toast from 'react-native-toast-message';
 import Loader from '../../../WebApi/Loader';
 import LinearGradient from 'react-native-linear-gradient';
-import { baseUrl, login, shop_eat_business, requestPostApi, requestGetApi, connect_dating_profile, connect_dating_editprofile, common_master_attributes, connect_dating_profile_image_get, } from '../../../WebApi/Service'
+import { baseUrl, login, shop_eat_business, requestPostApi, requestGetApi, connect_dating_profile, connect_dating_editprofile, common_master_attributes, connect_dating_profile_image_get, connect_dating_delete_profile_image, } from '../../../WebApi/Service'
 import { useSelector, useDispatch } from 'react-redux';
 import DropDownPicker from 'react-native-dropdown-picker';
 import RNPickerSelect from 'react-native-picker-select';
 import ValuePicker from "rn-value-picker";
 import Draggable from 'react-native-draggable';
-import DragSortableView  from 'react-native-drag-sort'
+import SortableList from "react-native-sortable-list";
+import DragSortableView from 'react-native-drag-sort'
 // const image1 = require('../../../assets/images/people-following-person.png')
 // const onlinePersonImageWidth = 50
 // const onlineDotWidth = 12
@@ -102,12 +103,13 @@ const DatingEditProfile = (props) => {
   const [pick, setpick] = useState('')
   const [aboutme, setAboutMe] = useState('');
   const [images, setImages] = useState([]);
-
+  const [allimages, setAllImages] = useState([]);
+  const[firstimagevalue,setFirstimagevalue]=useState('');
   const [multiSliderValue, setMultiSliderValue] = useState([18, 24])
   // const [slidervalue,setSLiderValue]=useState('');
-  console.log('slidervalue====================================');
-  console.log(multiSliderValue[1]);
-  console.log('====================================slidervalue');
+  // console.log('slidervalue====================================');
+  // console.log(multiSliderValue[1]);
+  // console.log('====================================slidervalue');
   const [showPassionsModal, setShowPassionsModal] = useState(false);
   const [showPassionsModal2, setShowPassionsModal2] = useState(false);
   const [showPassionsModal3, setShowPassionsModal3] = useState(false);
@@ -187,7 +189,14 @@ const DatingEditProfile = (props) => {
       img: require('../../../assets/images/dating-message-image.png'),
     },
   ])
-
+  useEffect(() => {
+ 
+    const unsubscribe = props.navigation.addListener('focus', () => {
+      GetProfileImages()
+      // requestCameraPermission()
+    })
+    return unsubscribe;
+  }, []);
 
   const selectImages = () => {
     ImagePicker.launchImageLibrary(
@@ -205,34 +214,134 @@ const DatingEditProfile = (props) => {
           console.log('ImagePicker Error: ', response.error);
         } else {
           const selectedImages = response.assets.map(asset => ({ uri: asset.uri }));
+
+
           setImages(prevImages => [...prevImages, ...selectedImages]);
         }
       }
     );
   };
 
+  
+  // const index = myArray.indexOf(2);
+
+  // const x = myArray.splice(index, 1);
+
+  // const selectedimagedelete = (index) => {
+  //   console.log(index);
+
+  //   setLoading(true)
+  //   var abc = images.indexOf(index);
+
+  //   const x = images.splice(abc, 1);
+  //   console.log('=====selectedimagedelete===============================');
+  //   console.log(x);
+  //   console.log('====================================');
+  //   setImages(x);
+
+  //   setLoading(false)
+
+  // }
+
+  const data = [
+    {
+      id: "1",
+      text: "Item 1",
+      image:
+        "https://cdn.britannica.com/49/182849-050-4C7FE34F/scene-Iron-Man.jpg",
+    },
+    {
+      id: "2",
+      text: "Item 2",
+      image:
+        "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-1500w,f_auto,q_auto:best/MSNBC/Components/Photo/_new/100506-ironman2-hmed.jpg",
+    },
+    {
+      id: "3",
+      text: "Item 3",
+      image:
+        "https://bgr.com/wp-content/uploads/2019/11/avengers-endgame-iron-man-gauntlet.jpg?quality=82&strip=all&resize=1400,1400",
+    },
+    {
+      id: "4",
+      text: "Item 1",
+      image:
+        "https://cdn.britannica.com/49/182849-050-4C7FE34F/scene-Iron-Man.jpg",
+    },
+    {
+      id: "5",
+      text: "Item 2",
+      image:
+        "https://media-cldnry.s-nbcnews.com/image/upload/t_fit-1500w,f_auto,q_auto:best/MSNBC/Components/Photo/_new/100506-ironman2-hmed.jpg",
+    },
+  ];
+
+  const onReleaseRow = (keyOrder) => {
+
+    // keyOrder is an array containing the updated order of the item keys
+    const { data } = data
+    const newData = keyOrder.map((key) => data.find((item) => item.id === key));
+    this.setState({ data: newData });
+
+  }
+
   const renderImages = () => {
-    return images.map((image, index) => (
-      <View style={{ marginBottom: 8, width: 200, height: 100 }} >
+    // console.log("renderImages", images);
+    return (
+      <View style={{ width: 200, height: 'auto', padding: 6, flexDirection: 'row' }}>
+        <SortableList
+          showsHorizontalScrollIndicator={false}
+          data={images}
+          horizontal
+          style={{ height: 110, width: dimensions.SCREEN_WIDTH * 0.88 }}
 
+          renderRow={({ data, index }) => (
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ marginBottom: 8, width: 200, height: 100, paddingTop: 5, paddingRight: 20 }} >
+                <Image key={index} source={{ uri: `${data.uri}` }} style={{ width: 180, height: 100, borderRadius: 10 }} />
+                <TouchableOpacity onPress={() => { selectedimagedelete(index) }} style={styles.deleteIconView}>
+                  <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                </TouchableOpacity>
+              </View>
 
-        {/* <Draggable x={30} y={0}   
-            renderSize={80}  
-            onLongPress={()=>console.log('long press')}
-            onShortPressRelease={()=>console.log('press drag')}
-            onPressIn={()=>console.log('in press')}
-            onPressOut={()=>console.log('out press')} >
-              </Draggable> */}
-        <View style={{ marginRight: 5, }}>
+            </View>
+          )}
+          virtualizedListProps={{
+            // Provide additional props for the VirtualizedList component
+            initialNumToRender: 6, // Number of items to render initially
+            maxToRenderPerBatch: 6, // Number of items to render per batch
+            windowSize: 10, // Number of items to keep in memory
+            getItemLayout: (data, index) => ({
+              length: 100, // Height of each item
+              offset: 100 * index,
+              index,
+            }),
+          }}
 
-          <Image key={index} source={image} style={{ width: 160, height: 100, borderRadius: 10 }} />
-          <TouchableOpacity style={styles.deleteIconView}>
-            <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
-          </TouchableOpacity>
-        </View>
+        />
 
       </View>
-    ));
+
+    )
+
+
+    // return images.map((image, index) => (
+    //   <>
+
+    //   <View style={{ marginBottom: 8, width: 200, height: 100 }} >
+
+    //    <View style={{ marginRight: 5, }}>
+
+    //       <Image key={index} source={image} style={{ width: 160, height: 100, borderRadius: 10 }} />
+    //       <TouchableOpacity onPress={() => { selectedimagedelete(index) }} style={styles.deleteIconView}>
+    //         <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+    //       </TouchableOpacity>
+    //     </View>
+
+    //   </View>
+
+    //   </>
+    // ));
   };
 
   // const changeShowMeValue = (index) => {
@@ -312,7 +421,7 @@ const DatingEditProfile = (props) => {
   // }
 
   const changeSelectedPassions = (value) => {
-    console.log("changeSelectedPassions", value);
+    // console.log("changeSelectedPassions", value);
 
     const isarray = selectedPassions.some(el => el.id == value.id)
     if (isarray) {
@@ -378,21 +487,68 @@ const DatingEditProfile = (props) => {
     setPoliticsSelect(index)
   }
   const multiSliderValuesChange = (values) => {
-    console.log("MultiSlider:::", values);
+    // console.log("MultiSlider:::", values);
     setMultiSliderValue(values)
   }
+  const openLibrary1 = async () => {
 
+    let options = {
+      title: 'Image Picker',
+      mediaType: 'photo',
+      selectionLimit: 1,
+      quality: 1,
+      includeBase64: false,
+      multiple: false,
+      
+      storageOptions: {
+        skipBackup: true,
+        path: 'images'
+      },
+      durationLimit: 30,
+      title: 'Select Profile Image',
+      customButtons: [
+        {
+          name: 'customOptionKey',
+          title: 'Choose Photo from Custom Option'
+        },
+      ],
+      maxWidth: 500,
+      maxHeight: 500,
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+
+    await launchImageLibrary(options, (image) => {
+      if (!image.didCancel) {
+        console.log('the ddd==', image.assets[0].uri)
+        var photo = {
+          uri: image.assets[0].uri,
+          type: image.assets[0].type,
+          name: image.assets[0].fileName
+        };
+        console.log("image", photo);
+       
+        setpick(photo)
+        setfilepath(image)
+       
+        Createpost()
+      }
+    })
+
+
+  }
 
   const openLibrary = async () => {
 
     let options = {
       title: 'Image Picker',
-
       mediaType: 'photo',
-      selectionLimit: 5,
+      // selectionLimit: 1,
       quality: 1,
       includeBase64: false,
-      multiple: true,
+      multiple: false,
       // mediaType: 'mixed',
       storageOptions: {
         skipBackup: true,
@@ -414,7 +570,7 @@ const DatingEditProfile = (props) => {
       },
     };
 
-    launchImageLibrary(options, (image) => {
+    await launchImageLibrary(options, (image) => {
       if (!image.didCancel) {
         console.log('the ddd==', image.assets[0].uri)
         var photo = {
@@ -422,10 +578,11 @@ const DatingEditProfile = (props) => {
           type: image.assets[0].type,
           name: image.assets[0].fileName
         };
-        console.log("image", photo);
-        setImages(photo)
+        console.log("launchImageLibraryimage", photo);
+        // setImages(photo)
         setpick(photo)
         setfilepath(image)
+        Createpost()
       }
     })
 
@@ -498,7 +655,7 @@ const DatingEditProfile = (props) => {
           type: image.assets[0].type,
           name: image.assets[0].fileName
         };
-        console.log("imageCamera", photo);
+        // console.log("imageCamera", photo);
         setpick(photo)
         setfilepath(image)
       }
@@ -518,9 +675,9 @@ const DatingEditProfile = (props) => {
       User.token
     );
     setLoading(false);
-    console.log("the res==>>GetPassionAttributes", responseJson);
+    // console.log("the res==>>GetPassionAttributes", responseJson);
     if (responseJson.headers.success == 1) {
-      console.log("the res==>>GetPassionAttributes", responseJson.body);
+      // console.log("the res==>>GetPassionAttributes", responseJson.body);
       setAttribute(responseJson.body);
 
     } else {
@@ -540,9 +697,9 @@ const DatingEditProfile = (props) => {
       User.token
     );
     setLoading(false);
-    console.log("the res==>>GetLanguageAttributes", responseJson);
+    // console.log("the res==>>GetLanguageAttributes", responseJson);
     if (responseJson.headers.success == 1) {
-      console.log("the res==>>GetLanguageAttributes", responseJson.body);
+      // console.log("the res==>>GetLanguageAttributes", responseJson.body);
       setAttribute1(responseJson.body);
     } else {
       setalert_sms(err);
@@ -558,7 +715,7 @@ const DatingEditProfile = (props) => {
     var passiondata = selectedPassions?.map(el => attribute.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
 
     var languagedata = selectedLanguage?.map(el => attribute1.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
-    console.log("EditprofileDATA::", myHeight);
+    // console.log("EditprofileDATA::", myHeight);
     // setLoading(true)
 
     var data = {
@@ -583,10 +740,10 @@ const DatingEditProfile = (props) => {
       passions: passiondata,
       languages: languagedata
     }
-    console.log("SAVEDATA:", data);
+    // console.log("SAVEDATA:", data);
     const { responseJson, err } = await requestPostApi(connect_dating_editprofile, data, 'PUT', User.token)
     setLoading(false)
-    console.log('the Editprofileres==>>', responseJson)
+    // console.log('the Editprofileres==>>', responseJson)
     if (responseJson.headers.success == 1) {
       //  Toast.show(responseJson.headers.message)
       Toast.show({ text1: responseJson.headers.message });
@@ -610,10 +767,10 @@ const DatingEditProfile = (props) => {
       User.token
     );
     setLoading(false);
-    console.log("the res==>>GetLanguageAttributes", responseJson);
+    // console.log("the res==>>GetProfileImages", responseJson);
     if (responseJson.headers.success == 1) {
-      console.log("the res==>>GetLanguageAttributes", responseJson.body);
-      setImagsGet(responseJson.body);
+      // console.log("the res==>>GetProfileImages", responseJson.body);
+      setAllImages(responseJson.body);
     } else {
       setalert_sms(err);
       setMy_Alert(true);
@@ -622,9 +779,17 @@ const DatingEditProfile = (props) => {
   };
 
   const Createpost = async () => {
-    console.log("pick UPLOAD", pick);
+    setLoading(true);
+    console.log("pick UPLOAD:", firstimagevalue);
+    
+   
     const formData = new FormData();
     formData.append('image', pick);
+    formData.append('attribute_code',firstimagevalue)
+  
+    console.log('=formData===================================');
+    console.log(formData);
+    console.log('===formData=================================');
     const headers = {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${User.token}`,
@@ -633,16 +798,17 @@ const DatingEditProfile = (props) => {
 
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: 'PUT',
         headers,
         body: formData,
       });
-
+      setLoading(false);
       const responseJson = await response.json();
-      console.log(responseJson, 'my response');
+      // console.log(responseJson, 'my response');
       if (responseJson.headers.success == 1) {
-        props.navigation.goBack('')
+        // props.navigation.goBack('')
         Toast.show({ text1: responseJson.headers.message });
+        GetProfileImages()
       } else {
 
         setalert_sms(err)
@@ -655,6 +821,30 @@ const DatingEditProfile = (props) => {
     }
 
   }
+
+  const DeleteProfileImages = async (id) => {
+    // console.log("DeleteProfileImages=>", id);
+    setLoading(true);
+
+    const { responseJson, err } = await requestPostApi(
+      connect_dating_delete_profile_image + id,
+      "",
+      "DELETE",
+      User.token
+    );
+    setLoading(false);
+    // console.log("the res==>>DeleteProfileImages=>", responseJson);
+    if (responseJson.headers.success == 1) {
+      GetProfileImages()
+      // console.log("the res==>>GetProfileImages", responseJson.body);
+
+    } else {
+      setalert_sms(err);
+      setMy_Alert(true);
+    }
+
+  };
+
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ flex: 1, }}>
       <LinearGradient
@@ -664,20 +854,266 @@ const DatingEditProfile = (props) => {
         locations={[0, 0.7, 0.9]}
         style={{ flex: 1, height: dimensions.SCREEN_HEIGHT, }}
       >
-        <ScrollView>
-          <View style={{ flexDirection: 'row', alignItems: 'center', height: 80, padding: 20, }}>
-            <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ flex: 1 }}>
-              <Image source={require('../../../assets/images/dating-back-arrow.png')} style={{ width: 25, height: 15 }} resizeMode='contain' />
-            </TouchableOpacity>
-            <View style={{ flex: 3, flexDirection: 'row', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 12.5, fontWeight: '600', color: '#31313f' }}>Edit Profile</Text>
-            </View>
-            <View style={{ flex: 1 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', height: 80, padding: 20, }}>
+          <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ flex: 1 }}>
+            <Image source={require('../../../assets/images/dating-back-arrow.png')} style={{ width: 25, height: 15 }} resizeMode='contain' />
+          </TouchableOpacity>
+          <View style={{ flex: 3, flexDirection: 'row', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 12.5, fontWeight: '600', color: '#31313f' }}>Edit Profile</Text>
           </View>
-          <View style={{ width: '90%', alignSelf: 'center', marginTop: 20 }}>
+          <View style={{ flex: 1 }} />
+        </View>
+        <ScrollView>
+          <View style={{ width: '90%', alignSelf: 'center', marginTop: 0 }}>
+
 
             <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', marginBottom: 10 }}>Edit Profile Photo</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ alignItems: 'flex-start', justifyContent: 'flex-start' }}>
+              <View style={{ alignItems: 'flex-start', justifyContent: 'flex-start', flexDirection: "row", }}>
+                {
+                  allimages.length > 0 && allimages[0].image != null && allimages[0].attribute_code == 'image1' ?
+                    (
+                      <TouchableOpacity onPress={() =>{ setFirstimagevalue("image1") 
+                        openLibrary1() }} style={{ marginBottom: 1, height: 280,  width: '62%', marginLeft: 6, }} >
+                        <Image resizeMode='cover' source={{ uri: `${allimages[0].image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+                        {/* <TouchableOpacity onPress={() => {
+                          //  DeleteProfileImages(allimages[0]?.id)
+                           }} style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          width: 30,
+                          height: 30,
+                          borderRadius: 50 / 2,
+                          backgroundColor: '#ff001e',
+                          position: 'absolute',
+                          top: -1,
+                          right: 0
+                        }}>
+                          <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                        </TouchableOpacity> */}
+                      </TouchableOpacity>
+
+                    )
+                    :
+                    (<TouchableOpacity onPress={() =>{ setFirstimagevalue("image1") 
+                      openLibrary1() }} style={{
+                      marginLeft: 6,
+                      backgroundColor: '#fde7eb',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: 280,
+                      width: '62%',
+                      borderRadius: 10
+                    }}>
+                      <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                      <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: 30,
+                        height: 30,
+                        borderRadius: 50 / 2,
+                        backgroundColor: '#ff3b7f',
+                        position: 'absolute',
+                        bottom: -10,
+                        left: 99
+                      }}>
+                        <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                      </View>
+                    </TouchableOpacity>)
+                }
+                <View style={{ flexDirection: 'column', width: '34%', }}>
+                  {
+                    allimages?.length > 0 && allimages[1].image != null ?
+                      (
+                        <View style={{ marginBottom: 1, height: 139,  width: '100%', marginLeft: 6, }} >
+                          <Image resizeMode='cover' source={{ uri: `${allimages[1]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+                          <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[1]?.id) }} style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: 30,
+                            height: 30,
+                            borderRadius: 50 / 2,
+                            backgroundColor: '#ff001e',
+                            position: 'absolute',
+                            top: -1,
+                            right: 0
+                          }}>
+                            <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                          </TouchableOpacity>
+                        </View>)
+                      :
+                      (<TouchableOpacity onPress={() => {setFirstimagevalue("image2")
+                      requestCameraPermission()}} style={{
+                        marginLeft: 6,
+                        backgroundColor: '#fde7eb',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: 133,
+                        width: '100%',
+                        borderRadius: 10,marginBottom:10,top:-2
+                      }}>
+                        <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                        <View style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          width: 30,
+                          height: 30,
+                          borderRadius: 50 / 2,
+                          backgroundColor: '#ff3b7f',
+                          position: 'absolute',
+                          bottom: -10,
+                          left: 50
+                        }}>
+                          <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                        </View>
+                      </TouchableOpacity>)
+                  }
+                  {
+                    allimages?.length > 0 && allimages[2].image != null?
+                      (
+                        <View style={{  height: 138,width: '100%', marginLeft: 6,marginTop:4 }} >
+                          <Image resizeMode='cover' source={{ uri: `${allimages[2]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+                          <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[2]?.id) }} style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: 30,
+                            height: 30,
+                            borderRadius: 50 / 2,
+                            backgroundColor: '#ff001e',
+                            position: 'absolute',
+                            top: -1,
+                            right: 0
+                          }}>
+                            <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                          </TouchableOpacity>
+                        </View>)
+                      :
+                      (<TouchableOpacity onPress={() =>{setFirstimagevalue("image3")
+                      requestCameraPermission()
+                        }} style={{
+                        marginLeft: 6,
+                        backgroundColor: '#fde7eb',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: 134,
+                        width: '100%',
+                        borderRadius: 10,
+                        marginTop: 6
+                      }}>
+                        <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                        <View style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          width: 30,
+                          height: 30,
+                          borderRadius: 50 / 2,
+                          backgroundColor: '#ff3b7f',
+                          position: 'absolute',
+                          bottom: -10,
+                          left: 50
+                        }}>
+                          <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                        </View>
+                      </TouchableOpacity>)
+                  }
+                </View>
+
+              </View>
+              <View style={{ alignItems: 'flex-start', justifyContent: 'flex-start', flexDirection: "row", marginTop: 0 }}>
+                {allimages?.length > 0 && allimages[3].image != null ?
+                  (
+                    <View style={{ marginBottom: 1,marginTop: 7, height: 133,   width: '62%', marginLeft: 6, }} >
+                      <Image resizeMode='cover' source={{ uri: `${allimages[3]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+                      <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[3]?.id) }} style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: 30,
+                        height: 30,
+                        borderRadius: 50 / 2,
+                        backgroundColor: '#ff001e',
+                        position: 'absolute',
+                        top: -1,
+                        right: 0
+                      }}>
+                        <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                      </TouchableOpacity>
+                    </View>)
+                  :
+                  (<TouchableOpacity onPress={() =>{setFirstimagevalue("image4") 
+                  requestCameraPermission()}} style={{
+                    marginTop: 12,
+                    marginLeft: 6,
+                    backgroundColor: '#fde7eb',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 133,
+                    width: '62%',
+                    borderRadius: 10
+                  }}>
+                    <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                    <View style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: 30,
+                      height: 30,
+                      borderRadius: 50 / 2,
+                      backgroundColor: '#ff3b7f',
+                      position: 'absolute',
+                      bottom: -10,
+                      left: 99
+                    }}>
+                      <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                    </View>
+                  </TouchableOpacity>)
+                }
+                {
+                  allimages?.length > 0 && allimages[4].image != null ?
+                    (
+                      <View style={{  height: 133,   width: '34%', marginLeft: 6,marginTop:7 }} >
+                        <Image resizeMode='cover' source={{ uri: `${allimages[4]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+                        <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[4]?.id) }} style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          width: 30,
+                          height: 30,
+                          borderRadius: 50 / 2,
+                          backgroundColor: '#ff001e',
+                          position: 'absolute',
+                          top: -1,
+                          right: 0
+                        }}>
+                          <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                        </TouchableOpacity>
+                      </View>)
+                    :
+                    (<TouchableOpacity onPress={() => {setFirstimagevalue("image5")
+                    requestCameraPermission()}} style={{
+                      marginTop: 12,
+                      marginLeft: 6,
+                      backgroundColor: '#fde7eb',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: 133,
+                      width: '34%',
+                      borderRadius: 10
+                    }}>
+                      <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                      <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: 30,
+                        height: 30,
+                        borderRadius: 50 / 2,
+                        backgroundColor: '#ff3b7f',
+                        position: 'absolute',
+                        bottom: -10,
+                        left: 48
+                      }}>
+                        <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                      </View>
+                    </TouchableOpacity>)
+                }
+              </View>
               {/* <View>
                 <Image source={require('../../../assets/images/dating-message-image.png')} style={{ width: 100, height: 100, borderRadius: 2 }} resizeMode='contain' />
                 <View style={styles.deleteIconView}>
@@ -703,7 +1139,46 @@ const DatingEditProfile = (props) => {
                     </TouchableOpacity>
                   )
               } */}
-              <View style={{ justifyContent: "flex-start", alignItems: 'center', width: 180,height:images == '' ? 100 : 'auto' }}>{renderImages()}</View>
+
+              {/* {
+             allimages.length  > 0 ?
+
+                (<FlatList
+                vertical
+                  data={allimages}
+                  showsHorizontalScrollIndicator={false}
+                 
+                  keyExtractor={(item,index) => item.toString()}
+                  renderItem={({ item, index }) => {
+                    const isarray = selectedPassions.some(e => e.id == item.id)
+                    return (
+                      <View style={{ flexDirection: 'row' }}>
+                        <View style={{ marginBottom: 8, width: 200, height: 100, paddingTop: 5, paddingRight: 20 }} >
+                          <Image key={index} source={{ uri: `${item.image}` }} style={{ width: 180, height: 100, borderRadius: 10 }} />
+                          <TouchableOpacity onPress={() => { selectedimagedelete(index) }} style={styles.deleteIconView}>
+                            <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                          </TouchableOpacity>
+                        </View>
+
+                      </View>
+                    )
+                  }}
+                />)
+                : */}
+              {/* <View style={{ justifyContent: "flex-start", alignItems: 'center', width: 180, flexDirection: 'row', height: images == '' ? 0 : 'auto' }}>{renderImages()}</View> */}
+              {/* } */}
+              {/* {
+              images.length < 5 ?
+                (<TouchableOpacity onPress={() => requestCameraPermission()} style={styles.plusIconSuperView}>
+                  <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                  <View style={styles.plusIconView}>
+                    <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                  </View>
+                </TouchableOpacity>)
+                :
+                null
+            } */}
+
 
               {/* <DragSortableView
                 dataSource={images}
@@ -729,13 +1204,16 @@ const DatingEditProfile = (props) => {
                 }}
               /> */}
 
-              <TouchableOpacity onPress={() => selectImages()} style={styles.plusIconSuperView}>
-                <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
-                <View style={styles.plusIconView}>
-                  <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
-                </View>
-              </TouchableOpacity>
+
             </View>
+
+          </View>
+
+          <View style={{ width: '90%', alignSelf: 'center', marginTop: 0 }}>
+
+
+
+
             <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', marginBottom: 10, marginTop: 20 }}>About me</Text>
             <TextInput
               value={aboutme}
@@ -1038,7 +1516,7 @@ const DatingEditProfile = (props) => {
 
             <View style={{ height: 50 }} />
 
-            <MyButtons title="Save" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { Editprofile(), Createpost() }} marginHorizontal={20} fontSize={11}
+            <MyButtons title="Save" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { Editprofile() }} marginHorizontal={20} fontSize={11}
               titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
 
             <View style={{ width: '100%', alignSelf: 'center', marginTop: 20, backgroundColor: '#F8F8F8' }}>
@@ -2066,8 +2544,8 @@ const styles = StyleSheet.create({
     borderRadius: 50 / 2,
     backgroundColor: '#ff001e',
     position: 'absolute',
-    top: -5,
-    left: 0
+    top: 2,
+    right: 13
   },
   plusIconView: {
     justifyContent: 'center',
@@ -2078,22 +2556,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#ff3b7f',
     position: 'absolute',
     bottom: -10,
-    left: 65
+    left: 75
   },
   deleteIcon: {
     width: 10,
     height: 10
   },
   plusIconSuperView: {
-    position: 'absolute',
-    right: 0,
-    top: 6,
-    marginLeft: 20,
+    // position: 'absolute',
+    // left: 0,
+    // top: 6,
+    marginLeft: 6,
     backgroundColor: '#fde7eb',
     justifyContent: 'center',
     alignItems: 'center',
     height: 100,
-    width: 160,
+    width: 180,
     borderRadius: 10
   }
 });

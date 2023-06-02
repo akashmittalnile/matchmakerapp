@@ -53,8 +53,9 @@ export const connect_dating_swipe_profile = 'connect/dating/swipe-profile';
 export const connect_dating_profile_imageupload = 'connect/dating/profile-image';
 export const connect_dating_profile_image_get = 'connect/dating/profile-image'; 
 export const connect_dating_swipe_profile_id_delete  = 'connect/dating/swipe-profile/id';
+export const connect_dating_delete_profile_image = 'connect/dating/profile-image/';
 
-export const connect_dating_swipe_pro  = 'connect/dating/swipe-profile/id'  
+export const connect_dating_dele_image = 'connect/dating/profile-image/';  
 export const driver_fuel_cost = 'driver/fuel_cost'
 export const driver_referral_earning = 'driver/referral_earning'
 export const driver_change_account_status = 'driver/change_account_status'

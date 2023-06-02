@@ -95,9 +95,10 @@ const DatingCard = ({
       ]}
       {...rest}
     >
-      <TouchableOpacity onPress={currentprofileopen}>
+      <TouchableOpacity style={{width: "100%",
+          height: "85%",}} onPress={currentprofileopen}>
       <Image
-        source={{ uri: `https://cdn.britannica.com/64/182864-050-8975B127/Scene-The-Incredible-Hulk-Louis-Leterrier.jpg` }}
+        source={{ uri:  `${item.profile_image}` }}
         style={{
           width: "100%",
           height: "85%",

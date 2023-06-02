@@ -194,13 +194,13 @@ const DatingMoreInfo = (props) => {
           <View style={{ backgroundColor: '#fff5f7', padding: 20 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
               <View>
-                <Text style={{ fontSize: 15, color: '#31313f', fontWeight: 'bold', }}>{profiledata?.first_name + ' ' + profiledata?.last_name}, {profiledata?.age_preference}</Text>
+                <Text style={{ fontSize: 15, color: '#31313f', fontWeight: 'bold', }}>{profiledata?.fullname}, {profiledata?.age_preference}</Text>
                 {/* <Text style={{fontSize:10, color:'#e10f51', marginTop:5}}>@marry</Text> */}
                 <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{profiledata.job_title}</Text>
               </View>
               {
                 profiledata.userid != User.userid ?
-                  (<TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: profiledata }) }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
+                  (<TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: profiledata, from: 'DatingMoreinfo' }) }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
                     <Image source={require('../../../assets/images/dating-home-header-right-image.png')} style={{ width: 20, height: 20 }} />
                   </TouchableOpacity>)
                   :
@@ -315,14 +315,16 @@ const DatingMoreInfo = (props) => {
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.gender}</Text>
                 </View>
               </View>
-
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icons-ruler.png')} style={{ heigh: 22, width: 22, marginRight: 7, marginLeft: -2 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.height} cm</Text>
-                </View>
-              </View>
-
+              {profiledata?.height != null ?
+                (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/icons-ruler.png')} style={{ heigh: 22, width: 22, marginRight: 7, marginLeft: -2 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.height != null ? profiledata?.height : null} cm</Text>
+                  </View>
+                </View>)
+                :
+                null
+              }
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
                   <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />

@@ -291,6 +291,7 @@ const ChatNow = ({userToken, navigation, dispatch}) => {
         setMessagesData([]);
       }
     });
+     
     // Stop listening for updates when no longer required
     return () => unSubscribe();
   }, [userInfo?.id]);

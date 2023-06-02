@@ -76,6 +76,7 @@
     "react-native-screens": "^3.10.1",
     "react-native-share": "^8.1.0",
     "react-native-simple-toast": "^1.1.4",
+    "react-native-sortable-list": "^0.0.25",
     "react-native-splash-screen": "^3.3.0",
     "react-native-svg": "^12.1.1",
     "react-native-svg-transformer": "^1.0.0",

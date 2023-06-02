@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setRestorentLocation } from '../../../redux/actions/latLongAction';
 import Carousel from './Components/Carousel/Carousel';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { connect_dating_active_status, connect_dating_home_data, connect_dating_location, connect_dating_profile_list, requestGetApi, requestPostApi } from '../../../WebApi/Service';
+import { connect_dating_active_status, connect_dating_home_data, connect_dating_location, connect_dating_profile_list, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
 import DatingCard from "../../../component/DatingCard";
 import Loader from '../../../WebApi/Loader';
 
@@ -171,11 +171,10 @@ const PeopleHome = (props) => {
     // Simulating a network request that takes some time
 
     setTimeout(() => {
-      // Updating component state with fetched data
-      // ...
+
       Profilelist()
 
-      // Signal the end of the interaction
+
       InteractionManager.clearInteractionHandle(interactionHandle);
     }, 2000);
   };
@@ -183,45 +182,6 @@ const PeopleHome = (props) => {
   const interactionHandle = InteractionManager.createInteractionHandle();
 
 
-  // useEffect(() => {
-  //   if (!images.length) {
-  //     setImages([
-  //       {
-  //         id: 1,
-  //         image: `https://cdn.britannica.com/64/182864-050-8975B127/Scene-The-Incredible-Hulk-Louis-Leterrier.jpg`,
-  //         title: "HULK",
-  //         age: '20',
-  //         name: '@hulk',
-  //         distance: '5'
-  //       },
-  //       {
-  //         id: 2,
-  //         image: `https://cdn.britannica.com/49/182849-050-4C7FE34F/scene-Iron-Man.jpg`,
-  //         title: "IRON MAN",
-  //         age: '30',
-  //         name: '@Iron Man',
-  //         distance: '2'
-  //       },
-  //       {
-  //         id: 3,
-  //         image: `https://cdn.britannica.com/30/182830-050-96F2ED76/Chris-Evans-title-character-Joe-Johnston-Captain.jpg`,
-  //         title: "CAPTAIN AMERICA",
-  //         age: '10',
-  //         name: '@CAPTAIN AMERICA',
-  //         distance: '6'
-  //       },
-  //       {
-  //         id: 4,
-  //         image: `https://upload.wikimedia.org/wikipedia/en/d/d6/Superman_Man_of_Steel.jpg`,
-  //         title: "SUPER MAN",
-  //         age: '60',
-  //         name: '@SUPER MAN',
-  //         distance: '8'
-  //       },
-  //     ]);
-  //   }
-  //   return () => { };
-  // }, [images]);
   const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
   useEffect(() => {
     Geodummy()
@@ -261,9 +221,23 @@ const PeopleHome = (props) => {
       // console.log("RELEASE dx", dx, "dy", dy);
     },
   });
+
+const handleSelection1 =(direction,data)=>{
+  setLoading(true)
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => { if(direction == '1'){
+      PutSwipeProfile('Accepted')
+      setLoading(false)
+    }
+    });
+}
+
   const handleSelection = useCallback(
     (direction) => {
-      Animated.timing(swipe, {
+      Animated.spring(swipe, {
         toValue: { x: direction * 500, y: 0 },
         useNativeDriver: true,
         duration: 500,
@@ -276,20 +250,40 @@ const PeopleHome = (props) => {
     swipe.setValue({ x: 0, y: 0 });
   }, []);
 
+  const PutSwipeProfile = async (t) => {
+    console.log("SwipeProfile........", t);
+    setLoading(true)
+
+    var data = {
+      swipe_status: t  // Accepted, Rejected,
+    }
+    const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile_id_delete, data, 'PUT', User.token)
+    setLoading(false)
+    console.log('the res==>>GetSwipeProfile', responseJson)
+    if (responseJson.headers.success == 1) {
+      props.navigation.navigate('DatingChat', { Reciver_data: t, from: 'DatingSelection' })
+    } else {
+      setalert_sms(responseJson.headers.message)
+      setMy_Alert(true)
+    }
+  }
+
+
 
   const navigateToNextScreen = (id) => {
+    setLoading(false)
     console.log("DatingMoreInfo");
     props.navigation.navigate('DatingMoreInfo', { selectprofile: id, from: 'PeopleHome' })
   };
   const scaleValue = useRef(new Animated.Value(1)).current;
+
   const handleButtonPress = (id) => {
-    Animated.timing(scaleValue, {
-      toValue: 0.8,
+    setLoading(true)
+    Animated.spring(scaleValue, {
+      toValue: 1,
       duration: 500,
       useNativeDriver: true,
-    }).start(() => {
-      // Animation complete, navigate to the next screen
-      navigateToNextScreen(id);
+    }).start(() => {navigateToNextScreen(id);
     });
   };
 
@@ -366,7 +360,7 @@ const PeopleHome = (props) => {
     setLoading(true);
 
     const { responseJson, err } = await requestGetApi(connect_dating_home_data
-      //  + 'lat='+ 28.5355 + '&long=' + 77.3910 
+       + 'lat='+ 28.5355 + '&long=' + 77.3910 
       + '&distance=' + distanceSliderValue[0], "", "GET", User.token);
     setLoading(false);
     // console.log("the res==>>ProfilePage", responseJson);
@@ -688,10 +682,10 @@ const PeopleHome = (props) => {
                     item={item}
                     isFirst={isFirst}
                     swipe={swipe}
-                    heartPress={() => handleSelection(1)}
-                    nopePress={() => handleSelection(-1)}
+                    heartPress={() => handleSelection(1,item)}
+                    nopePress={() => handleSelection(-1,item)}
                     nextPress={() => removeCard()}
-                    currentprofileopen={() => handleButtonPress(item)}
+                    currentprofileopen={() =>{ handleButtonPress(item)}}
                     {...dragHandlers}
                   />
                 );
