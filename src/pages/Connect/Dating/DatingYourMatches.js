@@ -84,7 +84,7 @@ const DatingYourMatches = (props) => {
   }, []);
 
   const GetSwipeProfile = async () => {
-    console.log("SwipeProfile........",User.token );
+    // console.log("SwipeProfile........",User.token );
     setLoading(true)
     const { responseJson, err } = await requestGetApi(connect_dating_swipe_profile, '', 'GET', User.token)
     setLoading(false)
@@ -96,14 +96,14 @@ const DatingYourMatches = (props) => {
       setMy_Alert(true)
     }
   }
-  const PutSwipeProfile = async (t) => {
-    console.log("SwipeProfile........",t );
+  const PutSwipeProfile = async (t,id) => {
+    console.log("SwipeProfile........",t,id );
     setLoading(true)
     // let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting response.'
     var data = {
       swipe_status: t  // Accepted, Rejected,
     } 
-    const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile_id_delete, data, 'PUT', User.token)
+    const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile_id_delete + id, data, 'PUT', User.token)
     setLoading(false)
     console.log('the res==>>GetSwipeProfile', responseJson)
     if (responseJson.headers.success == 1) {
@@ -151,10 +151,10 @@ const DatingYourMatches = (props) => {
                         </View>
                      
                       <View style={styles.buttonsContainer}>
-                        <TouchableOpacity onPress={()=>{PutSwipeProfile('Rejected')}} style={styles.buttonView}>
+                        <TouchableOpacity onPress={()=>{PutSwipeProfile('Rejected',item.id)}} style={styles.buttonView}>
                           <Image source={require('../../../assets/images/dating-matches-reject-icon.png')} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>{PutSwipeProfile('Accepted')}} style={styles.buttonView}>
+                        <TouchableOpacity onPress={()=>{PutSwipeProfile('Accepted',item.id)}} style={styles.buttonView}>
                           <Image source={require('../../../assets/images/dating-matches-love-icon.png')} />
                         </TouchableOpacity>
                       </View>

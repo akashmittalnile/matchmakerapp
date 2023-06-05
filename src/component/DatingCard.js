@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+ 
 import React, { useCallback } from "react";
 import LinearGradient from "react-native-linear-gradient";
 import DatingChoice from "./DatingChoice";
@@ -68,6 +69,7 @@ const DatingCard = ({
   }, []);
 
   return (
+    <TouchableOpacity style={{flex: 1}}>
     <Animated.View
       style={[
         {
@@ -133,7 +135,8 @@ const DatingCard = ({
             />
           }
           size={80}
-          onPress={heartPress}
+          onPress={()=>{ heartPress
+            console.log("heartPresscart")}}
           style={{ marginHorizontal: 10 }}
         />
         <ActionButton
@@ -168,6 +171,7 @@ const DatingCard = ({
 
       {isFirst && datingSelection()}
     </Animated.View>
+    </TouchableOpacity>
   );
 };
 

@@ -39,7 +39,8 @@ const DatingChat = (props) => {
   const [message, setmessage] = useState('');
   const [chats, setChats] = useState([]);
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100])
-  const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
+  const [showChooseMilesModal, setShowChooseMilesModal] = useState(false);
+  const [alluserdata, setUsersdata] = useState([]);
   const [upData, setupData] = useState([
     {
       id: '1',
@@ -296,8 +297,6 @@ const DatingChat = (props) => {
     setuid(UserId)
     setDriverid(driver_id)
 
-
-
     const MessageRef = firestore()
       .collection('Matchmakingapp')
       .doc(docid)
@@ -329,7 +328,7 @@ const DatingChat = (props) => {
 
     // Stop listening for updates when no longer required
     return () => unSubscribe();
-  }, [driver_id]);
+  }, [driver_id?.userid]);
   //useEffect
 
   //   const getLocation1 = () => {
@@ -348,22 +347,63 @@ const DatingChat = (props) => {
   //                 }
   //             });
   // };
+  //   const getWithWhomList = async () => {
+  //     const db =  firestore();
+  //     const ref = db.collection("Matchmakingapp").doc(docid).collection('Messages');
+  //     const query = ref.where("sender", "==", user_details.userid)
+  //       .where("receiver", "==", driver_id?.userid);
+  //     const results = await query.get();
+
+  //     const withWhomList = results.docs.map((doc) => {
+  //       const { sender, receiver } = doc.data();
+  //       return {
+  //         id: sender || receiver,
+  //         name: sender || receiver,
+  //       };
+  //     });
+  // console.log('withWhomList====================================');
+  // console.log(withWhomList);
+  // console.log('===================================withWhomList=');
+  // // setWithWhom(withWhomList);
+  // };
+
+  // useEffect(() => {
+  //   getWithWhomList();
+  // }, []);
+
+  // const getUsers = async () => {
+  //   const querySnap = await firestore().collection("Matchmakingapp").get()
+
+  //   const allusers = querySnap.then(querySnapshot => {
+  //     console.log('Total users:', querySnapshot.size);
+  //     querySnapshot.forEach(documentSnapshot => {
+  //       console.log('User ID:', documentSnapshot.id, documentSnapshot.data());
+  //       return documentSnapshot.data()
+  //     })
+  //   })
+  //   // const allusers = querySnap.docs.map(docSnap => docSnap.data())
+  //   setUsersdata(allusers)
+  //   console.log('1getUsers====================================');
+  //   console.log(allusers);
+  //   console.log('===================================getUsers=');
+  // }
+
   useEffect(() => {
-    firestore()
-      .collection('Matchmakingapp')
-      .doc(docid)
-      .collection('Messages')
-      .get()
-      .then(querySnapshot => {
-        console.log('Total users:', querySnapshot.size);
+    // getUsers()
+    // firestore()
+    //   .collection('Matchmakingapp')
+    //   .doc(docid)
+    //   .collection('Messages')
+    //   .get()
+    //   .then(querySnapshot => {
+    //     console.log('Total users:', querySnapshot.size);
 
-        querySnapshot.forEach(documentSnapshot => {
-          console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
-        });
-      });
+    //     querySnapshot.forEach(documentSnapshot => {
+    //       console.log('User ID:', documentSnapshot.id, documentSnapshot.data());
+    //       return documentSnapshot.data()
 
-
-
+    //     });
+    //   });
     // getUserDetail();
     // const chatsCollection = firestore()
     // .collection('Matchmakingapp')
@@ -383,7 +423,7 @@ const DatingChat = (props) => {
     //   console.log("tttt::=>>>", data);
     // });
 
-    // return () => unSubscribe();
+    return () => getUsers();
   }, []);
 
   useEffect(() => {

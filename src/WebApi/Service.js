@@ -52,7 +52,7 @@ export const connect_dating_home_data = 'connect/dating/home?';
 export const connect_dating_swipe_profile = 'connect/dating/swipe-profile';
 export const connect_dating_profile_imageupload = 'connect/dating/profile-image';
 export const connect_dating_profile_image_get = 'connect/dating/profile-image'; 
-export const connect_dating_swipe_profile_id_delete  = 'connect/dating/swipe-profile/id';
+export const connect_dating_swipe_profile_id_delete  = 'connect/dating/swipe-profile/';
 export const connect_dating_delete_profile_image = 'connect/dating/profile-image/';
 
 export const connect_dating_dele_image = 'connect/dating/profile-image/';  

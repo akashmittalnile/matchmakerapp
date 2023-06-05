@@ -23,6 +23,7 @@ import ValuePicker from "rn-value-picker";
 import Draggable from 'react-native-draggable';
 import SortableList from "react-native-sortable-list";
 import DragSortableView from 'react-native-drag-sort'
+import { Use } from 'react-native-svg';
 // const image1 = require('../../../assets/images/people-following-person.png')
 // const onlinePersonImageWidth = 50
 // const onlineDotWidth = 12
@@ -41,8 +42,8 @@ const DatingEditProfile = (props) => {
   const [menutypeOpen, setmenutypeOpen] = useState(false);
   const [menutypevalue, setmenutypevalue] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
-  const [myHeight, setMyHeight] = useState("");
-
+  const [myHeight, setMyHeight] = useState('');
+const [profiledata,setProfileData]= useState('')
   // const [menutypedate, setmenutypedate] = useState([
   //   { label: '150 cm', value: '150 cm' },
   //   { label: '151 cm', value: '151 cm' },
@@ -104,7 +105,7 @@ const DatingEditProfile = (props) => {
   const [aboutme, setAboutMe] = useState('');
   const [images, setImages] = useState([]);
   const [allimages, setAllImages] = useState([]);
-  const[firstimagevalue,setFirstimagevalue]=useState('');
+  const [firstimagevalue, setFirstimagevalue] = useState('');
   const [multiSliderValue, setMultiSliderValue] = useState([18, 24])
   // const [slidervalue,setSLiderValue]=useState('');
   // console.log('slidervalue====================================');
@@ -159,6 +160,7 @@ const DatingEditProfile = (props) => {
 
   const [attribute, setAttribute] = useState([]);
   const [attribute1, setAttribute1] = useState([]);
+  const [attribute2, setAttribute2] = useState([]);
   const [upData, setupData] = useState([
     {
       id: '1',
@@ -190,12 +192,16 @@ const DatingEditProfile = (props) => {
     },
   ])
   useEffect(() => {
- 
-    const unsubscribe = props.navigation.addListener('focus', () => {
-      GetProfileImages()
-      // requestCameraPermission()
-    })
-    return unsubscribe;
+    GetProfilePage()
+    requestCameraPermission()
+    GetProfileImages()
+    GetZodiacAttributes()
+    GetLanguageAttributes()
+    GetPassionAttributes()
+    // const unsubscribe = props.navigation.addListener('focus', () => {
+      
+      
+    // return unsubscribe;
   }, []);
 
   const selectImages = () => {
@@ -222,7 +228,7 @@ const DatingEditProfile = (props) => {
     );
   };
 
-  
+
   // const index = myArray.indexOf(2);
 
   // const x = myArray.splice(index, 1);
@@ -443,6 +449,7 @@ const DatingEditProfile = (props) => {
       setSelectedLanguage([...selectedLanguage, value])
     }
   }
+  
 
   const changeSelectedShowme = (index) => {
     if (showMeselect === index) {
@@ -475,10 +482,11 @@ const DatingEditProfile = (props) => {
     setKidsSelect(index)
   }
   const changeSelectedzodiac = (index) => {
-    if (selectedZodiac === index) {
+    console.log("zodaic::",index.name);
+    if (selectedZodiac == index.name) {
       return
     }
-    setSelectedZodiac(index)
+    setSelectedZodiac(index.name)
   }
   const changeSelectedPolitics = (index) => {
     if (politicsselect === index) {
@@ -490,7 +498,7 @@ const DatingEditProfile = (props) => {
     // console.log("MultiSlider:::", values);
     setMultiSliderValue(values)
   }
-  const openLibrary1 = async () => {
+  const openLibrary1 = async (imgtype) => {
 
     let options = {
       title: 'Image Picker',
@@ -498,8 +506,6 @@ const DatingEditProfile = (props) => {
       selectionLimit: 1,
       quality: 1,
       includeBase64: false,
-      multiple: false,
-      
       storageOptions: {
         skipBackup: true,
         path: 'images'
@@ -514,10 +520,7 @@ const DatingEditProfile = (props) => {
       ],
       maxWidth: 500,
       maxHeight: 500,
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
+
     };
 
     await launchImageLibrary(options, (image) => {
@@ -528,19 +531,19 @@ const DatingEditProfile = (props) => {
           type: image.assets[0].type,
           name: image.assets[0].fileName
         };
-        console.log("image", photo);
-       
+        console.log("image", photo,imgtype);
+
         setpick(photo)
         setfilepath(image)
-       
-        Createpost()
+
+        Createpost(photo,imgtype)
       }
     })
 
 
   }
 
-  const openLibrary = async () => {
+  const openLibrary = async (imgtype) => {
 
     let options = {
       title: 'Image Picker',
@@ -578,11 +581,11 @@ const DatingEditProfile = (props) => {
           type: image.assets[0].type,
           name: image.assets[0].fileName
         };
-        console.log("launchImageLibraryimage", photo);
+        console.log("launchImageLibraryimage", photo,imgtype);
         // setImages(photo)
         setpick(photo)
         setfilepath(image)
-        Createpost()
+        Createpost(photo,imgtype)
       }
     })
 
@@ -602,7 +605,7 @@ const DatingEditProfile = (props) => {
           },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          openLibrary();
+          // openLibrary();
           console.log('Storage Permission Granted.');
         } else {
           Alert.alert('Error', 'Storage Permission Not Granted');
@@ -708,6 +711,28 @@ const DatingEditProfile = (props) => {
 
   };
 
+  const GetZodiacAttributes = async () => {
+    // console.log("the res==>>GetLanguageAttributes", hob);
+    setLoading(true);
+
+    const { responseJson, err } = await requestGetApi(
+      common_master_attributes + 'zodiac',
+      "",
+      "GET",
+      User.token
+    );
+    setLoading(false);
+    // console.log("the res==>>GetLanguageAttributes", responseJson);
+    if (responseJson.headers.success == 1) {
+      // console.log("the res==>>GetLanguageAttributes", responseJson.body);
+      setAttribute2(responseJson.body);
+    } else {
+      setalert_sms(err);
+      setMy_Alert(true);
+    }
+
+  };
+
   const Editprofile = async () => {
     if (smokingdata == '') {
       Toast.show({ text1: 'Please select smoking or not' });
@@ -778,15 +803,13 @@ const DatingEditProfile = (props) => {
 
   };
 
-  const Createpost = async () => {
+  const Createpost = async (img,type) => {
     setLoading(true);
-    console.log("pick UPLOAD:", firstimagevalue);
-    
-   
+    console.log("pick UPLOAD:",img, type);
     const formData = new FormData();
-    formData.append('image', pick);
-    formData.append('attribute_code',firstimagevalue)
-  
+    formData.append('image', img);
+    formData.append('attribute_code', type)
+
     console.log('=formData===================================');
     console.log(formData);
     console.log('===formData=================================');
@@ -806,8 +829,10 @@ const DatingEditProfile = (props) => {
       const responseJson = await response.json();
       // console.log(responseJson, 'my response');
       if (responseJson.headers.success == 1) {
-        // props.navigation.goBack('')
+        
         Toast.show({ text1: responseJson.headers.message });
+        setpick('')
+        setFirstimagevalue('')
         GetProfileImages()
       } else {
 
@@ -817,6 +842,7 @@ const DatingEditProfile = (props) => {
 
 
     } catch (error) {
+      Toast.show({ text1: 'Network type error' });
       console.log('Error uploading data:', error);
     }
 
@@ -845,6 +871,46 @@ const DatingEditProfile = (props) => {
 
   };
 
+  const GetProfilePage = async () => {
+    console.log('the res==>>profileMoreInfo',)
+    setLoading(true)
+    const { responseJson, err } = await requestGetApi(connect_dating_profile+'/'+ User.userid, '', 'GET', User.token)
+    setLoading(false)
+    console.log('the res==>>DatingMoreInfo', responseJson)
+    if (responseJson?.headers?.success == 1) {
+      // console.log('the res==>>DatingMoreInfo', responseJson?.body)
+      setProfileData(responseJson?.body);
+      setAboutMe(responseJson.body?.about);
+      setJobTitle(responseJson.body?.job_title);
+      setJobCompany(responseJson.body?.job_company);
+      setQualification(responseJson.body?.qualification);
+      setCollegename(responseJson.body?.university);
+      setGenderSelect(responseJson.body?.gender);
+      setMyHeight(responseJson.body?.height);
+      setShowMeSelect(responseJson.body?.intrest_in);
+      setSmokingdata(responseJson.body?.smoking);
+      setDrinkingSelect(responseJson.body?.drinking);
+      setKidsSelect(responseJson.body?.kids);
+      setPoliticsSelect(responseJson.body?.zodiac);
+      setSelectedZodiac(responseJson.body?.politics);
+      // setSelectedPassions([...selectedPassions, responseJson.body?.passions])
+      var allpassion = [];
+      isarray= selectedPassions.some(el=>el.attribute_code)
+      if(isarray){
+
+      }
+      for (let i = 1; i <= responseJson.body.passions.length; i++) {
+        allpassion.push({ attribute_type: responseJson.body.passions[i - 1].attribute_type,attribute_code:responseJson.body.passions[i - 1].attribute_code,
+          attribute_value:responseJson.body.passions[i - 1].attribute_code,
+          attribute_image:responseJson.body.passions[i - 1].attribute_image,
+          })
+      }
+      
+    } else {
+      setalert_sms(err)
+      setMy_Alert(true)
+    }
+  }
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ flex: 1, }}>
       <LinearGradient
@@ -873,8 +939,10 @@ const DatingEditProfile = (props) => {
                 {
                   allimages.length > 0 && allimages[0].image != null && allimages[0].attribute_code == 'image1' ?
                     (
-                      <TouchableOpacity onPress={() =>{ setFirstimagevalue("image1") 
-                        openLibrary1() }} style={{ marginBottom: 1, height: 280,  width: '62%', marginLeft: 6, }} >
+                      <TouchableOpacity onPress={() => {
+                        setFirstimagevalue("image1")
+                        openLibrary1("image1")
+                      }} style={{ marginBottom: 1, height: 280, width: '62%', marginLeft: 6, }} >
                         <Image resizeMode='cover' source={{ uri: `${allimages[0].image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
                         {/* <TouchableOpacity onPress={() => {
                           //  DeleteProfileImages(allimages[0]?.id)
@@ -895,8 +963,10 @@ const DatingEditProfile = (props) => {
 
                     )
                     :
-                    (<TouchableOpacity onPress={() =>{ setFirstimagevalue("image1") 
-                      openLibrary1() }} style={{
+                    (<TouchableOpacity onPress={() => {
+                      setFirstimagevalue("image1")
+                      openLibrary1("image1")
+                    }} style={{
                       marginLeft: 6,
                       backgroundColor: '#fde7eb',
                       justifyContent: 'center',
@@ -925,7 +995,7 @@ const DatingEditProfile = (props) => {
                   {
                     allimages?.length > 0 && allimages[1].image != null ?
                       (
-                        <View style={{ marginBottom: 1, height: 139,  width: '100%', marginLeft: 6, }} >
+                        <View style={{ marginBottom: 1, height: 139, width: '100%', marginLeft: 6, }} >
                           <Image resizeMode='cover' source={{ uri: `${allimages[1]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
                           <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[1]?.id) }} style={{
                             justifyContent: 'center',
@@ -942,15 +1012,17 @@ const DatingEditProfile = (props) => {
                           </TouchableOpacity>
                         </View>)
                       :
-                      (<TouchableOpacity onPress={() => {setFirstimagevalue("image2")
-                      requestCameraPermission()}} style={{
+                      (<TouchableOpacity onPress={() => {
+                        setFirstimagevalue("image2")
+                        openLibrary("image2")
+                      }} style={{
                         marginLeft: 6,
                         backgroundColor: '#fde7eb',
                         justifyContent: 'center',
                         alignItems: 'center',
                         height: 133,
                         width: '100%',
-                        borderRadius: 10,marginBottom:10,top:-2
+                        borderRadius: 10, marginBottom: 10, top: -2
                       }}>
                         <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
                         <View style={{
@@ -969,9 +1041,9 @@ const DatingEditProfile = (props) => {
                       </TouchableOpacity>)
                   }
                   {
-                    allimages?.length > 0 && allimages[2].image != null?
+                    allimages?.length > 0 && allimages[2].image != null ?
                       (
-                        <View style={{  height: 138,width: '100%', marginLeft: 6,marginTop:4 }} >
+                        <View style={{ height: 138, width: '100%', marginLeft: 6, marginTop: 4 }} >
                           <Image resizeMode='cover' source={{ uri: `${allimages[2]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
                           <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[2]?.id) }} style={{
                             justifyContent: 'center',
@@ -988,9 +1060,10 @@ const DatingEditProfile = (props) => {
                           </TouchableOpacity>
                         </View>)
                       :
-                      (<TouchableOpacity onPress={() =>{setFirstimagevalue("image3")
-                      requestCameraPermission()
-                        }} style={{
+                      (<TouchableOpacity onPress={() => {
+                        setFirstimagevalue("image3")
+                        openLibrary("image3")
+                      }} style={{
                         marginLeft: 6,
                         backgroundColor: '#fde7eb',
                         justifyContent: 'center',
@@ -1022,7 +1095,7 @@ const DatingEditProfile = (props) => {
               <View style={{ alignItems: 'flex-start', justifyContent: 'flex-start', flexDirection: "row", marginTop: 0 }}>
                 {allimages?.length > 0 && allimages[3].image != null ?
                   (
-                    <View style={{ marginBottom: 1,marginTop: 7, height: 133,   width: '62%', marginLeft: 6, }} >
+                    <View style={{ marginBottom: 1, marginTop: 7, height: 133, width: '62%', marginLeft: 6, }} >
                       <Image resizeMode='cover' source={{ uri: `${allimages[3]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
                       <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[3]?.id) }} style={{
                         justifyContent: 'center',
@@ -1039,8 +1112,10 @@ const DatingEditProfile = (props) => {
                       </TouchableOpacity>
                     </View>)
                   :
-                  (<TouchableOpacity onPress={() =>{setFirstimagevalue("image4") 
-                  requestCameraPermission()}} style={{
+                  (<TouchableOpacity onPress={() => {
+                    setFirstimagevalue("image4")
+                    openLibrary("image4")
+                  }} style={{
                     marginTop: 12,
                     marginLeft: 6,
                     backgroundColor: '#fde7eb',
@@ -1069,7 +1144,7 @@ const DatingEditProfile = (props) => {
                 {
                   allimages?.length > 0 && allimages[4].image != null ?
                     (
-                      <View style={{  height: 133,   width: '34%', marginLeft: 6,marginTop:7 }} >
+                      <View style={{ height: 133, width: '34%', marginLeft: 6, marginTop: 7 }} >
                         <Image resizeMode='cover' source={{ uri: `${allimages[4]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
                         <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[4]?.id) }} style={{
                           justifyContent: 'center',
@@ -1086,8 +1161,10 @@ const DatingEditProfile = (props) => {
                         </TouchableOpacity>
                       </View>)
                     :
-                    (<TouchableOpacity onPress={() => {setFirstimagevalue("image5")
-                    requestCameraPermission()}} style={{
+                    (<TouchableOpacity onPress={() => {
+                      setFirstimagevalue("image5")
+                      openLibrary("image5")
+                    }} style={{
                       marginTop: 12,
                       marginLeft: 6,
                       backgroundColor: '#fde7eb',
@@ -1494,7 +1571,8 @@ const DatingEditProfile = (props) => {
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
                 <Text style={{ fontSize: 14, color: '#ff5e96', fontStyle: 'italic', textAlign: 'center', marginRight: 8 }}>{selectedZodiac != '' ? selectedZodiac : 'Add'}</Text>
-                <TouchableOpacity onPress={() => setShowPassionsModal3(true)} >
+                <TouchableOpacity onPress={() => { setShowPassionsModal3(true),
+                  GetZodiacAttributes()}} >
                   <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 14, width: 14, }} resizeMode='contain' />
                 </TouchableOpacity>
               </View>
@@ -1690,17 +1768,17 @@ const DatingEditProfile = (props) => {
 
 
                 <FlatList
-                  data={allZodiac}
+                  data={attribute2}
                   showsHorizontalScrollIndicator={false}
                   numColumns={3}
                   keyExtractor={item => item.id}
                   renderItem={({ item, index }) => {
                     return (
-                      <TouchableOpacity onPress={() => { changeSelectedzodiac(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: selectedZodiac == item ? '#fff1f6' : '#fff', borderColor: selectedZodiac == item ? '#ff3b7f' : '#e3d0d7' }]}>
-                        <View style={styles.showMeImageView}>
+                      <TouchableOpacity onPress={() => { changeSelectedzodiac(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: selectedZodiac == item.name ? '#fff1f6' : '#fff', borderColor: selectedZodiac == item.name ? '#ff3b7f' : '#e3d0d7' }]}>
+                        {/* <View style={styles.showMeImageView}>
                           <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
-                        </View>
-                        <Text style={styles.showMeText}>{item}</Text>
+                        </View> */}
+                        <Text style={styles.showMeText}>{item.name}</Text>
                         {/* <View style={[styles.showMeImageView, { backgroundColor: selectedZodiac == item ? '#ff3b7f' : '#e3d0d7' }]}>
                           <Image source={require('../../../assets/images/dating-selected-arrow.png')} style={styles.showMeImage} resizeMode='contain' />
                         </View> */}

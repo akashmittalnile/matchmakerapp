@@ -128,9 +128,9 @@ const PeopleHome = (props) => {
   
   <View style={{flexDirection:'row', alignItems:'center'}}>
     <View style={{flex:1, flexDirection:'row', justifyContent:'flex-start', alignItems:'center'}}>
-        <View style={{justifyContent:'center', alignItems:'center'}}>
+        {/* <View style={{justifyContent:'center', alignItems:'center'}}>
             <Image source={require('../../../assets/images/dating-home-header-left-image.png')} style={{height:40, width:40, borderRadius:20, borderColor:'#e42f5e', borderWidth:2}}/>
-        </View>
+        </View> */}
     </View>
     <View style={{flex:1, flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
         <Text style={{fontSize:12.5, fontWeight:'bold', color:'#31313f'}}>Personal connect</Text>

@@ -16,11 +16,11 @@ import { GoogleApiKey } from '../../../WebApi/GoogleApiKey';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useSelector, useDispatch } from 'react-redux';
 import { setRestorentLocation } from '../../../redux/actions/latLongAction';
-import Carousel from './Components/Carousel/Carousel';
-import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { connect_dating_active_status, connect_dating_home_data, connect_dating_location, connect_dating_profile_list, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
-import DatingCard from "../../../component/DatingCard";
 import Loader from '../../../WebApi/Loader';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { connect_dating_active_status, connect_dating_home_data, connect_dating_location, connect_dating_profile, connect_dating_profile_list, connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
+import DatingCard from "../../../component/DatingCard";
+ 
 
 Geocoder.init(GoogleApiKey);
 const GOOGLE_MAPS_APIKEY = GoogleApiKey;
@@ -57,12 +57,13 @@ const PeopleHome = (props) => {
   const [drinkingselect, setDrinkingSelect] = useState('');
   const [kidsValue, setKidsValue] = useState(['Open to kids', 'Don`t want', 'Not sure yet']);
   const [kidsSelect, setKidsSelect] = useState('');
-
+  const [viewmore, setviewmore] = useState(true)
   const [isprofiles, setProfiles] = useState([]);
-
+  const [increments,setIncrement]=useState(1);
+  const [allImg, setAllImg] = useState([{ img: '' }])
   const [filterByStatus, setFilterByStatus] = useState(['All', 'Online', 'New']);
   const [filterBySelect, setFilterBySelect] = useState('');
-
+  const [profiledata, setProfileData] = useState("");
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
   const [introSliderData] = useState([
     // require('../../assets/Group75972.png'),
@@ -181,16 +182,52 @@ const PeopleHome = (props) => {
 
   const interactionHandle = InteractionManager.createInteractionHandle();
 
+  const SwipeProfile = async (type) => {
+    setLoading(true)
+    let message = 'Interest sent to ' + isprofiles.fullname + ' successfully awaiting response.'
+    var data = {
+      userid: profiledata.userid,
+      swipe_type: type
+    }
+    console.log("addres........", data);
+    const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile, data, 'POST', User.token)
+    setLoading(false)
+    // console.log('the res==>>homePage', responseJson)
+    if (responseJson.headers.success == 1) {
+      if (type == "R") {
+        Toast.show({ text2: message });
+        
+        Profiledatas()
+        // props.navigation.goBack()
+        console.log('incrementdy.vendors', increments)
+
+      } else if (type == "L") {
+        
+        Profiledatas()
+        console.log('incrementdy.vtype == "L"endors', increments)
+        // props.navigation.goBack()
+      }
+
+      
+
+    } else {
+      setalert_sms(err)
+      setMy_Alert(true)
+    }
+  }
+
 
   const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
   useEffect(() => {
+    Profiledatas()
+    ProfilePage()
     Geodummy()
     Activestatus()
-    const unsubscribe = props.navigation.addListener('focus', () => {
-      Profiledatas()
+    // const unsubscribe = props.navigation.addListener('focus', () => {
+      
 
-    })
-    return unsubscribe;
+    // })
+    // return unsubscribe;
 
   }, [])
 
@@ -213,7 +250,7 @@ const PeopleHome = (props) => {
       } else {
         Animated.spring(swipe, {
           toValue: { x: 0, y: 0 },
-          friction: 5,
+          friction: 4,
           useNativeDriver: true,
         }).start();
       }
@@ -222,18 +259,20 @@ const PeopleHome = (props) => {
     },
   });
 
-const handleSelection1 =(direction,data)=>{
-  setLoading(true)
+
+  const handleSelection1 = (direction, data) => {
+    setLoading(true)
     Animated.spring(scaleValue, {
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
-    }).start(() => { if(direction == '1'){
-      PutSwipeProfile('Accepted')
-      setLoading(false)
-    }
+    }).start(() => {
+      if (direction == '1') {
+        PutSwipeProfile('Accepted')
+        setLoading(false)
+      }
     });
-}
+  }
 
   const handleSelection = useCallback(
     (direction) => {
@@ -283,7 +322,8 @@ const handleSelection1 =(direction,data)=>{
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
-    }).start(() => {navigateToNextScreen(id);
+    }).start(() => {
+      navigateToNextScreen(id);
     });
   };
 
@@ -355,31 +395,70 @@ const handleSelection1 =(direction,data)=>{
       setMy_Alert(true)
     }
   };
+
+  const increment = () => {
+     if(isprofiles.length != 0){
+      setIncrement(increments + 1)
+      // console.log("xxx",increments);
+     }else{
+      setIncrement(1)
+     }
+  
+  }
+
   const Profiledatas = async () => {
-    // console.log("the res==>>Profiledatas", distanceSliderValue[0])
+     
+    console.log("the res==>>Profiledatas", increments)
     setLoading(true);
 
     const { responseJson, err } = await requestGetApi(connect_dating_home_data
-       + 'lat='+ 28.5355 + '&long=' + 77.3910 
-      + '&distance=' + distanceSliderValue[0], "", "GET", User.token);
+      + 'lat=' + 28.5355 + '&long=' + 77.3910
+      + '&distance=' + distanceSliderValue[0] + '&limit=' + 1 + '&page=' + increments, "", "GET", User.token);
     setLoading(false);
-    // console.log("the res==>>ProfilePage", responseJson);
+    console.log("the res==>>ProfilePage", responseJson);
     if (responseJson?.headers?.success == 1) {
 
-      // console.log("the res==>>ProfilePage", responseJson.body);
-      setProfiles(responseJson.body.profiles);
+      setProfiles(responseJson.body.profiles[0]);
+      // var allimgs = [];
+      // for (let i = 1; i <= responseJson.body.images.length; i++) {
+      //   allimgs.push({ img: responseJson.body.images[i - 1].image })
+      // }
+      // setAllImg(allimgs)
     } else {
       setalert_sms(err);
       setMy_Alert(true);
     }
   };
 
+  const ProfilePage = async () => {
+    console.log("the res==>>ProfilePage");
+    setLoading(true);
+
+    const { responseJson, err } = await requestGetApi(
+      connect_dating_profile + '/' + User.userid,
+      "",
+      "GET",
+      User.token
+    );
+    setLoading(false);
+    console.log("the res==>>ProfilePage", responseJson);
+    if (responseJson.headers.success == 1) {
+      console.log("the res==>>ProfilePage", responseJson.body);
+      setProfileData(responseJson.body);
+    } else {
+      setalert_sms(err);
+      setMy_Alert(true);
+    }
+  };
+
+
   const Profilelist = async () => {
+    
     setShowFilterModal(false)
     console.log("the res==>>Profilelist", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0])
     setLoading(true);
     //  &smoking=No&drinking=No&kids=No 
-    const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&smoking=' + smokingselect + '&drinking=' + drinkingselect + '&kids=No' + kidsSelect + '&activity_status=' + filterBySelect + '&limit=' + 10, "", "GET", User.token);
+    const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&smoking=' + smokingselect + '&drinking=' + drinkingselect + '&kids=No' + kidsSelect + '&activity_status=' + filterBySelect + '&limit=' + 1, "", "GET", User.token);
     setLoading(false);
     console.log("the res==>>Profilelist", responseJson);
     if (responseJson?.headers?.success == 1) {
@@ -491,17 +570,17 @@ const handleSelection1 =(direction,data)=>{
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ backgroundColor: '#fff5f7', height: '100%' }}>
 
-      <View style={{ width: '90%', alignSelf: 'center', marginTop: 20 }}>
+      <View style={{ width: '90%', alignSelf: 'center', marginTop: 20,zIndex:999 }}>
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => props.navigation.navigate('DatingProfile')} style={{ justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={require('../../../assets/images/dating-home-header-left-image.png')} style={{ height: 40, width: 40, borderRadius: 20, borderColor: '#e42f5e', borderWidth: 2 }} />
+            <TouchableOpacity   style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Image source={{ uri: `${profiledata?.profile_image}` }} style={{ height: 40, width: 40, borderRadius: 20, borderColor: '#e42f5e', borderWidth: 2 }} />
             </TouchableOpacity>
           </View>
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => { props.navigation.navigate('DatingMessages') }} style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontSize: 12.5, fontWeight: 'bold', color: '#31313f' }}>Personal connect</Text>
-          </View>
+          </TouchableOpacity>
           <TouchableOpacity style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }} onPress={() => { props.navigation.navigate('DatingYourMatches') }}>
             <Image source={require('../../../assets/images/dating-home-header-right-image.png')} />
           </TouchableOpacity>
@@ -651,27 +730,246 @@ const handleSelection1 =(direction,data)=>{
           </View>
         </View>
 
+        <ScrollView>
+          <View style={{ height: dimensions.SCREEN_HEIGHT * 46 / 100, width: '100%', zIndex:1 }}>
+
+            <TouchableOpacity onPress={()=>{props.navigation.navigate('DatingMoreInfo')}} style={{ width: '100%', alignSelf: 'center',   }}>
+              <Image style={{ height: 400, width: '100%' }}
+                source={{ uri: `${isprofiles?.profile_image}` }}
+              />
+              {/* <ImageSlider
+                //  localImg={true}
+                data={allImg}
+                // onClick={(item, index) => {alert('hello'+index)}}
+                // autoPlay={true}
+                // onItemChanged={(item) => console.log("item", item)}
+
+                // activeIndicatorStyle={{backgroundColor:'#FF4989'}}
+                indicatorContainerStyle={{ top: -5 }}
+
+                caroselImageStyle={{ resizeMode: 'cover', height: 400 }}
+                closeIconColor="#fff"
+                headerStyle={{ padding: 0, backgroundColor: 'rgba(0,0,0, 0.6)', }}
+                showHeader
+              // preview={true}
+              /> */}
+
+            </TouchableOpacity>
+          </View>
+          {/* <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ position: 'absolute', top: 40, left: 20, }}>
+            <Image source={require('../../../assets/images/dating-white-back-button.png')} style={{ width: 25, height: 15 }} resizeMode='contain' />
+          </TouchableOpacity> */}
+          <View style={{ width: '100%', alignSelf: 'center', marginTop: 20 }}>
+
+            <View style={{ backgroundColor: '#fff5f7', padding: 20 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+                <View>
+                  <Text style={{ fontSize: 15, color: '#31313f', fontWeight: 'bold', }}>{isprofiles?.username}, {isprofiles?.age_preference}</Text>
+                  {/* <Text style={{fontSize:10, color:'#e10f51', marginTop:5}}>@marry</Text> */}
+                  <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{isprofiles?.job_title}</Text>
+                </View>
+                {
+                  isprofiles?.userid != User.userid ?
+                    (<TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: isprofiles, from: 'DatingMoreinfo' }) }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
+                      <Image source={require('../../../assets/images/dating-home-header-right-image.png')} style={{ width: 20, height: 20 }} />
+                    </TouchableOpacity>)
+                    :
+                    null
+                }
+
+
+              </View>
+              <View style={{ marginTop: 20 }} />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View>
+                  <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold' }}>Location</Text>
+                  <Text style={{ fontSize: 10, color: '#4a4c52' }}>{isprofiles?.address}</Text>
+                </View>
+                {
+                  isprofiles?.userid != User.userid ?
+                    (<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFE7F0', width: 80, height: 30, borderRadius: 15, paddingHorizontal: 10, shadowColor: 'rgba(255, 73, 137)', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.13, elevation: 2 }}>
+                      <Image source={require('../../../assets/images/dating-maptrifold.png')} style={{ width: 20, height: 20 }} />
+                      <Text style={{ fontSize: 10, color: '#FF4989' }}>{Number(isprofiles?.distance).toFixed(0)} mile</Text>
+                    </View>)
+                    :
+                    null}
+              </View>
+              <View style={{ marginTop: 30 }} />
+              <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 7 }}>About</Text>
+
+              <View style={{ alignSelf: 'center', width: '100%', marginTop: 1, paddingHorizontal: 0 }}>
+                <Text style={{ fontSize: 11, color: Mycolors.TEXT_COLOR }}>{viewmore ? isprofiles?.about?.substring(0, 150) : isprofiles?.about}</Text>
+                {isprofiles?.about ?
+                  <Text onPress={() => { setviewmore(!viewmore) }} style={{ color: '#dd2e44', textDecorationLine: "underline", fontSize: 10 }}>{viewmore ? 'Read more' : 'Read less'}</Text>
+                  : null}
+              </View>
+              <View style={{ marginTop: 20 }}>
+                <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Passions</Text>
+                <FlatList
+                  data={isprofiles?.passions}
+                  showsHorizontalScrollIndicator={false}
+                  numColumns={3}
+                  keyExtractor={item => item.id}
+                  renderItem={({ item, index }) => {
+                    // if(item.mutual){
+                    return (
+                      <View key={item.name} style={[styles.showMeView, { width: '31%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+                        {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
+                        <View style={styles.showMeImageView}>
+                          <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                        </View>
+                        <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
+                      </View>
+                    )
+
+                  }}
+                />
+              </View>
+              <View style={{ marginTop: 20 }}>
+                <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Languages</Text>
+                <FlatList
+                  data={isprofiles?.languages}
+                  showsHorizontalScrollIndicator={false}
+                  numColumns={3}
+                  keyExtractor={item => item.id}
+                  renderItem={({ item, index }) => {
+                    // if(item.mutual){
+                    return (
+                      <View key={item?.name} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+                        {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
+                        <View style={styles?.showMeImageView}>
+                          <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                        </View>
+                        <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item?.attribute_value}</Text>
+                      </View>
+                    )
+
+                  }}
+                />
+              </View>
+
+              <View style={{ width: '90%', marginTop: 10 }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', marginBottom: 10 }}>My basics</Text>
+              </View>
+              <View style={{
+                flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
+                borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
+              }}>
+
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', }}>
+                    <Image resizeMode='contain' source={require('../../../assets/dating_workicon.png')} style={{ heigh: 20, width: 20, marginRight: 7 }} />
+                    <View style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
+                      <Text numberOfLines={1} style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles.job_company}</Text>
+                    </View>
+
+                  </View>
+                </View>
+
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles.gender}</Text>
+                  </View>
+                </View>
+                {isprofiles?.height != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/icons-ruler.png')} style={{ heigh: 22, width: 22, marginRight: 7, marginLeft: -2 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.height != null ? isprofiles?.height : null} cm</Text>
+                    </View>
+                  </View>)
+                  :
+                  null
+                }
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.university}</Text>
+                  </View>
+                </View>
+                <View style={[styles.showMeView, { backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles.qualification}</Text>
+                  </View>
+                </View>
+              </View>
+
+              <View style={{ width: '90%', marginTop: 10, marginBottom: 10 }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', }}>More about me</Text>
+
+              </View>
+              <View style={{
+                flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
+                borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
+              }}>
+
+
+
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles.intrest_in}</Text>
+                  </View>
+                </View>
+
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.smoking}</Text>
+                  </View>
+                </View>
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.kids}</Text>
+                  </View>
+                </View>
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.drinking}</Text>
+                  </View>
+                </View>
+
+
+
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.zodiac}</Text>
+                  </View>
+                </View>
+
+                <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                  <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                    <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                    <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.politics}</Text>
+                  </View>
+                </View>
+
+
+
+              </View>
+
+
+
+            </View>
+         
+ 
+ 
+
+          </View>
+          
+          <View style={{ height: 180 }} />
+
+        </ScrollView>
+       
 
         {/* <View style={{borderBottomColor: '#ffb0ba', borderBottomWidth: StyleSheet.hairlineWidth, marginTop:10}}/> */}
-        <View style={{}}>
-          {/* {isprofiles.length > 0 ?
-            isprofiles
-              .map((item, index) => {
-
-                return (
-                  <View style={{ justifyContent: 'center' }}>
-                    <Text style={{ color: 'black', fontSize: 20 }}>
-                      {item.first_name}
-                    </Text>
-                  </View>
-                );
-              })
-            :
-            <Text style={{ color: 'black', fontSize: 20 }}>
-              no  data foung
-            </Text>
-
-          } */}
+        {/* <View style={{}}>
+          
           {isprofiles.length > 0
             ? isprofiles
               .map((item, index) => {
@@ -682,7 +980,9 @@ const handleSelection1 =(direction,data)=>{
                     item={item}
                     isFirst={isFirst}
                     swipe={swipe}
-                    heartPress={() => handleSelection(1,item)}
+                    heartPress={() =>{ 
+                      // handleSelection(1,item) 
+                      console.log("heartPress");}}
                     nopePress={() => handleSelection(-1,item)}
                     nextPress={() => removeCard()}
                     currentprofileopen={() =>{ handleButtonPress(item)}}
@@ -692,7 +992,7 @@ const handleSelection1 =(direction,data)=>{
               })
               .reverse()
             : null}
-        </View>
+        </View> */}
 
         {/* <View style={{ }}>
   <AppIntroSlider
@@ -736,6 +1036,15 @@ const handleSelection1 =(direction,data)=>{
         {/* {SliderData.length > 0 ? <Carousel data={SliderData} onReject={onReject} onLove={onLove} onRefresh={onRefresh} /> : null}   */}
 
       </View>
+      <View style={styles.buttonsRow1}>
+    <TouchableOpacity onPress={() => { SwipeProfile('L'),increment() }} style={styles.buttonViewOne}>
+      <Image source={require('../../../assets/images/dating-more-info-reject.png')} style={{ width: 20, height: 20, top: 0, }} resizeMode='contain' />
+    </TouchableOpacity>
+    <TouchableOpacity onPress={() => { SwipeProfile('R'),increment() }} style={styles.buttonViewTwo}>
+      <Image source={require('../../../assets/images/dating-love-image.png')} style={{ width: 40, height: 40, top: 0, }} resizeMode='contain' />
+    </TouchableOpacity>
+
+  </View>
       <View style={{ height: 900 }} />
 
 
@@ -1178,6 +1487,7 @@ const handleSelection1 =(direction,data)=>{
         </View>
       </Modal>
       {loading ? <Loader /> : null}
+      {My_Alert ? <MyAlert sms={alert_sms} okPress={() => { setMy_Alert(false) }} /> : null}
     </SafeAreaView>
   );
 }
@@ -1204,6 +1514,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '300',
     marginLeft: 10
+  },
+  showMeImageView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 25,
+    width: 25,
+    borderRadius: 20 / 2,
+    marginLeft: 0,
   },
   flatlistMainView: {
     flexDirection: 'row',
@@ -1329,6 +1647,58 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  showMeView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // justifyContent:'space-between',
+    width: 'auto',
+    padding: 10,
+    backgroundColor: '#fff1f6',
+    // paddingHorizontal:15, 
+    borderRadius: 30,
+    // borderWidth: 0.5
+    marginRight: 6
+  },
+  buttonsRow1: {
+     
+    marginHorizontal:10,
+    width:'98%',
+    height:100,
+    position: 'absolute',
+    bottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    
+     zIndex:999
+  },
+  buttonViewOne: {
+    // backgroundColor: '#fff',
+    width: 80,
+    height: 80,
+    borderRadius: 90 / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 1,
+    shadowOpacity: 0.07,
+    elevation: 1,
+  },
+  buttonViewTwo: {
+    // backgroundColor: '#FF4989',
+    width: 50,
+    height: 50,
+    borderRadius: 60 / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // marginHorizontal: 15,
+    shadowColor: '#E94057',
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 1,
+    shadowOpacity: 0.07,
+    elevation: 1,
   },
   cameraButtonView: {
     paddingHorizontal: 20,

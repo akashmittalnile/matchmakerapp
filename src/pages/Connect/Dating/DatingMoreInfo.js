@@ -22,11 +22,13 @@ const DatingMoreInfo = (props) => {
   const User = useSelector(state => state.user.user_details);
   const [loading, setLoading] = useState(false)
   const [profiledata, setProfileData] = useState('');
+  const [viewmore, setviewmore] = useState(true)
   const [My_Alert, setMy_Alert] = useState(false)
   const [alert_sms, setalert_sms] = useState('')
   const [searchValue, setsearchValue] = useState('')
   const [scrollEnabled, setScrollEnabled] = useState(false)
-  const myTextInput = useRef()
+  const myTextInput = useRef();
+  const [allImg, setAllImg] = useState([{ img: '' }])
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100])
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
   const [passionValues, setPassionsValues] = useState([
@@ -86,14 +88,15 @@ const DatingMoreInfo = (props) => {
   const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
 
   useEffect(() => {
-    // ProfilePage()
+    ProfilePage()
 
-    console.log("DatingMoreInfo useeffect", props.route.params.selectprofile);
-    if (props.route.params.from == 'PeopleHome') {
-      setProfileData(props.route.params.selectprofile)
-    } else if (props.route.params.from == 'DatingProfile') {
-      ProfilePage()
-    }
+    // console.log("DatingMoreInfo useeffect", props.route.params.selectprofile);
+    // if (props.route.params.from == 'PeopleHome') {
+    //   ProfilePage(props?.route?.params?.selectprofile?.userid)
+    //   // setProfileData(props.route.params.selectprofile)
+    // } else if (props.route.params.from == 'DatingProfile') {
+    //   ProfilePage()
+    // }
 
   }, [])
 
@@ -127,15 +130,21 @@ const DatingMoreInfo = (props) => {
     }
   }
 
-  const ProfilePage = async () => {
-    console.log('the res==>>DatingMoreInfo', User)
+  const ProfilePage = async (id) => {
+    console.log('DatingMoreInfoid', id)
+    var check = props.route.params.from == 'PeopleHome' ? id : User.userid
     setLoading(true)
-    const { responseJson, err } = await requestGetApi(connect_dating_profile, '', 'GET', User.token)
+    const { responseJson, err } = await requestGetApi(connect_dating_profile + "/" + check, '', 'GET', User.token)
     setLoading(false)
     console.log('the res==>>DatingMoreInfo', responseJson)
     if (responseJson.headers.success == 1) {
-      console.log('the res==>>DatingMoreInfo', responseJson.body)
+      // console.log('the res==>>DatingMoreInfo', responseJson.body)
       setProfileData(responseJson.body)
+      var allimgs = [];
+      for (let i = 1; i <= responseJson.body.images.length; i++) {
+        allimgs.push({ img: responseJson.body.images[i - 1].image })
+      }
+      setAllImg(allimgs)
     } else {
       setalert_sms(err)
       setMy_Alert(true)
@@ -159,17 +168,10 @@ const DatingMoreInfo = (props) => {
       <ScrollView>
         <View style={{ height: dimensions.SCREEN_HEIGHT * 46 / 100, width: '100%' }}>
 
-
-
           <View style={{ overflow: 'hidden', width: '100%', alignSelf: 'center', zIndex: -999 }}>
             <ImageSlider
               //  localImg={true}
-              data={[
-                // require('../../assets/Group75972.png'),
-                { img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5a5uCP-n4teeW2SApcIqUrcQApev8ZVCJkA&usqp=CAU' },
-                { img: 'https://thumbs.dreamstime.com/b/environment-earth-day-hands-trees-growing-seedlings-bokeh-green-background-female-hand-holding-tree-nature-field-gra-130247647.jpg' },
-                { img: 'https://cdn.pixabay.com/photo/2015/04/19/08/32/marguerite-729510__340.jpg' }
-              ]}
+              data={allImg}
               // onClick={(item, index) => {alert('hello'+index)}}
               // autoPlay={true}
               // onItemChanged={(item) => console.log("item", item)}
@@ -196,10 +198,10 @@ const DatingMoreInfo = (props) => {
               <View>
                 <Text style={{ fontSize: 15, color: '#31313f', fontWeight: 'bold', }}>{profiledata?.fullname}, {profiledata?.age_preference}</Text>
                 {/* <Text style={{fontSize:10, color:'#e10f51', marginTop:5}}>@marry</Text> */}
-                <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{profiledata.job_title}</Text>
+                <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{profiledata?.job_title}</Text>
               </View>
               {
-                profiledata.userid != User.userid ?
+                profiledata?.userid != User.userid ?
                   (<TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: profiledata, from: 'DatingMoreinfo' }) }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
                     <Image source={require('../../../assets/images/dating-home-header-right-image.png')} style={{ width: 20, height: 20 }} />
                   </TouchableOpacity>)
@@ -213,16 +215,20 @@ const DatingMoreInfo = (props) => {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
                 <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold' }}>Location</Text>
-                <Text style={{ fontSize: 10, color: '#4a4c52' }}>{profiledata.address}</Text>
+                <Text style={{ fontSize: 10, color: '#4a4c52' }}>{profiledata?.address}</Text>
               </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFE7F0', width: 80, height: 30, borderRadius: 15, paddingHorizontal: 10, shadowColor: 'rgba(255, 73, 137)', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.13, elevation: 2 }}>
-                <Image source={require('../../../assets/images/dating-maptrifold.png')} style={{ width: 20, height: 20 }} />
-                <Text style={{ fontSize: 10, color: '#FF4989' }}>2.5 km</Text>
-              </View>
+              {
+                profiledata?.userid != User.userid ?
+                  (<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFE7F0', width: 80, height: 30, borderRadius: 15, paddingHorizontal: 10, shadowColor: 'rgba(255, 73, 137)', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.13, elevation: 2 }}>
+                    <Image source={require('../../../assets/images/dating-maptrifold.png')} style={{ width: 20, height: 20 }} />
+                    <Text style={{ fontSize: 10, color: '#FF4989' }}>{Number(profiledata?.distance).toFixed(0)} mile</Text>
+                  </View>)
+                  :
+                  null}
             </View>
             <View style={{ marginTop: 30 }} />
             <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 7 }}>About</Text>
-            <ViewMoreText
+            {/* <ViewMoreText
               numberOfLines={3}
               renderViewMore={(onPress) => {
                 return (
@@ -237,8 +243,13 @@ const DatingMoreInfo = (props) => {
               textStyle={{ textAlign: 'left', width: '95%' }}
             >
               <Text style={{ fontSize: 10, color: '#4a4c52' }}>{profiledata?.about}</Text>
-            </ViewMoreText>
-
+            </ViewMoreText> */}
+            <View style={{ alignSelf: 'center', width: '100%', marginTop: 1, paddingHorizontal: 0 }}>
+              <Text style={{ fontSize: 11, color: Mycolors.TEXT_COLOR }}>{viewmore ? profiledata?.about?.substring(0, 150) : profiledata?.about}</Text>
+              {profiledata?.about ?
+                <Text onPress={() => { setviewmore(!viewmore) }} style={{ color: '#dd2e44', textDecorationLine: "underline", fontSize: 10 }}>{viewmore ? 'Read more' : 'Read less'}</Text>
+                : null}
+            </View>
             <View style={{ marginTop: 20 }}>
               <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Passions</Text>
               <FlatList
