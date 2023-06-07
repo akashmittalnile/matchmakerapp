@@ -51,8 +51,8 @@ import SplashScreen from 'react-native-splash-screen'
     return (
         isSignedIn ?
         (
-            // <DrawerNav />
-            <WeelStack />
+            <DrawerNav />
+            // <WeelStack />
         )
     :
         (

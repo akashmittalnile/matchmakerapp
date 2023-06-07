@@ -18,7 +18,7 @@ const App = (props) => {
     success: (props) => (
       <BaseToast
         {...props}
-        style={{ borderLeftColor: '#ADC430',borderColor:'#ADC430',borderWidth:1,height:55,width:'90%' }}
+        style={{ borderLeftColor: '#FFA5C5',borderColor:'#FFA5C5',borderWidth:1,height:55,width:'90%' }}
         contentContainerStyle={{ paddingHorizontal: 15 }}
         text1Style={{
           fontSize: 12,

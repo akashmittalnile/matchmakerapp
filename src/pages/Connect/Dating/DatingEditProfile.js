@@ -43,7 +43,8 @@ const DatingEditProfile = (props) => {
   const [menutypevalue, setmenutypevalue] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
   const [myHeight, setMyHeight] = useState('');
-const [profiledata,setProfileData]= useState('')
+  const [profiledata, setProfileData] = useState('');
+
   // const [menutypedate, setmenutypedate] = useState([
   //   { label: '150 cm', value: '150 cm' },
   //   { label: '151 cm', value: '151 cm' },
@@ -155,11 +156,11 @@ const [profiledata,setProfileData]= useState('')
   const [kidsValue, setKidsValue] = useState(['Open to kids', 'Don`t want', 'Not sure yet']);
   const [kidsSelect, setKidsSelect] = useState('');
 
-  const [politicsValue, setPoliticsValue] = useState(['Apolotical', 'Moderate', 'Communist', 'Socialist']);
+  const [politicsValue, setPoliticsValue] = useState([ ]);
   const [politicsselect, setPoliticsSelect] = useState('');
 
   const [attribute, setAttribute] = useState([]);
-  const [attribute1, setAttribute1] = useState([]);
+  const [attribute1, setAttribute1] = useState([]);  
   const [attribute2, setAttribute2] = useState([]);
   const [upData, setupData] = useState([
     {
@@ -195,59 +196,39 @@ const [profiledata,setProfileData]= useState('')
     GetProfilePage()
     requestCameraPermission()
     GetProfileImages()
-    GetZodiacAttributes()
-    GetLanguageAttributes()
-    GetPassionAttributes()
+
     // const unsubscribe = props.navigation.addListener('focus', () => {
-      
-      
     // return unsubscribe;
   }, []);
 
-  const selectImages = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        mediaType: 'photo',
-        selectionLimit: 1,
-        quality: 1,
-        includeBase64: false,
-        multiple: true
-      },
-      response => {
-        if (response.didCancel) {
-          console.log('Image selection cancelled');
-        } else if (response.error) {
-          console.log('ImagePicker Error: ', response.error);
-        } else {
-          const selectedImages = response.assets.map(asset => ({ uri: asset.uri }));
 
 
-          setImages(prevImages => [...prevImages, ...selectedImages]);
-        }
-      }
-    );
-  };
+  // const selectImages = () => {
+  //   ImagePicker.launchImageLibrary(
+  //     {
+  //       mediaType: 'photo',
+  //       selectionLimit: 1,
+  //       quality: 1,
+  //       includeBase64: false,
+  //       multiple: true
+  //     },
+  //     response => {
+  //       if (response.didCancel) {
+  //         console.log('Image selection cancelled');
+  //       } else if (response.error) {
+  //         console.log('ImagePicker Error: ', response.error);
+  //       } else {
+  //         const selectedImages = response.assets.map(asset => ({ uri: asset.uri }));
 
 
-  // const index = myArray.indexOf(2);
+  //         setImages(prevImages => [...prevImages, ...selectedImages]);
+  //       }
+  //     }
+  //   );
+  // };
 
-  // const x = myArray.splice(index, 1);
 
-  // const selectedimagedelete = (index) => {
-  //   console.log(index);
 
-  //   setLoading(true)
-  //   var abc = images.indexOf(index);
-
-  //   const x = images.splice(abc, 1);
-  //   console.log('=====selectedimagedelete===============================');
-  //   console.log(x);
-  //   console.log('====================================');
-  //   setImages(x);
-
-  //   setLoading(false)
-
-  // }
 
   const data = [
     {
@@ -350,106 +331,47 @@ const [profiledata,setProfileData]= useState('')
     // ));
   };
 
-  // const changeShowMeValue = (index) => {
-  //   if (showMeValue === index) {
-  //     return
-  //   }
-  //   if (showMeValue === 0) {
-  //     setShowMeSelect('Male')
-  //   } else if (showMeValue === 1) {
-  //     setShowMeSelect('Women')
-  //   } else if (showMeValue === 2) {
-  //     setShowMeSelect('Everyone')
-  //   }
-
-  //   setShowMeValue(index)
-  // }
-  // const changeSmokingValue = (index) => {
-  //   console.log(smokingdata);
-  //   if (smokingValue === index) {
-  //     return
-  //   }
-  //   if (smokingValue === 0) {
-  //     setSmokingdata('Yes')
-  //   } else if (smokingValue === 1) {
-  //     setSmokingdata('No')
-  //   } else if (smokingValue === 2) {
-  //     setSmokingdata('Occassionally')
-  //   }
-  //   setSmokingValue(index)
-  // }
-
-  // const changeDrinkingValue = (index) => {
-  //   if (drinkingValue === index) {
-  //     return
-  //   }
-  //   if (drinkingValue === 0) {
-  //     setDrinkingSelect('Yes')
-  //   } else if (drinkingValue === 1) {
-  //     setDrinkingSelect('No')
-  //   } else if (drinkingValue === 2) {
-  //     setDrinkingSelect('Occassionally')
-  //   }
-  //   setDrinkingValue(index)
-  // }
-  // const changeKidsValue = (index) => {
-  //   if (kidsValue === index) {
-  //     return
-  //   }
-  //   if (kidsValue === 0) {
-  //     setKidsSelect('Open to kids')
-  //   } else if (kidsValue === 1) {
-  //     setKidsSelect('Don`t want')
-  //   } else if (kidsValue === 2) {
-  //     setKidsSelect('Not sure yet')
-  //   }
-  //   setKidsValue(index)
-  // }
-  // const changePoliticsValue = (index) => {
-  //   if (politicsValue === index) {
-  //     return
-  //   }
-  //   if (politicsValue === 0) {
-  //     setPoliticsSelect('Apolotical')
-  //   } else if (politicsValue === 1) {
-  //     setPoliticsSelect('moderate')
-  //   } else if (politicsValue === 2) {
-  //     setPoliticsSelect('Left')
-  //   } else if (politicsValue === 3) {
-  //     setPoliticsSelect('Right')
-  //   } else if (politicsValue === 4) {
-  //     setPoliticsSelect('Communist')
-  //   } else if (politicsValue === 5) {
-  //     setPoliticsSelect('Socialist')
-  //   }
-
-  //   setPoliticsValue(index)
-  // }
 
   const changeSelectedPassions = (value) => {
-    // console.log("changeSelectedPassions", value);
+    console.log("changeSelectedPassions", value);
 
-    const isarray = selectedPassions.some(el => el.id == value.id)
-    if (isarray) {
-      const updatedData = selectedPassions?.filter(el => el.id != value.id)
-      setSelectedPassions(updatedData)
-      // console.log("changeSelectedupdatedData", updatedData);
-    } else {
-      setSelectedPassions([...selectedPassions, value])
-      // console.log("changeSelectedPselectedPassions", selectedPassions);
-    }
+    const data = [...selectedPassions]
+    const updatedData = data.map(el => {
+      if (el.id == value.id) {
+        return {
+          ...el, is_selected: !el.is_selected
+        }
+      } else {
+        return el
+      }
+    })
+    setSelectedPassions([...updatedData])
+    // const isarray = selectedPassions.some(el => el.id == value.id  )
+    // if (isarray) {
+    //   const updatedData = selectedPassions?.filter(el => el.id != value.id)
+    //   setSelectedPassions(updatedData)
+    //   // console.log("changeSelectedupdatedData", updatedData);
+    // } else {
+    //   setSelectedPassions([...selectedPassions, value])
+    //   // console.log("changeSelectedPselectedPassions", selectedPassions);
+    // }
   }
 
   const changeSelectedLanguage = (value) => {
-    const isarray = selectedLanguage.some(el => el.id == value.id)
-    if (isarray) {
-      const updatedData = selectedLanguage?.filter(el => el.id != value.id)
-      setSelectedLanguage(updatedData)
-    } else {
-      setSelectedLanguage([...selectedLanguage, value])
-    }
+    const data = [...selectedLanguage]
+    const updatedData = data.map(el => {
+      if (el.id == value.id) {
+        return {
+          ...el, is_selected: !el.is_selected
+        }
+      } else {
+        return el
+      }
+    })
+    setSelectedLanguage([...updatedData])
+
   }
-  
+
 
   const changeSelectedShowme = (index) => {
     if (showMeselect === index) {
@@ -482,17 +404,17 @@ const [profiledata,setProfileData]= useState('')
     setKidsSelect(index)
   }
   const changeSelectedzodiac = (index) => {
-    console.log("zodaic::",index.name);
-    if (selectedZodiac == index.name) {
+    console.log("zodaic::", index.attribute_value);
+    if (selectedZodiac == index.attribute_value) {
       return
     }
-    setSelectedZodiac(index.name)
+    setSelectedZodiac(index.attribute_value)
   }
   const changeSelectedPolitics = (index) => {
-    if (politicsselect === index) {
+    if (politicsselect == index?.attribute_value) {
       return
     }
-    setPoliticsSelect(index)
+    setPoliticsSelect(index?.attribute_value)
   }
   const multiSliderValuesChange = (values) => {
     // console.log("MultiSlider:::", values);
@@ -531,12 +453,12 @@ const [profiledata,setProfileData]= useState('')
           type: image.assets[0].type,
           name: image.assets[0].fileName
         };
-        console.log("image", photo,imgtype);
+        console.log("image", photo, imgtype);
 
         setpick(photo)
         setfilepath(image)
 
-        Createpost(photo,imgtype)
+        Createpost(photo, imgtype)
       }
     })
 
@@ -581,11 +503,11 @@ const [profiledata,setProfileData]= useState('')
           type: image.assets[0].type,
           name: image.assets[0].fileName
         };
-        console.log("launchImageLibraryimage", photo,imgtype);
+        console.log("launchImageLibraryimage", photo, imgtype);
         // setImages(photo)
         setpick(photo)
         setfilepath(image)
-        Createpost(photo,imgtype)
+        Createpost(photo, imgtype)
       }
     })
 
@@ -667,80 +589,23 @@ const [profiledata,setProfileData]= useState('')
 
   }
 
-  const GetPassionAttributes = async () => {
-    // console.log("the res==>>GetPassionAttributes", hob);
-    setLoading(true);
-
-    const { responseJson, err } = await requestGetApi(
-      common_master_attributes + 'dating_passion',
-      "",
-      "GET",
-      User.token
-    );
-    setLoading(false);
-    // console.log("the res==>>GetPassionAttributes", responseJson);
-    if (responseJson.headers.success == 1) {
-      // console.log("the res==>>GetPassionAttributes", responseJson.body);
-      setAttribute(responseJson.body);
-
-    } else {
-      setalert_sms(err);
-      setMy_Alert(true);
-    }
-
-  };
-  const GetLanguageAttributes = async () => {
-    // console.log("the res==>>GetLanguageAttributes", hob);
-    setLoading(true);
-
-    const { responseJson, err } = await requestGetApi(
-      common_master_attributes + 'dating_language',
-      "",
-      "GET",
-      User.token
-    );
-    setLoading(false);
-    // console.log("the res==>>GetLanguageAttributes", responseJson);
-    if (responseJson.headers.success == 1) {
-      // console.log("the res==>>GetLanguageAttributes", responseJson.body);
-      setAttribute1(responseJson.body);
-    } else {
-      setalert_sms(err);
-      setMy_Alert(true);
-    }
-
-  };
-
-  const GetZodiacAttributes = async () => {
-    // console.log("the res==>>GetLanguageAttributes", hob);
-    setLoading(true);
-
-    const { responseJson, err } = await requestGetApi(
-      common_master_attributes + 'zodiac',
-      "",
-      "GET",
-      User.token
-    );
-    setLoading(false);
-    // console.log("the res==>>GetLanguageAttributes", responseJson);
-    if (responseJson.headers.success == 1) {
-      // console.log("the res==>>GetLanguageAttributes", responseJson.body);
-      setAttribute2(responseJson.body);
-    } else {
-      setalert_sms(err);
-      setMy_Alert(true);
-    }
-
-  };
 
   const Editprofile = async () => {
     if (smokingdata == '') {
       Toast.show({ text1: 'Please select smoking or not' });
     }
-    var passiondata = selectedPassions?.map(el => attribute.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
+    var passiondata = selectedPassions?.filter(el2 => el2.is_selected)?.map(el => {
+      return {
+        attribute_type: el.attribute_type, attribute_code: el.attribute_code, attribute_value: el.attribute_value
+      }
+    });
 
-    var languagedata = selectedLanguage?.map(el => attribute1.find(att => att.id == el.id)).map(el => { return { attribute_type: el.master_type, attribute_code: el.master_code, attribute_value: el.name } });
-    // console.log("EditprofileDATA::", myHeight);
+    var languagedata = selectedLanguage?.filter(el2 => el2.is_selected)?.map(el => {
+      return {
+        attribute_type: el.attribute_type, attribute_code: el.attribute_code, attribute_value: el.attribute_value
+      }
+    });
+    // console.log("EditprofileDATA::", selectedZodiac);
     // setLoading(true)
 
     var data = {
@@ -750,7 +615,7 @@ const [profiledata,setProfileData]= useState('')
       // dob: "1991-01-01",
       // age_preference: multiSliderValue[1],
       // activity_status: "Online",
-      intrest_in: showMeselect,
+      // intrest_in: showMeselect,
       gender: genderselect,
       qualification: qualification,
       university: collegename,
@@ -765,10 +630,10 @@ const [profiledata,setProfileData]= useState('')
       passions: passiondata,
       languages: languagedata
     }
-    // console.log("SAVEDATA:", data);
+    console.log("SAVEDATA:", data);
     const { responseJson, err } = await requestPostApi(connect_dating_editprofile, data, 'PUT', User.token)
     setLoading(false)
-    // console.log('the Editprofileres==>>', responseJson)
+    console.log('the Editprofileres==>>', responseJson)
     if (responseJson.headers.success == 1) {
       //  Toast.show(responseJson.headers.message)
       Toast.show({ text1: responseJson.headers.message });
@@ -803,9 +668,9 @@ const [profiledata,setProfileData]= useState('')
 
   };
 
-  const Createpost = async (img,type) => {
+  const Createpost = async (img, type) => {
     setLoading(true);
-    console.log("pick UPLOAD:",img, type);
+    console.log("pick UPLOAD:", img, type);
     const formData = new FormData();
     formData.append('image', img);
     formData.append('attribute_code', type)
@@ -829,7 +694,7 @@ const [profiledata,setProfileData]= useState('')
       const responseJson = await response.json();
       // console.log(responseJson, 'my response');
       if (responseJson.headers.success == 1) {
-        
+
         Toast.show({ text1: responseJson.headers.message });
         setpick('')
         setFirstimagevalue('')
@@ -874,43 +739,48 @@ const [profiledata,setProfileData]= useState('')
   const GetProfilePage = async () => {
     console.log('the res==>>profileMoreInfo',)
     setLoading(true)
-    const { responseJson, err } = await requestGetApi(connect_dating_profile+'/'+ User.userid, '', 'GET', User.token)
+    const { responseJson, err } = await requestGetApi(connect_dating_profile, '', 'GET', User.token)
     setLoading(false)
     console.log('the res==>>DatingMoreInfo', responseJson)
     if (responseJson?.headers?.success == 1) {
       // console.log('the res==>>DatingMoreInfo', responseJson?.body)
       setProfileData(responseJson?.body);
-      setAboutMe(responseJson.body?.about);
-      setJobTitle(responseJson.body?.job_title);
-      setJobCompany(responseJson.body?.job_company);
-      setQualification(responseJson.body?.qualification);
-      setCollegename(responseJson.body?.university);
-      setGenderSelect(responseJson.body?.gender);
-      setMyHeight(responseJson.body?.height);
-      setShowMeSelect(responseJson.body?.intrest_in);
-      setSmokingdata(responseJson.body?.smoking);
-      setDrinkingSelect(responseJson.body?.drinking);
-      setKidsSelect(responseJson.body?.kids);
-      setPoliticsSelect(responseJson.body?.zodiac);
-      setSelectedZodiac(responseJson.body?.politics);
-      // setSelectedPassions([...selectedPassions, responseJson.body?.passions])
-      var allpassion = [];
-      isarray= selectedPassions.some(el=>el.attribute_code)
-      if(isarray){
+      setAboutMe(responseJson?.body?.about);
+      setJobTitle(responseJson?.body?.job_title);
+      setJobCompany(responseJson?.body?.job_company);
+      setQualification(responseJson?.body?.qualification);
+      setCollegename(responseJson?.body?.university);
+      setGenderSelect(responseJson?.body?.gender);
+      setMyHeight(responseJson?.body?.height);
+      // setShowMeSelect(responseJson?.body?.intrest_in);
+      setSmokingdata(responseJson?.body?.smoking);
+      setDrinkingSelect(responseJson?.body?.drinking);
+      setKidsSelect(responseJson?.body?.kids);
+      setPoliticsSelect(responseJson?.body?.politics);
+      setSelectedZodiac(responseJson?.body?.zodiac);
 
-      }
-      for (let i = 1; i <= responseJson.body.passions.length; i++) {
-        allpassion.push({ attribute_type: responseJson.body.passions[i - 1].attribute_type,attribute_code:responseJson.body.passions[i - 1].attribute_code,
-          attribute_value:responseJson.body.passions[i - 1].attribute_code,
-          attribute_image:responseJson.body.passions[i - 1].attribute_image,
-          })
-      }
-      
+      setSelectedPassions(responseJson?.body?.passions);
+      setSelectedLanguage(responseJson?.body?.languages);
+      setAttribute2(responseJson?.body?.all_zodiac)
+      setPoliticsValue(responseJson?.body?.all_politics)
+
+
+
+
     } else {
       setalert_sms(err)
       setMy_Alert(true)
     }
-  }
+  };
+
+
+  // const isarray = selectedPassions?.map(el => attribute?.find(x => x.master_code == el?.attribute_code))
+  // setDummyarray([...dummyarray, isarray])
+  // setSelectedPassions([...selectedPassions, dummyarray])
+  // console.log("newarrayxyz::", selectedPassions?.map(el => attribute?.find(x => x.master_code == el?.attribute_code)));
+  // setSelectedPassions([...selectedPassions, dummyarray])
+
+
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ flex: 1, }}>
       <LinearGradient
@@ -1299,7 +1169,7 @@ const [profiledata,setProfileData]= useState('')
               placeholder={'Type here.....'}
               placeholderTextColor="#ff5e96"
               multiline={true}
-              // maxLength={500}
+              maxLength={100}
               // keyboardType="number-pad"
               autoCapitalize='none'
               fontStyle='italic'
@@ -1314,14 +1184,19 @@ const [profiledata,setProfileData]= useState('')
                     (<>
                       {
                         selectedPassions.map((item, index) => {
-                          return (
-                            <View style={{ flexDirection: 'row', }}>
-                              <View style={styles.showMeImageView}>
-                                <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
+                          if (item.is_selected == '1') {
+                            return (
+                              <View style={{ flexDirection: 'row', }}>
+                                <View style={styles.showMeImageView}>
+                                  <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                                </View>
+                                <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{item?.attribute_value}</Text>
                               </View>
-                              <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{item.name}</Text>
-                            </View>
-                          )
+                            )
+                          } else {
+                            null
+                          }
+
                         })
                       }
                     </>)
@@ -1329,10 +1204,10 @@ const [profiledata,setProfileData]= useState('')
                     <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>Select Passion</Text>
 
                 }
-              </View>
+              </View >
 
 
-              <TouchableOpacity onPress={() => { setShowPassionsModal(true), GetPassionAttributes() }}>
+              <TouchableOpacity onPress={() => { setShowPassionsModal(true) }}>
                 <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 20, width: 20, }} resizeMode='contain' />
               </TouchableOpacity>
             </View>
@@ -1345,14 +1220,19 @@ const [profiledata,setProfileData]= useState('')
                     (<>
                       {
                         selectedLanguage.map((item, index) => {
-                          return (
-                            <View style={{ flexDirection: 'row', }}>
-                              <View style={styles.showMeImageView}>
-                                <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
+                          if (item.is_selected == '1') {
+                            return (
+                              <View style={{ flexDirection: 'row', }}>
+                                <View style={styles.showMeImageView}>
+                                  <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                                </View>
+                                <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{item?.attribute_value}</Text>
                               </View>
-                              <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{item.name}</Text>
-                            </View>
-                          )
+                            )
+                          }
+                          else {
+                            null
+                          }
                         })
                       }
                     </>)
@@ -1362,7 +1242,7 @@ const [profiledata,setProfileData]= useState('')
                 }
               </View>
               {/* <Text style={{ fontSize: 16, color: '#ff5e96', fontStyle: 'italic' }}>{selectedLanguage != '' ? selectedLanguage?.map(el => attribute1.find(att => att.id === el)?.name).join(', ') : 'Select Language'}</Text> */}
-              <TouchableOpacity onPress={() => { setShowPassionsModal2(true), GetLanguageAttributes('dating_language') }}>
+              <TouchableOpacity onPress={() => { setShowPassionsModal2(true) }}>
                 <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 20, width: 20, }} resizeMode='contain' />
               </TouchableOpacity>
             </View>
@@ -1456,7 +1336,7 @@ const [profiledata,setProfileData]= useState('')
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/dating_workicon.png')} style={{ heigh: 20, width: 20, marginRight: 7 }} />
+                <Image resizeMode='contain' source={require('../../../assets/icon-company.png')} style={{ height: 20, width: 20, marginRight: 7 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869' }}>Work</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '60%', height: 60, alignItems: 'center', }}>
@@ -1469,7 +1349,7 @@ const [profiledata,setProfileData]= useState('')
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                <Image resizeMode='contain' source={require('../../../assets/icon-school.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Education</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '60%', height: 60, alignItems: 'center', }}>
@@ -1482,7 +1362,7 @@ const [profiledata,setProfileData]= useState('')
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
+                <Image resizeMode='contain' source={require('../../../assets/icon-equality.png')} style={{ height:20, width: 25, marginRight: 3, top: 1 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Gender</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
@@ -1495,7 +1375,7 @@ const [profiledata,setProfileData]= useState('')
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/icons-ruler.png')} style={{ heigh: 22, width: 22, marginRight: 7, marginLeft: -2 }} />
+                <Image resizeMode='contain' source={require('../../../assets/icon-growth.png')} style={{ height: 22, width: 22, marginRight: 7, marginLeft: 0 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Height</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
@@ -1511,9 +1391,9 @@ const [profiledata,setProfileData]= useState('')
               <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'gray', marginTop: 5 }}>Cover the thinks most people are curious about</Text>
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
+            {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
+                <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ height: 80, width: 34, marginLeft: -7, top: -3 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Show me</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
@@ -1522,11 +1402,11 @@ const [profiledata,setProfileData]= useState('')
                   <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 14, width: 14, }} resizeMode='contain' />
                 </TouchableOpacity>
               </View>
-            </View>
+            </View> */}
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Smoking</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
@@ -1540,7 +1420,7 @@ const [profiledata,setProfileData]= useState('')
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Drinking</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
@@ -1553,7 +1433,7 @@ const [profiledata,setProfileData]= useState('')
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Kid's</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
@@ -1566,13 +1446,14 @@ const [profiledata,setProfileData]= useState('')
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Zodiac</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
                 <Text style={{ fontSize: 14, color: '#ff5e96', fontStyle: 'italic', textAlign: 'center', marginRight: 8 }}>{selectedZodiac != '' ? selectedZodiac : 'Add'}</Text>
-                <TouchableOpacity onPress={() => { setShowPassionsModal3(true),
-                  GetZodiacAttributes()}} >
+                <TouchableOpacity onPress={() => {
+                  setShowPassionsModal3(true)
+                }} >
                   <Image source={require('../../../assets/images/dating-change-password-right-arrow.png')} style={{ height: 14, width: 14, }} resizeMode='contain' />
                 </TouchableOpacity>
               </View>
@@ -1580,7 +1461,7 @@ const [profiledata,setProfileData]= useState('')
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, borderRadius: 10, height: 50, overflow: 'hidden', alignItems: "center", width: '100%', alignSelf: 'center', marginTop: 0 }}>
               <View style={{ width: '30%', height: 60, justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#3e5869', }}>Politics</Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '50%', height: 60, alignItems: 'center', }}>
@@ -1608,7 +1489,7 @@ const [profiledata,setProfileData]= useState('')
 
 
           </View>
-          <View style={{ height: 100 }} />
+
 
         </ScrollView>
 
@@ -1638,27 +1519,28 @@ const [profiledata,setProfileData]= useState('')
               </View>
 
               <View style={{ width: '95%', alignSelf: 'center' }}>
-                <Text style={{ color: '#4a4c52', fontSize: 12 }}>
+                <Text style={{ color: '#4a4c52', fontSize: 12, marginBottom: 10 }}>
                   Select passions that you would like to share. Choose a minimum of 3.
                 </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, marginBottom: 10 }}>
+                {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, marginBottom: 10 }}>
                   <Text style={{ color: '#4a4c52', fontSize: 12, fontWeight: '500' }}>Passions</Text>
                   <Text style={{ color: '#4a4c52', fontSize: 12, fontWeight: '500' }}>{`${selectedPassions?.length}/${attribute?.length}`}</Text>
-                </View>
+                </View> */}
 
                 <FlatList
-                  data={attribute}
+                  data={selectedPassions}
                   showsHorizontalScrollIndicator={false}
                   numColumns={3}
                   keyExtractor={item => item.id}
                   renderItem={({ item, index }) => {
-                    const isarray = selectedPassions.some(e => e.id == item.id)
+                    // const isarray = selectedPassions.some(e => e.id == item.id && item.is_selected == '1')
+
                     return (
-                      <TouchableOpacity onPress={() => { changeSelectedPassions(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: isarray ? '#fff1f6' : '#fff', borderColor: isarray ? '#ff3b7f' : '#e3d0d7' }]}>
+                      <TouchableOpacity onPress={() => { changeSelectedPassions(item) }} style={[styles.showMeView, { width: '31%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: item.is_selected ? '#fff1f6' : '#fff', borderColor: item.is_selected ? '#ff3b7f' : '#e3d0d7' }]}>
                         <View style={styles.showMeImageView}>
-                          <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
+                          <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
                         </View>
-                        <Text style={styles.showMeText}>{item.name}</Text>
+                        <Text style={styles.showMeText}>{item?.attribute_value}</Text>
 
                       </TouchableOpacity>
                     )
@@ -1699,27 +1581,27 @@ const [profiledata,setProfileData]= useState('')
               </View>
 
               <View style={{ width: '95%', alignSelf: 'center' }}>
-                <Text style={{ color: '#4a4c52', fontSize: 12 }}>
+                <Text style={{ color: '#4a4c52', fontSize: 12, marginBottom: 10 }}>
                   Select language that you would like to share. Choose a minimum of 2.
                 </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, marginBottom: 10 }}>
-                  <Text style={{ color: '#4a4c52', fontSize: 12, fontWeight: '500' }}>Language's</Text>
-                  <Text style={{ color: '#4a4c52', fontSize: 12, fontWeight: '500' }}>{`${selectedLanguage?.length}/${attribute1?.length}`}</Text>
-                </View>
+                {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, marginBottom: 10 }}>
+                      <Text style={{ color: '#4a4c52', fontSize: 12, fontWeight: '500' }}>Language's</Text>
+                      <Text style={{ color: '#4a4c52', fontSize: 12, fontWeight: '500' }}>{`${selectedLanguage?.length}/${attribute1?.length}`}</Text>
+                    </View> */}
 
                 <FlatList
-                  data={attribute1}
+                  data={selectedLanguage}
                   showsHorizontalScrollIndicator={false}
                   numColumns={3}
                   keyExtractor={item => item.id}
                   renderItem={({ item, index }) => {
-                    const isarray = selectedLanguage.some(e => e.id == item.id)
+                    // const isarray = selectedLanguage.some(e => e.id == item.id)
                     return (
-                      <TouchableOpacity onPress={() => { changeSelectedLanguage(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: isarray ? '#fff1f6' : '#fff', borderColor: isarray ? '#ff3b7f' : '#e3d0d7' }]}>
+                      <TouchableOpacity onPress={() => { changeSelectedLanguage(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: item.is_selected ? '#fff1f6' : '#fff', borderColor: item.is_selected ? '#ff3b7f' : '#e3d0d7' }]}>
                         <View style={styles.showMeImageView}>
-                          <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
+                          <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
                         </View>
-                        <Text style={styles.showMeText}>{item.name}</Text>
+                        <Text style={styles.showMeText}>{item.attribute_value}</Text>
 
                       </TouchableOpacity>
                     )
@@ -1773,12 +1655,13 @@ const [profiledata,setProfileData]= useState('')
                   numColumns={3}
                   keyExtractor={item => item.id}
                   renderItem={({ item, index }) => {
+                    const ff = item.is_selected != 1
                     return (
-                      <TouchableOpacity onPress={() => { changeSelectedzodiac(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: selectedZodiac == item.name ? '#fff1f6' : '#fff', borderColor: selectedZodiac == item.name ? '#ff3b7f' : '#e3d0d7' }]}>
+                      <TouchableOpacity onPress={() => { changeSelectedzodiac(item) }} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: selectedZodiac == item.attribute_value && ff ? '#fff1f6' : '#fff', borderColor: selectedZodiac == item.attribute_value && ff ? '#ff3b7f' : '#e3d0d7' }]}>
                         {/* <View style={styles.showMeImageView}>
                           <Image source={{ uri: `${item.image}` }} style={styles.showMeImage} resizeMode='contain' />
                         </View> */}
-                        <Text style={styles.showMeText}>{item.name}</Text>
+                        <Text style={styles.showMeText}>{item.attribute_value}</Text>
                         {/* <View style={[styles.showMeImageView, { backgroundColor: selectedZodiac == item ? '#ff3b7f' : '#e3d0d7' }]}>
                           <Image source={require('../../../assets/images/dating-selected-arrow.png')} style={styles.showMeImage} resizeMode='contain' />
                         </View> */}
@@ -2063,8 +1946,8 @@ const [profiledata,setProfileData]= useState('')
                   keyExtractor={item => item.id}
                   renderItem={({ item, index }) => {
                     return (
-                      <TouchableOpacity onPress={() => { changeSelectedPolitics(item) }} style={[styles.showMeView, { width: '100%', marginBottom: 10, backgroundColor: politicsselect == item ? '#fff1f6' : '#fff', borderColor: politicsselect == item ? '#ff3b7f' : '#e3d0d7' }]}>
-                        <Text style={styles.showMeText}>{item}</Text>
+                      <TouchableOpacity onPress={() => { changeSelectedPolitics(item) }} style={[styles.showMeView, { width: '100%', marginBottom: 10, backgroundColor: politicsselect == item?.attribute_value ? '#fff1f6' : '#fff', borderColor: politicsselect == item?.attribute_value ? '#ff3b7f' : '#e3d0d7' }]}>
+                        <Text style={styles.showMeText}>{item?.attribute_value}</Text>
 
                       </TouchableOpacity>
                     )
@@ -2582,7 +2465,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '27%',
+    width: '30%',
     padding: 10,
     // paddingHorizontal:15, 
     borderRadius: 5,

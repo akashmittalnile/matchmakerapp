@@ -1,26 +1,23 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Image, Text, StyleSheet, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground, Keyboard, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
-import HomeHeaderRoundBottom from '../../../component/HomeHeaderRoundBottom';
-import SearchInput2 from '../../../component/SearchInput2';
-import SearchInputEnt from '../../../component/SearchInputEnt';
-import SerchInput from '../../../component/SerchInput';
 import { dimensions, Mycolors } from '../../../utility/Mycolors';
 import { ImageSlider, ImageCarousel } from "react-native-image-slider-banner";
 import MyButtons from '../../../component/MyButtons';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Modal from 'react-native-modal';
+import Toast from 'react-native-toast-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector, useDispatch } from 'react-redux';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
+import Loader from '../../../WebApi/Loader';
+// import auth from '@react-native-firebase/auth';
 //third parties
 import moment from 'moment';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import Hyperlink from 'react-native-hyperlink';
-import { firebase } from '@react-native-firebase/messaging';
+// import { firebase } from '@react-native-firebase/messaging';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { connect_dating_block_profile, requestPostApi } from '../../../WebApi/Service'
 
-const image1 = require('../../../assets/images/people-following-person.png')
-const image2 = require('../../../assets/images/people-sender-image.png')
 
 const DatingChat = (props) => {
   const flatListRef = useRef();
@@ -32,9 +29,10 @@ const DatingChat = (props) => {
   const [driver_id, setDriverid] = useState('')
   const [messages, setMessages] = useState([]);
   const [scrollEnabled, setScrollEnabled] = useState(false)
-  const myTextInput = useRef()
+  const [profileModal, setProfileModal] = useState(false)
   const [userMessage, setUserMessage] = useState('');
   const [ChatImage, setChatImage] = useState('');
+  const [loading, setLoading] = useState(false)
   const [ChatDocument, setChatDocument] = useState('');
   const [message, setmessage] = useState('');
   const [chats, setChats] = useState([]);
@@ -74,7 +72,32 @@ const DatingChat = (props) => {
     },
 
   ])
+  const BloackCurrentUser = async () => {
+    console.log("BloackCurrentUser=>", driver_id.userid);
+    setLoading(true);
+    var data = {
+      blocked_id: driver_id.userid
+    }
+    const { responseJson, err } = await requestPostApi(
+      connect_dating_block_profile,
+      data,
+      "POST",
+      user_details.token
+    );
+    setLoading(false);
+    console.log("the res==>>BloackCurrentUser=>", responseJson);
+    if (responseJson?.headers?.success == 1) {
+      Toast.show({ text1: responseJson.headers.message });
+      props.navigation.navigate('DatingBlockUserScreen');
+      // console.log("the res==>>GetProfileImages", responseJson.headers.message);
 
+     } 
+    //else {
+    //   setalert_sms(err);
+    //   setMy_Alert(true);
+    // }
+
+  };
   //function : navigation function
   const gotoFullImageView = image => {
     navigation?.navigate(ScreenNames.FULL_IMAGE_VIEW, { image: image });
@@ -287,7 +310,7 @@ const DatingChat = (props) => {
   //useEffect
 
   useEffect(() => {
-    console.log("Reciver_id", props.route.params.Reciver_id.userid, user_details.userid);
+    console.log("Reciver_id", props.route.params.Reciver_id, user_details.userid);
     // resetChatCount();
     var UserId = user_details.userid
     var driver_id = props.route.params.Reciver_id
@@ -329,102 +352,7 @@ const DatingChat = (props) => {
     // Stop listening for updates when no longer required
     return () => unSubscribe();
   }, [driver_id?.userid]);
-  //useEffect
 
-  //   const getLocation1 = () => {
-  //     return firebase.firestore()
-  //             .collection("Matchmakingapp")
-  //             .doc(docid)
-  //             .get()
-  //             .then(function(doc) {
-  //                 if (doc.exists) {
-  //                     data = doc.data();
-  //                     console.log("getfirebase",data);
-  //                     // return data;
-  //                 } else {
-  //                   console.log("getfirebase");
-  //                     // return "";
-  //                 }
-  //             });
-  // };
-  //   const getWithWhomList = async () => {
-  //     const db =  firestore();
-  //     const ref = db.collection("Matchmakingapp").doc(docid).collection('Messages');
-  //     const query = ref.where("sender", "==", user_details.userid)
-  //       .where("receiver", "==", driver_id?.userid);
-  //     const results = await query.get();
-
-  //     const withWhomList = results.docs.map((doc) => {
-  //       const { sender, receiver } = doc.data();
-  //       return {
-  //         id: sender || receiver,
-  //         name: sender || receiver,
-  //       };
-  //     });
-  // console.log('withWhomList====================================');
-  // console.log(withWhomList);
-  // console.log('===================================withWhomList=');
-  // // setWithWhom(withWhomList);
-  // };
-
-  // useEffect(() => {
-  //   getWithWhomList();
-  // }, []);
-
-  // const getUsers = async () => {
-  //   const querySnap = await firestore().collection("Matchmakingapp").get()
-
-  //   const allusers = querySnap.then(querySnapshot => {
-  //     console.log('Total users:', querySnapshot.size);
-  //     querySnapshot.forEach(documentSnapshot => {
-  //       console.log('User ID:', documentSnapshot.id, documentSnapshot.data());
-  //       return documentSnapshot.data()
-  //     })
-  //   })
-  //   // const allusers = querySnap.docs.map(docSnap => docSnap.data())
-  //   setUsersdata(allusers)
-  //   console.log('1getUsers====================================');
-  //   console.log(allusers);
-  //   console.log('===================================getUsers=');
-  // }
-
-  useEffect(() => {
-    // getUsers()
-    // firestore()
-    //   .collection('Matchmakingapp')
-    //   .doc(docid)
-    //   .collection('Messages')
-    //   .get()
-    //   .then(querySnapshot => {
-    //     console.log('Total users:', querySnapshot.size);
-
-    //     querySnapshot.forEach(documentSnapshot => {
-    //       console.log('User ID:', documentSnapshot.id, documentSnapshot.data());
-    //       return documentSnapshot.data()
-
-    //     });
-    //   });
-    // getUserDetail();
-    // const chatsCollection = firestore()
-    // .collection('Matchmakingapp')
-    // const unSubscribe = chatsCollection.onSnapshot(querySnap => {
-    //   if (querySnap != null) {
-    //     const AllMsg = querySnap.docs.map(docSnap => {
-    //       const data = docSnap 
-    //       console.log("MessageRef::=>>>", data);
-
-
-    //     });
-
-    //    } else {
-    //     console.log("avc=>>>",);
-    //     // setMessagesData([]);
-    //   }
-    //   console.log("tttt::=>>>", data);
-    // });
-
-    return () => getUsers();
-  }, []);
 
   useEffect(() => {
     if (Platform.OS === 'ios') {
@@ -443,21 +371,22 @@ const DatingChat = (props) => {
     return () => { };
   }, []);
 
-  // function : render function
+
 
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ backgroundColor: '#fff5f7', flex: 1 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 60, padding: 14, justifyContent: 'space-between', width: "100%" }}>
-        <TouchableOpacity onPress={() => { props.navigation.goBack() }}>
+        <TouchableOpacity onPress={() => { props.navigation.goBack('') }}>
           <Image source={require('../../../assets/images/dating-back-arrow.png')} style={{ width: 25, height: 15, left: -5 }} resizeMode='contain' />
         </TouchableOpacity>
 
         <View style={{ justifyContent: 'center', alignItems: 'center', marginRight: 14 }}>
           <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#4a4c52', }}>{props.route.params.Reciver_id.fullname}</Text>
         </View>
-        <View style={{ justifyContent: 'center', alignItems: 'center', }}>
+        <TouchableOpacity onPress={() => setProfileModal(true)} style={{ justifyContent: 'center', alignItems: 'center', }}>
+          <Ionicons name={"ellipsis-vertical"} color={'black'} size={28} />
           {/* <Image source={require('../../../assets/images/dating-home-header-left-image.png')} style={{height:40, width:40, borderRadius:20, borderColor:'#e42f5e', borderWidth:2}}/> */}
-        </View>
+        </TouchableOpacity>
 
       </View>
       <View style={{ borderBottomColor: "red", borderWidth: 0.5, width: dimensions.SCREEN_WIDTH }} />
@@ -520,6 +449,64 @@ const DatingChat = (props) => {
           </View>
         </View>
       </View>
+
+
+      <Modal
+        isVisible={profileModal}
+        swipeDirection="up"
+        onBackdropPress={() => setProfileModal(false)}
+        onSwipeComplete={e => {
+          setProfileModal(false);
+        }}
+
+        style={{
+          justifyContent: 'flex-start', // Update justifyContent to 'flex-start'
+          margin: 0,
+          height: 20,
+          backgroundColor: 'transparent',
+        }}>
+        <View
+          style={{
+            height: '6%',
+            backgroundColor: '#FFF',
+            marginTop: '13%',
+            width: '30%',
+            alignSelf: 'flex-end',
+            justifyContent: 'flex-end',
+            right: 10,
+            borderRadius: 10
+          }}>
+
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}>
+            <View style={{ width: '90%', alignSelf: 'center', marginTop: 8 }}>
+
+
+              {/* <View style={{ backgroundColor: '#EDEEEE', height: 1, width: '100%', marginTop: 5 }}>
+
+              </View> */}
+              <View style={{ marginTop: 0 }}>
+                <TouchableOpacity style={{ marginHorizontal: 10, flexDirection: 'row', alignItems: 'center' }} onPress={() => {
+                  BloackCurrentUser()
+                  setProfileModal(false);
+                }}>
+                  <Image source={require('../../../assets/icon-blockcontact.png')} style={{ width: 30, height: 30 }} resizeMode='contain' />
+
+                  <Text style={{ fontSize: 16, left: 14, color: 'black' }}>Block</Text>
+                </TouchableOpacity>
+
+
+              </View>
+
+
+            </View>
+
+            <View style={{ width: 100, height: 100 }} />
+          </ScrollView>
+        </View>
+      </Modal>
+      {loading ? <Loader /> : null}
     </SafeAreaView>
 
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground ,RefreshControl} from 'react-native';
 import HomeHeaderRoundBottom from '../../../component/HomeHeaderRoundBottom';
 import HomeHeader from '../../../component/HomeHeader';
 import SearchInput2 from '../../../component/SearchInput2';
@@ -16,7 +16,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { baseUrl, login, shop_eat_business, requestPostApi, requestGetApi, connect_dating_profile, connect_dating_swipe_profile, } from '../../../WebApi/Service'
 import { useSelector, useDispatch } from 'react-redux';
 import ViewMoreText from 'react-native-view-more-text';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import Toast from 'react-native-toast-message';
 
 const DatingMoreInfo = (props) => {
   const User = useSelector(state => state.user.user_details);
@@ -86,11 +86,10 @@ const DatingMoreInfo = (props) => {
 
   ])
   const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
-
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     ProfilePage()
-
-    // console.log("DatingMoreInfo useeffect", props.route.params.selectprofile);
+// console.log("DatingMoreInfo useeffect", props.route.params.selectprofile);
     // if (props.route.params.from == 'PeopleHome') {
     //   ProfilePage(props?.route?.params?.selectprofile?.userid)
     //   // setProfileData(props.route.params.selectprofile)
@@ -99,6 +98,22 @@ const DatingMoreInfo = (props) => {
     // }
 
   }, [])
+  const checkcon = () => {
+    ProfilePage()
+  }
+  const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  }
+
+  const onRefresh = React.useCallback(() => {
+    
+    checkcon()
+    wait(2000).then(() => {
+
+      setRefreshing(false)
+
+    });
+  }, []);
 
   const SwipeProfile = async (type) => {
     console.log("SwipeProfile........", profiledata.userid, type);
@@ -132,9 +147,9 @@ const DatingMoreInfo = (props) => {
 
   const ProfilePage = async (id) => {
     console.log('DatingMoreInfoid', id)
-    var check = props.route.params.from == 'PeopleHome' ? id : User.userid
+    // var check = props?.route?.params?.from == 'PeopleHome' ? id : User.userid
     setLoading(true)
-    const { responseJson, err } = await requestGetApi(connect_dating_profile + "/" + check, '', 'GET', User.token)
+    const { responseJson, err } = await requestGetApi(connect_dating_profile , '', 'GET', User.token)
     setLoading(false)
     console.log('the res==>>DatingMoreInfo', responseJson)
     if (responseJson.headers.success == 1) {
@@ -165,7 +180,15 @@ const DatingMoreInfo = (props) => {
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ backgroundColor: '#fff5f7', height: '100%' }}>
 
-      <ScrollView>
+      <ScrollView 
+       refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+
+        />
+      }
+      >
         <View style={{ height: dimensions.SCREEN_HEIGHT * 46 / 100, width: '100%' }}>
 
           <View style={{ overflow: 'hidden', width: '100%', alignSelf: 'center', zIndex: -999 }}>
@@ -188,9 +211,9 @@ const DatingMoreInfo = (props) => {
 
           </View>
         </View>
-        <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ position: 'absolute', top: 40, left: 20, }}>
-          <Image source={require('../../../assets/images/dating-white-back-button.png')} style={{ width: 25, height: 15 }} resizeMode='contain' />
-        </TouchableOpacity>
+        {/* <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ position: 'absolute', top: 40, left: 20, backgroundColor:'#FFA5C5' ,borderRadius:50,height:30,justifyContent:'center',width:30,alignItems:'center' }}>
+          <Image source={require('../../../assets/images/dating-white-back-button.png')} style={{ width: 25, height: 15 ,  }} resizeMode='contain' />
+        </TouchableOpacity> */}
         <View style={{ width: '90%', alignSelf: 'center', marginTop: 20 }}>
 
           <View style={{ backgroundColor: '#fff5f7', padding: 20 }}>
@@ -245,22 +268,25 @@ const DatingMoreInfo = (props) => {
               <Text style={{ fontSize: 10, color: '#4a4c52' }}>{profiledata?.about}</Text>
             </ViewMoreText> */}
             <View style={{ alignSelf: 'center', width: '100%', marginTop: 1, paddingHorizontal: 0 }}>
-              <Text style={{ fontSize: 11, color: Mycolors.TEXT_COLOR }}>{viewmore ? profiledata?.about?.substring(0, 150) : profiledata?.about}</Text>
-              {profiledata?.about ?
+              <Text style={{ fontSize: 11, color: Mycolors.TEXT_COLOR }}>{profiledata?.about}</Text>
+              {/* {profiledata?.about ?
                 <Text onPress={() => { setviewmore(!viewmore) }} style={{ color: '#dd2e44', textDecorationLine: "underline", fontSize: 10 }}>{viewmore ? 'Read more' : 'Read less'}</Text>
-                : null}
+                : null} */}
             </View>
             <View style={{ marginTop: 20 }}>
               <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Passions</Text>
+              <View style={{ }}>
+                
               <FlatList
-                data={profiledata.passions}
+              // horizontsal
+                data={profiledata?.passions?.filter(el=>el.is_selected)}
                 showsHorizontalScrollIndicator={false}
                 numColumns={3}
-                keyExtractor={item => item.id}
+                keyExtractor={(item,index) =>index.toString() }
                 renderItem={({ item, index }) => {
-                  // if(item.mutual){
                   return (
-                    <View key={item.name} style={[styles.showMeView, { width: '31%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+
+                    <View key={item} style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', }]}>
                       {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
                       <View style={styles.showMeImageView}>
                         <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
@@ -268,28 +294,25 @@ const DatingMoreInfo = (props) => {
                       <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
                     </View>
                   )
-                  // }
-                  // else{
-                  //   return(
-                  //     <View key={item.name} style={[styles.showMeView , {justifyContent:'center', width:'30%',marginHorizontal:index % 3 === 1 ? 10 : 0,marginBottom:10, borderColor: '#e3d0d7'}]}>
-                  //       <Text style={styles.showMeText}>{item.attribute_value}</Text>
-                  //     </View>
-                  //   )
-                  // }
+                   
+                  
                 }}
               />
+              </View>
+             
             </View>
             <View style={{ marginTop: 20 }}>
               <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Languages</Text>
+              <View style={{  }}>
               <FlatList
-                data={profiledata.languages}
+                data={profiledata?.languages?.filter(el=>el.is_selected)}
                 showsHorizontalScrollIndicator={false}
                 numColumns={3}
                 keyExtractor={item => item.id}
                 renderItem={({ item, index }) => {
-                  // if(item.mutual){
+                  if(item.is_selected == 1){
                   return (
-                    <View key={item.name} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+                    <View key={item.name} style={[styles.showMeView, {  marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
                       {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
                       <View style={styles.showMeImageView}>
                         <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
@@ -297,9 +320,10 @@ const DatingMoreInfo = (props) => {
                       <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
                     </View>
                   )
-
+                  }
                 }}
               />
+              </View>
             </View>
 
             <View style={{ width: '90%', marginTop: 10 }}>
@@ -312,7 +336,7 @@ const DatingMoreInfo = (props) => {
 
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', }}>
-                  <Image resizeMode='contain' source={require('../../../assets/dating_workicon.png')} style={{ heigh: 20, width: 20, marginRight: 7 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/icon-company.png')} style={{ height: 20, width: 20, marginRight: 7 }} />
                   <View style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
                     <Text numberOfLines={1} style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.job_company}</Text>
                   </View>
@@ -322,14 +346,14 @@ const DatingMoreInfo = (props) => {
 
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/icon-equality.png')} style={{ height: 20, width: 25, marginRight: 6, top: 1 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.gender}</Text>
                 </View>
               </View>
               {profiledata?.height != null ?
                 (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                   <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                    <Image resizeMode='contain' source={require('../../../assets/icons-ruler.png')} style={{ heigh: 22, width: 22, marginRight: 7, marginLeft: -2 }} />
+                    <Image resizeMode='contain' source={require('../../../assets/icon-growth.png')} style={{ height: 22, width: 22, marginRight: 7, marginLeft: 0 }} />
                     <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.height != null ? profiledata?.height : null} cm</Text>
                   </View>
                 </View>)
@@ -338,13 +362,13 @@ const DatingMoreInfo = (props) => {
               }
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/icon-school.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.university}</Text>
                 </View>
               </View>
               <View style={[styles.showMeView, { backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/education_icon.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/icon-degree.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.qualification}</Text>
                 </View>
               </View>
@@ -361,28 +385,34 @@ const DatingMoreInfo = (props) => {
 
 
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+              {/* <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ height: 80, width: 34, marginLeft: -7, top: -3 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.intrest_in}</Text>
                 </View>
-              </View>
+              </View> */}
 
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.smoking}</Text>
                 </View>
               </View>
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.kids}</Text>
                 </View>
               </View>
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.politics}</Text>
+                </View>
+              </View>
+              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                  <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.drinking}</Text>
                 </View>
               </View>
@@ -391,17 +421,12 @@ const DatingMoreInfo = (props) => {
 
               <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                 <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
+                  <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.zodiac}</Text>
                 </View>
               </View>
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.politics}</Text>
-                </View>
-              </View>
+              
 
 
 
@@ -656,8 +681,8 @@ const styles = StyleSheet.create({
   showMeView: {
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent:'space-between',
-    width: 'auto',
+    justifyContent:'space-between',
+    // width: 100,
     padding: 10,
     backgroundColor: '#fff1f6',
     // paddingHorizontal:15, 

@@ -8,6 +8,7 @@ import MyDrawer from '../component/MyDrawer';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { dimensions } from '../utility/Mycolors';
 import ConnectPeopleStack from './ConnectPeopleStack';
+import DatingBottomNav from './DatingBottomNav';
 
 
 const DrawerNav = (props) => {
@@ -22,7 +23,7 @@ const DrawerNav = (props) => {
       >
       {/* <Drawer.Screen name="BottomNav" component={BottomNav}  */}
        {/* <Drawer.Screen name="ConnectPeopleStack" component={ConnectPeopleStack}  */}
-       <Drawer.Screen name="WeelStack" component={WeelStack}
+       <Drawer.Screen name="DatingBottomNav" component={DatingBottomNav}
       options={{
         drawerLabel: () => null,
         title: null,
