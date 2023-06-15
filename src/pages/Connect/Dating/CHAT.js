@@ -99,6 +99,58 @@ const ChatNow = ({userToken, navigation, dispatch}) => {
       console.log('error in resetChatCount', error);
     }
   };
+//to checkmessage read or not
+  const getAllMyClubs = async () => {
+    try {
+      const {response, status} = await Service.getAPI(
+        Service.get_clubs,
+        {},
+        userToken,
+      );
+      if (status) {
+        let totalCount = 0;
+        await response.map(item => {
+          firestore()
+            .collection('groups')
+            .doc(item.id.toString())
+            .collection('users')
+            .where('id', '==', userInfo.id)
+            .get()
+            .then(querySnapshot => {
+              querySnapshot.forEach(doc => {
+                const unreadCount = doc.data().unread_count;
+                totalCount += unreadCount;
+                // Perform any further operations with the unreadCount
+              });
+              setMessagesCount(totalCount);
+              return;
+            })
+            .catch(error => {
+              // Handle any errors that occur during the retrieval
+              console.error('Error getting users:', error);
+            });
+        });
+      }
+    } catch (error) {
+      console.error('error in getAllMyClubs', error);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const sendMessage = async () => {
     if (message == '' && ChatImage == '' && ChatDocument == '') {
     } else {
@@ -414,3 +466,7 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch => ({dispatch});
 export default connect(mapStateToProps, mapDispatchToProps)(ChatNow);
+
+
+
+

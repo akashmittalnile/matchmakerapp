@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "androidRelease": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res --verbose",
     "removeAndroidDrwable": "rm -rf ./android/app/src/main/res/drawable-*",
-    "removeAndroidRaw": "rm -rf ./android/app/src/main/res/raw"
+    "removeAndroidRaw": "rm -rf ./android/app/src/main/res/raw",
+    "testingbuildandroid":"./gradlew assembleRelease"
   },
   "dependencies": {
     "@ptomasroos/react-native-multi-slider": "^2.2.2",

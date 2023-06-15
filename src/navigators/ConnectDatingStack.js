@@ -10,6 +10,7 @@ import DatingProfile from '../pages/Connect/Dating/DatingProfile';
 import DatingEditProfile from '../pages/Connect/Dating/DatingEditProfile';
 import DatingMoreInfo from '../pages/Connect/Dating/DatingMoreInfo';
 import DatingYourMatches from '../pages/Connect/Dating/DatingYourMatches';
+import CustomModal from '../pages/Connect/Dating/CustomModal';
 
 const ConnectDatingStack=(props)=>{
    
@@ -28,6 +29,7 @@ const ConnectDatingStack=(props)=>{
             <Stack.Screen component = {DatingEditProfile} name="DatingEditProfile" />
             <Stack.Screen component = {DatingMoreInfo} name="DatingMoreInfo" />
             <Stack.Screen component = {DatingYourMatches} name="DatingYourMatches" />
+             
             
 
         </Stack.Navigator>

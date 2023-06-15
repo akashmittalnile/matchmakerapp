@@ -56,7 +56,7 @@ export const connect_dating_swipe_profile_id_delete  = 'connect/dating/swipe-pro
 export const connect_dating_delete_profile_image = 'connect/dating/profile-image/';
 export const connect_dating_block_profile = 'connect/dating/block-profile';  
 
-export const connect_dating_blocle = 'connect/dating/block-profile';  
+export const connect_dating_chat_list = 'connect/dating/connected-profile';  
 export const driver_fuel_cost = 'driver/fuel_cost'
 export const driver_referral_earning = 'driver/referral_earning'
 export const driver_change_account_status = 'driver/change_account_status'

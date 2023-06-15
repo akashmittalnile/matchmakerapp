@@ -145,5 +145,16 @@ export const setDashBoardData = (data) => {
         dash_data:data
     }
 }
-
+export const setdatingMatchData = (data) => {
+    return {
+        type:types.MATCHDATA,
+        matches_data:data
+    }
+}
+export const setdatingmessagecount = (data) => {
+    return {
+        type:types.CHATDATA,
+        chat_data:data
+    }
+}
 

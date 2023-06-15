@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, InteractionManager, Animated, PanResponder } from 'react-native';
+import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, InteractionManager, Animated, PanResponder, RefreshControl, KeyboardAvoidingView } from 'react-native';
 import HomeHeaderRoundBottom from '../../../component/HomeHeaderRoundBottom';
 import HomeHeader from '../../../component/HomeHeader';
 import SearchInput2 from '../../../component/SearchInput2';
@@ -16,12 +16,17 @@ import { GoogleApiKey } from '../../../WebApi/GoogleApiKey';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useSelector, useDispatch } from 'react-redux';
 import Toast from 'react-native-toast-message';
-import { setRestorentLocation } from '../../../redux/actions/latLongAction';
+import { setRestorentLocation, setdatingMatchData } from '../../../redux/actions/latLongAction';
 import Loader from '../../../WebApi/Loader';
+import Svg from 'react-native-svg';
+import imageSvg from '../../../assets/lovematching_icon.svg';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { connect_dating_active_status, connect_dating_home_data, connect_dating_location, connect_dating_profile, connect_dating_profile_list, connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
 import DatingCard from "../../../component/DatingCard";
 import MyAlert from '../../../component/MyAlert';
+import messaging from '@react-native-firebase/messaging';
+import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 Geocoder.init(GoogleApiKey);
 const GOOGLE_MAPS_APIKEY = GoogleApiKey;
@@ -44,11 +49,12 @@ const PeopleHome = (props) => {
   const myTextInput = useRef()
   const dispatch = useDispatch();
   const [googleAddress, setGoogleAddress] = useState('');
+  const [isVisible, setVisible] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [googleLatLng, setGoogleLatLng] = useState({});
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100])
   const [ageRangeSliderValue, setAgeRangeSliderValue] = useState([18, 60])
-  const [distanceSliderValue, setDistanceSliderValue] = useState([50, 60])
+  const [distanceSliderValue, setDistanceSliderValue] = useState([50, 50])
   const [interstedInValue, setInterstedInValue] = useState(['Male', 'Female', 'Transgender']);
   const [interstedInselect, setInterstedInSelect] = useState('');
   const [smokingValue, setSmokingValue] = useState(['Yes', 'No', 'Occassionally']);
@@ -66,12 +72,10 @@ const PeopleHome = (props) => {
   const [filterBySelect, setFilterBySelect] = useState('');
   const [profiledata, setProfileData] = useState("");
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
-  const [introSliderData] = useState([
-    // require('../../assets/Group75972.png'),
-    { key: 'one', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5a5uCP-n4teeW2SApcIqUrcQApev8ZVCJkA&usqp=CAU' },
-    { key: 'two', image: 'https://thumbs.dreamstime.com/b/environment-earth-day-hands-trees-growing-seedlings-bokeh-green-background-female-hand-holding-tree-nature-field-gra-130247647.jpg' },
-    { key: 'three', image: 'https://cdn.pixabay.com/photo/2015/04/19/08/32/marguerite-729510__340.jpg' }
-  ])
+  const [refreshing, setRefreshing] = useState(false);
+
+
+  const [counterStart, setCounterStart] = useState('');
   const [upData, setupData] = useState([
     {
       id: '1',
@@ -120,41 +124,69 @@ const PeopleHome = (props) => {
 
   ])
 
+  const [timecounter, setTimecounter] = useState('');
 
-  const [images, setImages] = useState([
-    {
-      id: 1,
-      image: `https://cdn.britannica.com/64/182864-050-8975B127/Scene-The-Incredible-Hulk-Louis-Leterrier.jpg`,
-      title: "HULK",
-      age: '20',
-      fullname: '@hulk',
-      distance: '5'
-    },
-    {
-      id: 2,
-      image: `https://cdn.britannica.com/49/182849-050-4C7FE34F/scene-Iron-Man.jpg`,
-      title: "IRON MAN",
-      age: '30',
-      fullname: '@Iron Man',
-      distance: '2'
-    },
-    {
-      id: 3,
-      image: `https://cdn.britannica.com/30/182830-050-96F2ED76/Chris-Evans-title-character-Joe-Johnston-Captain.jpg`,
-      title: "CAPTAIN AMERICA",
-      age: '10',
-      fullname: '@CAPTAIN AMERICA',
-      distance: '6'
-    },
-    {
-      id: 4,
-      image: `https://upload.wikimedia.org/wikipedia/en/d/d6/Superman_Man_of_Steel.jpg`,
-      title: "SUPER MAN",
-      age: '60',
-      fullname: '@SUPER MAN',
-      distance: '8'
-    },
-  ]);
+
+  const calcc = async () => {
+    // const likescount = await AsyncStorage.getItem("Datingcounter");
+    // console.log("likescountlikescount:>>>>>>>", likescount);
+    // if (likescount != null) {
+
+    // }
+    // setCounterStart(likescount)
+  }
+  // remaing time = 24 hrs - (current time - backend time)
+  useEffect(() => {
+    // calcc()
+
+    setInterval(() => {
+      const end_time = '24:59:58';
+      const datetimeA = moment(counterStart.lastSwipe);
+      const datetimeB = moment(new Date()).endOf('day');
+      // console.log(datetimeA.format('YYYY/MM/DD HH:mm:ss'));
+      // console.log("BBBBBB===",datetimeB.format('YYYY/MM/DD HH:mm:ss'));
+      const datetimeC = moment(datetimeB.diff(datetimeA));
+      const formatted = datetimeC.format("HH:mm:ss");
+      // console.log("datetimeTOTAL", formatted);
+
+      setTimecounter(formatted)
+    }, 1000);
+
+  }, [])
+  // const [images, setImages] = useState([
+  //   {
+  //     id: 1,
+  //     image: `https://cdn.britannica.com/64/182864-050-8975B127/Scene-The-Incredible-Hulk-Louis-Leterrier.jpg`,
+  //     title: "HULK",
+  //     age: '20',
+  //     fullname: '@hulk',
+  //     distance: '5'
+  //   },
+  //   {
+  //     id: 2,
+  //     image: `https://cdn.britannica.com/49/182849-050-4C7FE34F/scene-Iron-Man.jpg`,
+  //     title: "IRON MAN",
+  //     age: '30',
+  //     fullname: '@Iron Man',
+  //     distance: '2'
+  //   },
+  //   {
+  //     id: 3,
+  //     image: `https://cdn.britannica.com/30/182830-050-96F2ED76/Chris-Evans-title-character-Joe-Johnston-Captain.jpg`,
+  //     title: "CAPTAIN AMERICA",
+  //     age: '10',
+  //     fullname: '@CAPTAIN AMERICA',
+  //     distance: '6'
+  //   },
+  //   {
+  //     id: 4,
+  //     image: `https://upload.wikimedia.org/wikipedia/en/d/d6/Superman_Man_of_Steel.jpg`,
+  //     title: "SUPER MAN",
+  //     age: '60',
+  //     fullname: '@SUPER MAN',
+  //     distance: '8'
+  //   },
+  // ]);
   //   useEffect(() => {
   //   const interactionPromise = InteractionManager.runAfterInteractions(() =>
   //   onShown(),
@@ -162,72 +194,201 @@ const PeopleHome = (props) => {
   // return () => interactionPromise.cancel();
   // }, [onShown]);
 
-  useEffect(() => {
-    // Schedule a task to run after interactions have completed
-    InteractionManager.runAfterInteractions(() => {
-      fetchData();
-    });
-  }, []);
+  // useEffect(() => {
+  //   // Schedule a task to run after interactions have completed
+  //   InteractionManager.runAfterInteractions(() => {
+  //     fetchData();
+  //   });
+  // }, []);
 
-  const fetchData = () => {
-    // Simulating a network request that takes some time
+  // const fetchData = () => {
+  //   // Simulating a network request that takes some time
 
-    setTimeout(() => {
+  //   setTimeout(() => {
 
-      Profilelist()
+  //     Profilelist()
 
 
-      InteractionManager.clearInteractionHandle(interactionHandle);
-    }, 2000);
-  };
+  //     InteractionManager.clearInteractionHandle(interactionHandle);
+  //   }, 2000);
+  // };
 
-  const interactionHandle = InteractionManager.createInteractionHandle();
+  // const interactionHandle = InteractionManager.createInteractionHandle();
 
   const SwipeProfile = async (type) => {
-    console.log("uuuuuuuu::",isprofiles.userid ,type);
+    console.warn("SwipeProfile:");
+    // increment()
+    console.log("uuuunnnuuuu::", increments);
     setLoading(true)
-    let message = 'Interest sent to ' + isprofiles?.fullname + ' successfully awaiting response.'
+    let message = 'Interest sent to ' + isprofiles[0]?.fullname + ' successfully awaiting response.'
     var data = {
-      userid: isprofiles.userid,
+      userid: isprofiles[0].userid,
       swipe_type: type
     }
     console.log("addres........", data);
     const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile, data, 'POST', User.token)
     setLoading(false)
-    // console.log('the res==>>homePage', responseJson)
+    console.log('the res==>>SwipeProfileDATA', responseJson?.body)
+    // console.log("1212121", increments);
+    // AsyncStorage.setItem("Datingcounter", responseJson?.body);
+    setCounterStart(responseJson?.body)
     if (responseJson?.headers?.success == 1) {
       if (type == "R") {
-        Toast.show({ text2: message });
-        Profiledatas()
-        console.log('incrementdy.vendors', increments)
-      } else if (type == "L") {
-        Profiledatas()
-        console.log('incrementdy.vtype == "L"endors', increments)
+        if (distanceSliderValue[0] > '51' || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "") {
+          Profilelist();
+        }
+        Profiledatas();
 
+        if (isprofiles.length == 0) {
+          setIncrement(1)
+        } else {
+          setIncrement(increments + 1)
+        }
+
+        //  console.log("counterStart?.totalSwipe+++++",responseJson?.body?.totalSwipe+ '=='+ responseJson?.body?.swipeLimit);
+        if (responseJson?.body?.totalSwipe == responseJson?.body?.swipeLimit) {
+          setVisible(true);
+        }
+        else {
+          setVisible(false);
+        }
+
+        Toast.show({ text2: message });
+
+
+        // console.log('incrementdy.vendors', increments)
+      } else if (type == "L") {
+        if (distanceSliderValue[0] > '51' || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "") {
+          Profilelist();
+          setIncrement(increments + 1)
+        }
+        Profiledatas();
+        setIncrement(increments + 1)
+        // console.log('incrementdy.vtype == "L"endors')
       }
 
-
-
     } else {
-      setalert_sms(err)
-      setMy_Alert(true)
+      if (counterStart?.totalSwipe == counterStart?.swipeLimit) {
+        setVisible(true);
+      }
+      else {
+        setVisible(false);
+      }
+      // setalert_sms(err)
+      // setMy_Alert(true)
     }
   }
 
 
   const multiSliderValuesChange = (values) => { setMultiSliderValue(values) }
+
+  // useEffect(() => {
+  //   const unsubscribe1 = props.navigation.addListener('blur', () => {
+  //     setVisible(false);
+  //   });
+
+  //   return unsubscribe1;
+  // }, []);
+
   useEffect(() => {
-    Profiledatas()
-    ProfilePage()
+    setVisible(false);
+    GetmatchesProfile()
     Geodummy()
     Activestatus()
-    // const unsubscribe = props.navigation.addListener('focus', () => {
+    const unsubscribe = props.navigation.addListener('focus', () => {
+
+      Profiledatas()
+      ProfilePage()
+    })
+    return unsubscribe;
+
+  }, []);
+
+  messaging().onMessage(remoteMessage => {
+    const data = remoteMessage.data
+    // console.log('onMessage remoteMessage', remoteMessage)
+    if (remoteMessage?.notification.body == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+      props.navigation.navigate('DatingChat', { data: remoteMessage.data })
+      // setRemoteMessageData(remoteMessage.data)
+    } else if (remoteMessage?.notification.body == 'new message') {
+      //  dispatch(setMessageCount(mapdata.messagecount+1))
+      props.navigation.navigate('DatingChat', { data: remoteMessage.data })
+
+    }
+
+  });
+  messaging().onNotificationOpenedApp(remoteMessage => {
+    const data = remoteMessage.data
+    // console.log('Notification caused app to open from background state:', remoteMessage)
+    if (remoteMessage?.notification.title == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+      if (remoteMessage?.notification.body == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+        props.navigation.navigate('DatingChat', { data: remoteMessage.data })
+      } else {
+        props.navigation.navigate('DatingChat', { data: remoteMessage.data })
+      }
+
+    } else if (remoteMessage?.notification.body == 'new message') {
+      props.navigation.navigate('DatingChat', { data: remoteMessage.data })
+      // dispatch(setMessageCount(mapdata.messagecount+1))
+    }
+  });
 
 
-    // })
-    // return unsubscribe;
+  messaging()
+    .getInitialNotification()
+    .then(remoteMessage => {
+      // console.log('====================================');
+      // console.log(remoteMessage);
+      // console.log('====================================');
+      if (remoteMessage?.notification.title == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+        if (remoteMessage?.notification.body == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+          props.navigation.navigate('DatingChat', { data: remoteMessage.data })
+        } else {
+          props.navigation.navigate('DatingChat', { data: remoteMessage.data })
+        }
+      } else if (remoteMessage?.notification.body == 'new message') {
+        // dispatch(setMessageCount(mapdata.messagecount+1))
+        props.navigation.navigate('DatingChat', { data: remoteMessage.data })
 
-  }, [])
+      }
+    });
+
+
+
+  const checkcon = () => {
+    Profiledatas()
+    Resetallinputfield()
+  }
+  const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  }
+
+  const onRefresh = React.useCallback(() => {
+
+    checkcon()
+    wait(2000).then(() => {
+
+      setRefreshing(false)
+
+    });
+  }, []);
+  const GetmatchesProfile = async () => {
+
+    setLoading(true)
+    const { responseJson, err } = await requestGetApi(connect_dating_swipe_profile, '', 'GET', User.token)
+
+    // console.log('the res==>>GetmatchesProfile', responseJson?.body?.data?.length)
+    if (responseJson.headers.success == 1) {
+      dispatch(setdatingMatchData(responseJson?.body?.data?.length))
+      // setmatchesprofile(responseJson?.body?.data)
+    } else {
+      setalert_sms(responseJson.headers.message);
+      setMy_Alert(true)
+    }
+    setLoading(false)
+  }
+
+
 
   const swipe = useRef(new Animated.ValueXY()).current;
   const panResponder = PanResponder.create({
@@ -258,19 +419,19 @@ const PeopleHome = (props) => {
   });
 
 
-  const handleSelection1 = (direction, data) => {
-    setLoading(true)
-    Animated.spring(scaleValue, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start(() => {
-      if (direction == '1') {
-        PutSwipeProfile('Accepted')
-        setLoading(false)
-      }
-    });
-  }
+  // const handleSelection1 = (direction, data) => {
+  //   setLoading(true)
+  //   Animated.spring(scaleValue, {
+  //     toValue: 1,
+  //     duration: 500,
+  //     useNativeDriver: true,
+  //   }).start(() => {
+  //     if (direction == '1') {
+  //       PutSwipeProfile('Accepted')
+  //       setLoading(false)
+  //     }
+  //   });
+  // }
 
   const handleSelection = useCallback(
     (direction) => {
@@ -283,33 +444,33 @@ const PeopleHome = (props) => {
     [removeCard]
   );
   const removeCard = useCallback(() => {
-    setProfiles((prevState) => prevState.slice(1));
+    // setProfiles((prevState) => prevState.slice(1));
     swipe.setValue({ x: 0, y: 0 });
   }, []);
 
-  const PutSwipeProfile = async (t) => {
-    console.log("SwipeProfile........", t);
-    setLoading(true)
+  // const PutSwipeProfile = async (t) => {
+  //   // console.log("SwipeProfile........", t);
+  //   setLoading(true)
 
-    var data = {
-      swipe_status: t  // Accepted, Rejected,
-    }
-    const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile_id_delete, data, 'PUT', User.token)
-    setLoading(false)
-    console.log('the res==>>GetSwipeProfile', responseJson)
-    if (responseJson.headers.success == 1) {
-      props.navigation.navigate('DatingChat', { Reciver_data: t, from: 'DatingSelection' })
-    } else {
-      setalert_sms(responseJson.headers.message)
-      setMy_Alert(true)
-    }
-  }
+  //   var data = {
+  //     swipe_status: t  // Accepted, Rejected,
+  //   }
+  //   const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile_id_delete, data, 'PUT', User.token)
+  //   setLoading(false)
+  //   // console.log('the res==>>GetSwipeProfile', responseJson)
+  //   if (responseJson.headers.success == 1) {
+  //     props.navigation.navigate('DatingChat', { Reciver_data: t, from: 'DatingSelection' })
+  //   } else {
+  //     setalert_sms(responseJson.headers.message)
+  //     setMy_Alert(true)
+  //   }
+  // }
 
 
 
   const navigateToNextScreen = (id) => {
     setLoading(false)
-    console.log("DatingMoreInfo");
+    // console.log("DatingMoreInfo");
     props.navigation.navigate('DatingMoreInfo', { selectprofile: id, from: 'PeopleHome' })
   };
   const scaleValue = useRef(new Animated.Value(1)).current;
@@ -343,7 +504,7 @@ const PeopleHome = (props) => {
     Geocoder.from(latlong.latitude, latlong.longitude)
       .then(json => {
         var addressComponent = json.results[0].formatted_address;
-        console.log('The address is', json.results[0].formatted_address);
+        // console.log('The address is', json.results[0].formatted_address);
         setaddre(addressComponent)
         // UpdateLocation(latlong,addressComponent)
       })
@@ -395,31 +556,48 @@ const PeopleHome = (props) => {
   };
 
   const increment = () => {
-    if (isprofiles?.length != 0 && isprofiles?.length > 0) {
-      setIncrement(increments + 1)
-      // console.log("xxx",increments);
-    } else {
-      setIncrement(1)
+    console.log("isprofiles?.length > ", isprofiles?.length);
+
+    if (isprofiles?.length > 0) {
+
+      setIncrement(increments + 1);
+
+    }
+    else {
+      setIncrement(increments);
     }
 
   }
 
   const Profiledatas = async () => {
-
-    console.log("the res==>>Profiledatas", increments)
+    console.log('========Profiledatas============================');
+    console.log("ProfiledatasProfiledatas");
+    console.log('============Profiledatas========================');
+    if (isprofiles.length == 0) {
+      setIncrement(1)
+    }
+    // setIncrement(increments + 1)
+    // var pageup = increments + 1;
+    // if (isprofiles.length == 0) {
+    //   setIncrement(1);
+    //   var pageup = 1
+    // } else {
+    //   setIncrement(increments + 1)
+    //   var pageup = increments + 1;
+    // }
+    console.log("the res==>>ProfileHOMEPage---------", distanceSliderValue[0], increments)
     setLoading(true);
 
     const { responseJson, err } = await requestGetApi(connect_dating_home_data
-      + 'lat=' + 28.5355 + '&long=' + 77.3910
-      + '&distance=' + distanceSliderValue[0] + '&limit=' + 1 + '&page=' + increments, "", "GET", User.token);
+      + 'lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&limit=' + 1 + '&page=' + increments, "", "GET", User.token);
     setLoading(false);
-    console.log("the res==>>ProfilePage", responseJson?.body?.profiles[0]);
+    console.log("the res==>>ProfileHOMEPage", responseJson?.body?.profiles);
     if (responseJson?.headers?.success == 1) {
 
-      setProfiles(responseJson?.body?.profiles[0]);
+      setProfiles(responseJson?.body?.profiles);
       var allimgs = [];
-      for (let i = 1; i <= responseJson.body.profiles[0].images.length; i++) {
-        allimgs.push({ img: responseJson.body.profiles[0].images[i - 1].image })
+      for (let i = 1; i <= responseJson?.body?.profiles[0].images.length; i++) {
+        allimgs.push({ img: responseJson?.body?.profiles[0].images[i - 1].image })
       }
       setAllImg(allimgs)
     } else {
@@ -429,7 +607,7 @@ const PeopleHome = (props) => {
   };
 
   const ProfilePage = async () => {
-    console.log("the res==>>ProfilePage");
+    // console.log("the res==>>ProfilePage");
     setLoading(true);
 
     const { responseJson, err } = await requestGetApi(
@@ -439,17 +617,17 @@ const PeopleHome = (props) => {
       User.token
     );
     setLoading(false);
-    console.log("the res==>>ProfilePage", responseJson);
+    // console.log("the res==>>ProfilePage", responseJson);
     if (responseJson.headers.success == 1) {
-      console.log("the res==>>ProfilePage", responseJson.body);
-      setProfileData(responseJson.body);
+      // console.log("the res==>>ProfilePage", responseJson.body);
+      setProfileData(responseJson?.body);
     } else {
       setalert_sms(err);
       setMy_Alert(true);
     }
   };
 
-  const Resetallinputfield =()=>{
+  const Resetallinputfield = () => {
     setInterstedInSelect('');
     setFilterBySelect('');
     setSmokingSelect('');
@@ -458,18 +636,41 @@ const PeopleHome = (props) => {
   }
 
   const Profilelist = async () => {
-
-    setShowFilterModal(false)
-    console.log("the res==>>Profilelist", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0])
+    if (isprofiles.length == 0) {
+      setIncrement(1)
+    }
+    // if (isprofiles.length == 0) {
+    //   setIncrement(2);
+    //   var pageup = 2
+    // } else {
+    //   setIncrement(increments + 1)
+    //   var pageup = increments + 1;
+    // }
+    // setIncrement(increments + 1)
+    // var pageup = increments + 1;
+    setShowFilterModal(false);
+    console.log('Profilelist====================================Profilelist');
+    console.log("Profilelist", kidsSelect);
+    console.log('=Profilelist===================================Profilelist');
+    console.log("the res==>>Profilelist------::", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0], increments);
     setLoading(true);
-    //  &smoking=No&drinking=No&kids=No 
-    const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&smoking=' + smokingselect + '&drinking=' + drinkingselect + '&kids=No' + kidsSelect + '&activity_status=' + filterBySelect + '&limit=' + 1 + '&page=' + increments, "", "GET", User.token);
+
+
+    const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5758384 + '&long=' + 77.320955 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&smoking=' + smokingselect + '&drinking=' + drinkingselect + '&kids=' + kidsSelect + '&activity_status=' + filterBySelect + '&limit=' + 1 + '&page=' + increments, "", "GET", User.token);
     setLoading(false);
-    console.log("the res==>>Profilelist", responseJson);
+    // console.log("the res==>>Profilelist", responseJson,  );
     if (responseJson?.headers?.success == 1) {
       setProfiles(responseJson?.body?.data);
-      // console.log("the res==>>ProfilePage", responseJson.body);
-      // setProfileData(responseJson.body);
+
+      console.log("the res==>>Profilefilter", responseJson.body.data);
+      // setIncrement(increments + 1)
+      // var pageup = increments + 1;
+      var allimgs = [];
+      for (let i = 1; i <= responseJson?.body?.data[0].images.length; i++) {
+        allimgs.push({ img: responseJson?.body?.data[0].images[i - 1].image })
+      }
+      setAllImg(allimgs)
+
     } else {
       setalert_sms(err);
       setMy_Alert(true);
@@ -540,7 +741,7 @@ const PeopleHome = (props) => {
   }
 
   const onChangeKids = (value) => {
-    // console.log("onChangeInterested", value);
+    console.log("onChangeInterested++++++++++++", value);
     if (kidsSelect === value) {
       return
     }
@@ -563,24 +764,24 @@ const PeopleHome = (props) => {
     );
   }
 
-  const _renderItem = ({ item }) => {
-    return (
-      <Image source={{ uri: item.image }} style={{ width: dimensions.SCREEN_WIDTH * 0.9, height: dimensions.SCREEN_HEIGHT / 2, borderRadius: 20 }} />
-      // <View key={item.key} style={styles.slide}>
-      //   <Text style={styles.title}>{item.title}</Text>
-      //   <Text style={styles.text}>{item.text}</Text>
-      // </View>
-    );
-  }
+  // const _renderItem = ({ item }) => {
+  //   return (
+  //     <Image source={{ uri: item?.image }} style={{ width: dimensions.SCREEN_WIDTH * 0.9, height: dimensions.SCREEN_HEIGHT / 2, borderRadius: 20 }} />
+  //     // <View key={item.key} style={styles.slide}>
+  //     //   <Text style={styles.title}>{item.title}</Text>
+  //     //   <Text style={styles.text}>{item.text}</Text>
+  //     // </View>
+  //   );
+  // }
   return (
-    <SafeAreaView scrollEnabled={scrollEnabled} style={{ backgroundColor: '#fff5f7', height: '100%',width:'100%' }}>
+    <SafeAreaView scrollEnabled={scrollEnabled} style={{ backgroundColor: '#fff5f7', height: '100%', width: '100%' }}>
 
       <View style={{ width: '90%', alignSelf: 'center', marginTop: 0, zIndex: -999 }}>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', height: 70 }}>
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
             <TouchableOpacity onPress={() => { props.navigation.navigate('DatingProfile') }} style={{ justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={{ uri: `${profiledata?.profile_image}` }} style={{ height: 40, width: 40, borderRadius: 20, borderColor: '#e42f5e', borderWidth: 2 }} />
+              <Image source={{ uri: `${profiledata?.profile_image != null ? profiledata?.profile_image : 'https://kinengo-dev.s3.us-west-1.amazonaws.com/images/camera-icon.jpg'}` }} style={{ height: 40, width: 40, borderRadius: 20, borderColor: '#e42f5e', borderWidth: 2 }} />
             </TouchableOpacity>
           </View>
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -602,7 +803,7 @@ const PeopleHome = (props) => {
           // alignSelf: 'center',
           // alignItems: 'center',
           // backgroundColor: '#fff',
-          width: '94%',
+          width: '100%',
           borderRadius: 10,
           height: 50
 
@@ -718,65 +919,90 @@ const PeopleHome = (props) => {
               }}
             />
           </View>
-          <View style={{
-            height: 55, position: 'absolute', right: -10,
-            // borderTopRightRadius: 10,
+
+          <TouchableOpacity onPress={() => { setShowFilterModal(true) }} style={{
+            height: 50, position: 'absolute', right: 0,
+            borderRadius: 10,
             // borderBottomRightRadius: 10,
-            // marginHorizontal: 8, top: 0,
-            // backgroundColor: '#ADC430',
+            // marginHorizontal: 8, 
+            top: 2,
+            width: 55,
+            // backgroundColor: '#FFA5C5',
             paddingVertical: 14,
             // alignSelf: 'center',
             // justifyContent: 'center',
-            // alignItems: 'center',
+            alignItems: 'center',
             // width: 40,
             // borderTopRightRadius: 10, borderBottomRightRadius: 10
           }}>
             <TouchableOpacity onPress={() => { setShowFilterModal(true) }}>
-              <Image source={require('../../../assets/images/dating-filter-image.png')} style={{ width: 25, height: 25 }}></Image>
+              <Image source={require('../../../assets/images/dating-filter-image.png')} style={{ width: 30, height: 30 }}></Image>
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         </View>
+        {/* {
+           
+            console.log('=========sd===========================',isprofiles )
+            
+          } */}
         {
-          isprofiles?.passions?.length > 0 ?
-            (<ScrollView>
-              <View style={{width: '100%', height: dimensions.SCREEN_HEIGHT * 46 / 100, width: '100%',zIndex: 999  }}>
+          isprofiles?.length > 0 ?
+            (<ScrollView
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
 
-                <View style={{   width: '100%', alignSelf: 'center',  }}>
-                  {/* <Image style={{ height: 400, width: '100%' }}
+                />
+              }
+            >
+              <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                <>
+                  <View style={{ width: '100%', height: dimensions.SCREEN_HEIGHT * 46 / 100, width: '100%', zIndex: 999 }}>
+
+                    <View style={{ width: '100%', alignSelf: 'center', }}>
+                      {/* <Image style={{ height: 400, width: '100%' }}
                     source={{ uri: `${isprofiles?.profile_image}` }}
                   /> */}
-                  <ImageSlider
-                    //  localImg={true}
-                    data={allImg}
-                    // onClick={(item, index) => {alert('hello'+index)}}
-                    // autoPlay={true}
-                    // onItemChanged={(item) => console.log("item", item)}
+                      {
+                        allImg.length > 0 ?
+                          (<ImageSlider
+                            //  localImg={true}
+                            data={allImg}
+                            // onClick={(item, index) => {alert('hello'+index)}}
+                            // autoPlay={true}
+                            // onItemChanged={(item) => console.log("item", item)}
 
-                    // activeIndicatorStyle={{backgroundColor:'#FF4989'}}
-                    indicatorContainerStyle={{ top: -5 }}
+                            // activeIndicatorStyle={{backgroundColor:'#FF4989'}}
+                            indicatorContainerStyle={{ top: -5 }}
 
-                    caroselImageStyle={{width: dimensions.SCREEN_WIDTH, resizeMode: 'cover', height: 400,  }}
-                    // closeIconColor="#fff"
-                    headerStyle={{ padding: 0, backgroundColor: 'rgba(0,0,0, 0.6)', }}
-                    // showHeader
-                  // preview={true}
-                  />
+                            caroselImageStyle={{ width: dimensions.SCREEN_WIDTH, resizeMode: 'cover', height: 400, }}
+                            // closeIconColor="#fff"
+                            headerStyle={{ padding: 0, backgroundColor: 'rgba(0,0,0, 0.6)', }}
+                          // showHeader
+                          // preview={true}
+                          />)
+                          :
 
-                </View>
-              </View>
-              {/* <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ position: 'absolute', top: 40, left: 20, }}>
-    <Image source={require('../../../assets/images/dating-white-back-button.png')} style={{ width: 25, height: 15 }} resizeMode='contain' />
-  </TouchableOpacity> */}
-              <View style={{ width: '100%', alignSelf: 'center', marginTop: 20 }}>
+                          <Image style={{ height: 400, width: '100%' }} source={{ uri: `${'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAARVBMVEWVu9////+QuN6Rud6Mtt2nxuTg6vWavuDp8Pi80+rJ2+6fweLR4fDN3u/3+vzl7vexzOfa5vO/1evy9vusyeW2z+ju8/mJFiEAAAAGxUlEQVR4nO2d67ajKBCFFfCGJmqief9HbYnJykVNq2ziNofvx0yv6e6zsgeoogrYCQKPx+PxeDwej8fj8VAhRYcU/b+2/jBYpJRK5FWmi7qO47iuC51VuVDdf9/6oyGQQkU6PoZDjrGO1O5HU4gsHhH3IM6E2PpDrkeq5rO8m8hK7XMgpcrOM/Rd52u2Q41StWNrb1JjuzeNMr8s0Ge45LuSqPRCfQattv7Y85HpCoFhmO5lFGW+Sp9hHzNVRKsFhmG0g+QoGwuBYdjQS5Q2I3gdRfaJmlgKDMNkawmfUXO3MdOcqeepqq0FhmFNnBdlBRAYhhXvUhQQgWFIO09FAVJYsEq0j6N3SOOpQISZnppzEHFDSDqIsFVooFyJCigwDAlzosygCjO+nChKqMKSbxAlVGAYbq1nAHiSEk5TYDLsoUuJakl3dA5HtoWITPc9ZElftnCFLddCFAe4wgPXQpRzDpmWEXONIaA/886ZK9RgN6U9XAoDBwq3lvTK+qOKafKtRb1g2+keI9pa1DOgNuIrVE1FBwmfLOXDKwsDVXXhFXqFO1D485EmsDvaHqfZWtQz1mfbY3Cdd+NLfLYiH3Vy+AxXBfz71dPvV8C/38WAHq31kB2wyRNc4YlrDB2kfKqEH/yBnreDdMEVSrtQs+5a8DQpV6BxEEzJQulfOCGFd0y5uqUGdKhhCzT4uxhsy7BTuOYRyTSaTyG4zKdq6d/4+VtfgUAWUDHfJAWXF2yFxQ2gQrZtd49a+uRwmgvjMuymKS5faM5J+vs32QOFqqBSzkkKrC/46oo7P/9mBlUG010tfQJTJPKVhg8UooQivMT+BKLAYCwrHgASBm2quGE/iNxDCFiJ3KvQYBtOmQNpj2VOpGsEjyBsXl4cdyDQzjaiod2RPqPWz9OCPsz0rL62QHY54QNrS2HWwnfIyqW4j0XYs6oW5q17x1DLm6en3SzCnsUS9yawS/zLLtW2e0j1byxyxNqDA9YQGcytM8odGZnKl7FQ80Jq9rIEqR1NhTq9XoMRwf+feNfB619JT4p1ysrrwcVbE0IknzXWyaucaxtEM85aqfLbhvvyNgJC6ql96lnL9z98O78qcjK3T6HaRwvq/P67nXo9DDqlHlHx+H+RtjST1Vghv9ZLx3zw2bo/lLe6iMv0kpZxodt8xCNZ5K/Fc0FhpGzkDYv6dmyDIkXv5W3+OfbB1XCPcDQiXUv4xLg8wwpXuQk3uw1FSpUcplsyx2iZRhV9+FmHZIO4I1X1nx3LW577yH/zZvl1R2xVzehU6Jlm5GLODYBz9c3iQyQzjycG+W7sh8294ZAmX1uPS2q/uvkYJ4RqFlj3fKuGVMuudx2LZvTrHkzmaCZC8RTxVySuOUArD1Wi1C0dmoSoVFIdVhzifOPobf3h0rmsi4PW+lDU5eqHYO6Ppiwa2hhct8Wd2EMsw7GZBNp3bg1OFUKckG1x6aTs5Mn2chw+8oZdzbPDXcogGUKHgwi9q26Ds3vuLmwF1uHooNGBr95aHPnxwe0t1+PIGJMlzhicXA1z8OR+PU4uFhFNUkfT1IWt3nocXH8DvhdB4ODNCfiNqC0O3pi6cKCxAb4Qafakd+B7U7Jl6GAhOrDYsQNu0EOVDQ34jLi1ogFogS5M9ewAO/SA/QQQgD0J6AINPNQ48GOzBXxlmm1HY4AqpNvRGKC7Gices7ZAb01T1fd3oHU+WenUAy2g6PZsBui+jeFQbQhwHVKGUmgwpQyl0GBK1M9/Btjbpzl0egV4BAX01kEC9Olh3JUagOliaykTwPSRJgtgunDyzQcIYN+eQNcrvQPrmVJWFgZYdUHYpOmBtWrgLsgoYG7KhG2oHlgzijXh41K+i6/nwICapTx3od5B3Y3iuqPwDOq+At+pzB3Q6Qztpg22bSPtYRhAfQwH3z+CAmQ3TLvxhm29SftQBlAv6g8oJJ6lGIW/ny3+wK6N5CHJENjTEtpeWw47uBDbv8kbowIekYqcb6KmuBG8oiKGh3kP6oWeDTOQQmYsA5lm0o3piVSB3v4U6qIDlw4SUiWnLUcyPX3BBEQqmW3TIo4z+S3/D2MrpL87lKn+tuFQJ1I0h++oTHUjNvJTEmYsY5e3iY6xGbtNjZSk7CJsdSjxMo/loeqiJod1m+wGM6lwo9mNXJWocb+sDTEyZXMqUis/77Q4NZJP3BNGZxBlRbz0vOocH7KIW9szRmcn1HjQXT4P6fFi/OmiQO1G2zNdlBBSKSXzqGpPxpemjg218ak5tVWUX39XkEQTK2Sn9mou1NP/Mti/Lo/H4/F4PB6Px+P5Hf4BrxJp8oCGoikAAAAASUVORK5CYII='}` }} />
+                      }
 
-                <View style={{ width: '100%', backgroundColor: '#fff5f7', padding: 10 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
-                    <View>
-                      <Text style={{ fontSize: 15, color: '#31313f', fontWeight: 'bold', }}>{isprofiles?.username}, {isprofiles?.age_preference}</Text>
-                      {/* <Text style={{fontSize:10, color:'#e10f51', marginTop:5}}>@marry</Text> */}
-                      <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{isprofiles?.job_title}</Text>
+
                     </View>
-                    {/* {
+                  </View>
+
+                  <View style={{ width: '100%', alignSelf: 'center', marginTop: 20 }}>
+
+                    <View style={{ width: '100%', backgroundColor: '#fff5f7', padding: 10 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+                        <View>
+                          <Text style={{ fontSize: 15, color: '#31313f', fontWeight: 'bold', }}>{isprofiles[0]?.fullname}, {isprofiles[0]?.age_preference}</Text>
+                          {/* <Text style={{fontSize:10, color:'#e10f51', marginTop:5}}>@marry</Text> */}
+                          <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{isprofiles[0]?.job_title}</Text>
+                        </View>
+                        {/* {
                       isprofiles?.userid != User.userid ?
                         (<TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: isprofiles, from: 'DatingMoreinfo' }) }} style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#0089CF', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.1, elevation: 2 }}>
                           <Image source={require('../../../assets/images/dating-home-header-right-image.png')} style={{ width: 20, height: 20 }} />
@@ -786,206 +1012,266 @@ const PeopleHome = (props) => {
                     } */}
 
 
-                  </View>
-                  <View style={{ marginTop: 20 }} />
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <View>
-                      <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold' }}>Location</Text>
-                      <Text style={{ fontSize: 10, color: '#4a4c52' }}>{isprofiles?.address}</Text>
-                    </View>
-                    {
-                      isprofiles?.userid != User.userid ?
-                        (<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFE7F0', width: 80, height: 30, borderRadius: 15, paddingHorizontal: 10, shadowColor: 'rgba(255, 73, 137)', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.13, elevation: 2 }}>
-                          <Image source={require('../../../assets/images/dating-maptrifold.png')} style={{ width: 20, height: 20 }} />
-                          <Text style={{ fontSize: 10, color: '#FF4989' }}>{Number(isprofiles?.distance).toFixed(0)} mile</Text>
-                        </View>)
-                        :
-                        null}
-                  </View>
-                  <View style={{ marginTop: 30 }} />
-                  <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 7 }}>About</Text>
-
-                  <View style={{ alignSelf: 'center', width: '100%', marginTop: 1, paddingHorizontal: 0 }}>
-                    <Text style={{ fontSize: 11, color: Mycolors.TEXT_COLOR }}>{isprofiles?.about}</Text>
-                    {/* {isprofiles?.about ?
-                      <Text onPress={() => { setviewmore(!viewmore) }} style={{ color: '#dd2e44', textDecorationLine: "underline", fontSize: 10 }}>{viewmore ? 'Read more' : 'Read less'}</Text>
-                      : null} */}
-                  </View>
-                  <View style={{ marginTop: 20 }}>
-                    <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Passions</Text>
-                    <FlatList
-                      data={isprofiles?.passions}
-                      showsHorizontalScrollIndicator={false}
-                      numColumns={3}
-                      keyExtractor={item => item.id}
-                      renderItem={({ item, index }) => {
-                        // if(item.mutual){
-                        return (
-                          <View key={item.name} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
-                            {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
-                            <View style={styles.showMeImageView}>
-                              <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
-                            </View>
-                            <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
-                          </View>
-                        )
-
-                      }}
-                    />
-                  </View>
-                  <View style={{ marginTop: 20 }}>
-                    <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Languages</Text>
-                    <FlatList
-                      data={isprofiles?.languages}
-                      showsHorizontalScrollIndicator={false}
-                      numColumns={3}
-                      keyExtractor={item => item.id}
-                      renderItem={({ item, index }) => {
-                        // if(item.mutual){
-                        return (
-                          <View key={item?.name} style={[styles.showMeView, { width: '30%', marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
-                            {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
-                            <View style={styles?.showMeImageView}>
-                              <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
-                            </View>
-                            <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item?.attribute_value}</Text>
-                          </View>
-                        )
-
-                      }}
-                    />
-                  </View>
-
-                  <View style={{ width: '90%', marginTop: 10 }}>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', marginBottom: 10 }}>My basics</Text>
-                  </View>
-                  <View style={{
-                    flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
-                    borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
-                  }}>
-
-                    <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', }}>
-                        <Image resizeMode='contain' source={require('../../../assets/icon-company.png')} style={{ heigh: 20, width: 20, marginRight: 7 }} />
-                        <View style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
-                          <Text numberOfLines={1} style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.job_company}</Text>
+                      </View>
+                      <View style={{ marginTop: 20 }} />
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View>
+                          <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold' }}>Location</Text>
+                          <Text style={{ fontSize: 10, color: '#4a4c52' }}>{isprofiles[0]?.address}</Text>
                         </View>
+                        {
+                          isprofiles[0]?.userid != User.userid ?
+                            (<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFE7F0', width: 80, height: 30, borderRadius: 15, paddingHorizontal: 10, shadowColor: 'rgba(255, 73, 137)', shadowOffset: { width: 0, height: 3 }, shadowRadius: 1, shadowOpacity: 0.13, elevation: 2 }}>
+                              <Image source={require('../../../assets/images/dating-maptrifold.png')} style={{ width: 20, height: 20 }} />
+                              <Text style={{ fontSize: 10, color: '#FF4989' }}>{Number(isprofiles[0]?.distance).toFixed(0)} mile</Text>
+                            </View>)
+                            :
+                            null}
+                      </View>
+                      <View style={{ marginTop: 30 }} />
+                      {
+                        isprofiles[0]?.about != null ?
+                          (<>
+                            <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 7 }}>About</Text>
+
+                            <View style={{ alignSelf: 'center', width: '100%', marginTop: 1, paddingHorizontal: 0 }}>
+                              <Text style={{ fontSize: 11, color: Mycolors.TEXT_COLOR }}>{isprofiles[0]?.about}</Text>
+                              {/* {isprofiles?.about ?
+      <Text onPress={() => { setviewmore(!viewmore) }} style={{ color: '#dd2e44', textDecorationLine: "underline", fontSize: 10 }}>{viewmore ? 'Read more' : 'Read less'}</Text>
+      : null} */}
+                            </View>
+                          </>)
+                          : null
+                      }
+
+
+                      {
+                        isprofiles[0]?.passions?.filter(el => el.is_selected == 1).length > 0 ?
+                          (<View style={{ marginTop: 20 }}>
+                            <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Passions</Text>
+                            <FlatList
+                              data={isprofiles[0]?.passions?.filter(el => el.is_selected)}
+                              showsHorizontalScrollIndicator={false}
+                              numColumns={3}
+                              keyExtractor={item => item.id}
+                              renderItem={({ item, index }) => {
+                                // if(item.mutual){
+                                return (
+                                  <View key={index} style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+                                    {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
+                                    <View style={styles.showMeImageView}>
+                                      <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                                    </View>
+                                    <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
+                                  </View>
+                                )
+
+                              }}
+                            />
+                          </View>)
+                          :
+                          null
+                      }
+
+                      {
+                        isprofiles[0]?.languages?.filter(el => el.is_selected == 1).length > 0 ?
+                          (<View style={{ marginTop: 20 }}>
+                            <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Languages</Text>
+                            <FlatList
+                              data={isprofiles[0]?.languages?.filter(el => el.is_selected)}
+                              showsHorizontalScrollIndicator={false}
+                              numColumns={3}
+                              keyExtractor={item => item.id}
+                              renderItem={({ item, index }) => {
+                                // if(item.mutual){
+                                return (
+                                  <View key={index} style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+                                    {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
+                                    <View style={styles?.showMeImageView}>
+                                      <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                                    </View>
+                                    <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item?.attribute_value}</Text>
+                                  </View>
+                                )
+
+                              }}
+                            />
+                          </View>)
+                          : null
+                      }
+
+
+                      <View style={{ width: '90%', marginTop: 10 }}>
+                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', marginBottom: 10 }}>My basics</Text>
+                      </View>
+                      <View style={{
+                        flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
+                        borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
+                      }}>
+
+                        {
+                          isprofiles[0]?.job_company != null ?
+                            (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', }}>
+                                <Image resizeMode='contain' source={require('../../../assets/icon-company.png')} style={{ height: 20, width: 20, marginRight: 7 }} />
+                                <View style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
+                                  <Text numberOfLines={1} style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.job_company}</Text>
+                                </View>
+
+                              </View>
+                            </View>)
+                            : null
+                        }
+
+                        {
+                          isprofiles[0]?.gender != null ?
+                            (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                                <Image resizeMode='contain' source={require('../../../assets/icon-equality.png')} style={{ height: 20, width: 25, marginRight: 6, top: 1 }} />
+                                <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.gender}</Text>
+                              </View>
+                            </View>)
+                            : null
+                        }
+
+
+                        {isprofiles[0]?.height != null ?
+                          (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                            <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                              <Image resizeMode='contain' source={require('../../../assets/icon-growth.png')} style={{ height: 22, width: 22, marginRight: 7, marginLeft: 0 }} />
+                              <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.height != null ? isprofiles[0]?.height : null} cm</Text>
+                            </View>
+                          </View>)
+                          :
+                          null
+                        }
+
+                        {
+                          isprofiles[0]?.university != null ?
+                            (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                                <Image resizeMode='contain' source={require('../../../assets/icon-school.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                                <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.university}</Text>
+                              </View>
+                            </View>)
+                            :
+                            null
+                        }
+
+                        {
+                          isprofiles[0]?.qualification != null ?
+                            (<View style={[styles.showMeView, { backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                                <Image resizeMode='contain' source={require('../../../assets/icon-degree.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                                <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.qualification}</Text>
+                              </View>
+                            </View>)
+                            : null
+                        }
 
                       </View>
-                    </View>
 
-                    <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/icon-equality.png')} style={{ height: 20, width: 25, marginRight: 6, top: 1 }} />
-                        <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.gender}</Text>
+                      <View style={{ width: '90%', marginTop: 10, marginBottom: 10 }}>
+                        <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', }}>More about me</Text>
+
                       </View>
-                    </View>
-                    {isprofiles?.height != null ?
-                      (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                        <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                          <Image resizeMode='contain' source={require('../../../assets/icon-growth.png')} style={{ height: 22, width: 22, marginRight: 7, marginLeft: 0 }} />
-                          <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.height != null ? isprofiles?.height : null} cm</Text>
-                        </View>
-                      </View>)
-                      :
-                      null
-                    }
-                    <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                      <View style={{
+                        flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
+                        borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
+                      }}>
+
+
+
+                        {/* <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                       <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/icon-school.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                        <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.university}</Text>
-                      </View>
-                    </View>
-                    <View style={[styles.showMeView, { backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/icon-degree.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                        <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.qualification}</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={{ width: '90%', marginTop: 10, marginBottom: 10 }}>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', }}>More about me</Text>
-
-                  </View>
-                  <View style={{
-                    flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
-                    borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
-                  }}>
-
-
-
-                    {/* <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ heigh: 80, width: 34, marginLeft: -7, top: -3 }} />
+                        <Image resizeMode='contain' source={require('../../../assets/body-type-short.png')} style={{ height: 80, width: 34, marginLeft: -7, top: -3 }} />
                         <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.intrest_in}</Text>
                       </View>
                     </View> */}
+                        {
+                          isprofiles[0]?.smoking != null ?
+                            (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                                <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                                <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.smoking}</Text>
+                              </View>
+                            </View>)
+                            : null
+                        }
 
-                    <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                        <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.smoking}</Text>
+                        {
+                          isprofiles[0]?.kids != null ?
+                            (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                                <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                                <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.kids}</Text>
+                              </View>
+                            </View>)
+                            : null
+                        }
+
+                        {
+                          isprofiles[0]?.politics != null ?
+                            (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                                <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                                <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.politics}</Text>
+                              </View>
+                            </View>)
+                            : null
+                        }
+
+                        {
+                          isprofiles[0]?.drinking != null ?
+                            (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                                <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                                <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.drinking}</Text>
+                              </View>
+                            </View>)
+                            : null
+                        }
+
+                        {
+                          isprofiles[0]?.zodiac != null ?
+                            (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                              <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                                <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                                <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles[0]?.zodiac}</Text>
+                              </View>
+                            </View>)
+                            : null
+                        }
                       </View>
+                      <View style={{ height: 20 }} />
                     </View>
-                    <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                        <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.kids}</Text>
-                      </View>
-                    </View>
-                    <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                        <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.politics}</Text>
-                      </View>
-                    </View>
-                    <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                        <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.drinking}</Text>
-                      </View>
-                    </View>
-
-
-
-                    <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                      <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                        <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ heigh: 24, width: 20, marginRight: 7 }} />
-                        <Text style={{ fontSize: 12, color: '#4a4c52', }}>{isprofiles?.zodiac}</Text>
-                      </View>
-                    </View>
-
-                   
-
-
-
                   </View>
 
-
- <View style={{ height: 20 }} />
-                </View>
-
-
-
-
-              </View>
-
-              <View style={{ height: 180 }} />
-
+                  <View style={{ height: 180 }} />
+                </>
+              </KeyboardAvoidingView>
             </ScrollView>)
             :
             (
-              <View style={{height:'78%',justifyContent: 'center', alignItems: "center",zIndex:999 ,   }}>
-                <Image source={require('../../../assets/icon-nouser.png')}
-                  style={{ height: 200, width: 200 }}
+              <View style={{ height: '80%', justifyContent: 'center', alignItems: "center", zIndex: -999, }}>
+                {/* <Svg width="200" height="200">
+                  <Image href={require('../../../assets/lovematching_icon.svg')} />
+                </Svg> */}
+                <Image resizeMode='contain' source={require('../../../assets/Not_found_Icon1.png')}
+                  style={{ height: 500, width: 500 }}
                 />
-                <View style={{width:'69%'}}>
-                <Text style={{ fontSize: 16, fontWeight: '400', color: '#31313f',textAlign:'center' }}>You have seen all the nearby recommendations please visit later for more.</Text>
-                {/* <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2',textAlign:'center' }}>Likes are more intentional on Kinengo, so dont't fret, they'll come in soon.</Text> */}
+                <View style={{ width: '79%', top: -60 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 24, fontWeight: '800', color: '#31313f', textAlign: 'center', lineHeight: 40 }}>No more matches</Text>
+                    <Image resizeMode='contain' source={require('../../../assets/emoji1.png')}
+                      style={{ height: 30, width: 30, top: 8 }} />
+                  </View>
+
+                  <Text style={{ fontSize: 17, fontWeight: '500', color: '#808080', textAlign: 'center', lineHeight: 22 }}>You have seen all the nearby recommendations please visit later for more.</Text>
+                  {/* <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2',textAlign:'center' }}>Likes are more intentional on Kinengo, so dont't fret, they'll come in soon.</Text> */}
                 </View>
-               
-  
+
+
                 {/* <View style={{ width: '50%', alignSelf: 'center', marginTop: 30 }}>
                   <MyButtons title="Go profile page" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={12}
                     titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
@@ -1065,25 +1351,29 @@ const PeopleHome = (props) => {
         {/* {SliderData.length > 0 ? <Carousel data={SliderData} onReject={onReject} onLove={onLove} onRefresh={onRefresh} /> : null}   */}
 
       </View>
-{
-  isprofiles.length > 0 ?
-  (<View style={styles.buttonsRow1}>
-    <TouchableOpacity onPress={() => { SwipeProfile('L'), increment() }} style={styles.buttonViewOne}>
-      <Image source={require('../../../assets/images/dating-more-info-reject.png')} style={{ width: 25, height: 45, top: 0, }} resizeMode='contain' />
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => { SwipeProfile('R'), increment() }} style={styles.buttonViewTwo}>
-      <Image source={require('../../../assets/images/dating-love-image.png')} style={{ width: 40, height: 40, top: 0, }} resizeMode='contain' />
-    </TouchableOpacity>
 
-  </View>)
-  :
-  null
-}
-      
-      {/* <View style={{ height: 900 }} /> */}
+      {
+        isprofiles?.length > 0 ?
+          (<View style={styles.buttonsRow1}>
+            <TouchableOpacity onPress={() => {
+              console.log('will_be_called'),
+                SwipeProfile('L')
+            }} style={styles.buttonViewOne}>
+              <Image source={require('../../../assets/images/dating-more-info-reject.png')} style={{ width: 25, height: 45, top: 0, }} resizeMode='contain' />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => { SwipeProfile('R') }} style={styles.buttonViewTwo}>
+              <Image source={require('../../../assets/images/dating-love-image.png')} style={{ width: 40, height: 40, top: 0, }} resizeMode='contain' />
+            </TouchableOpacity>
+
+          </View>)
+          :
+          null
+      }
 
 
-      <Modal
+
+
+      {/* <Modal
         isVisible={showChooseMilesModal}
         swipeDirection="down"
         onBackdropPress={() => setShowChooseMilesModal(false)}
@@ -1181,20 +1471,19 @@ const PeopleHome = (props) => {
                   onChangeText={(e) => {
                     const value = e.replace(/[^0-9]/g, '')
                     if (Number(value) > 100) {
-                      // Toast.show('Miles cannot be more than 100', Toast.SHORT)
+                     
                     } else if (Number(value) < 0) {
-                      // Toast.show('Miles cannot be less than 0', Toast.SHORT)
+                    
                     } else {
                       multiSliderValuesChange([Number(value)])
                     }
                   }}
                   textAlignVertical={'center'}
-                  // onChangeText={(e) => console.log('e', e)}
+                   
                   placeholder={'0'}
                   placeholderTextColor="#263238"
                   multiline={true}
-                  // maxLength={500}
-                  // keyboardType="number-pad"
+                 
                   autoCapitalize='none'
                   style={{
                     color: '#263238',
@@ -1205,7 +1494,7 @@ const PeopleHome = (props) => {
                 />
                 <Text onPress={() => { myTextInput.current.focus() }} style={{ color: '#263238', fontSize: 12, fontWeight: '500' }}> miles</Text>
               </View>
-              {/* <Text style={{color:Mycolors.GrayColor,fontWeight:'600',fontSize:12,marginTop:9}} >{multiSliderValue[0]} miles</Text> */}
+              
             </View>
 
             <View style={{ width: '95%', alignSelf: 'center' }}>
@@ -1213,11 +1502,81 @@ const PeopleHome = (props) => {
                 titlecolor={Mycolors.BG_COLOR} backgroundColor={'#FFD037'} marginVertical={0} />
             </View>
 
-            {/* <View style={{width:100,height:100}} /> */}
+          
           </ScrollView>
 
         </View>
+      </Modal> */}
+      {/* Modal Timercounter */}
+      <Modal
+        isVisible={isVisible}
+        swipeDirection="down"
+        onBackdropPress={() => setVisible(false)}
+        onSwipeComplete={(e) => {
+          setVisible(false)
+        }}
+
+        scrollTo={() => { }}
+        scrollOffset={1}
+        // propagateSwipe={true}
+        coverScreen={false}
+        backdropColor='transparent'
+        style={styles.Container}
+      >
+        <View style={styles.mainview}>
+          <View style={styles.childview}>
+            <View style={styles.profilestyle}  >
+              <Image resizeMode='cover'
+                source={{ uri: `${profiledata?.profile_image != null ? profiledata?.profile_image : 'https://kinengo-dev.s3.us-west-1.amazonaws.com/images/camera-icon.jpg'}` }}
+                style={styles.profilePictureStyle}
+              />
+              <View style={styles.heartstyle} >
+                <Image resizeMode='contain' source={require('../../../assets/dating-love-image.png')} style={styles.heartimages} />
+              </View>
+            </View>
+            <View style={styles.secondbox}>
+              <Text style={{
+                fontSize: 20,
+                fontWeight: '800',
+                color: '#455A64', lineHeight: 40
+              }}>You're Out of Likes</Text>
+              <Text style={{
+                fontSize: 18,
+                fontWeight: '800',
+                color: '#FF4989'
+              }}>Get more likes in:</Text>
+              <Text style={{
+                fontSize: 20,
+                fontWeight: '800',
+                color: '#FF4989',
+              }}>{timecounter}</Text>
+              <Text style={styles.text2}>Like limits encourage thoughtful swiping. More likes are coming soon please be patient.</Text>
+              {/* <View style={styles.buttonstyle1}>
+                <MyButtons title="CONTINUE (1 LEFT)" height={55} width={'100%'} borderRadius={50} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={14}
+                  titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
+              </View> */}
+              {/* <View style={styles.Ortextlinestyle}>
+                <View style={styles.linestyle}></View>
+                <Text style={styles.text3}>OR</Text>
+                <View style={styles.linestyle} />
+              </View> */}
+              {/* <View style={styles.buttonstyle2}>
+                <MyButtons title="GET UNLIMITED LIKES" height={55} width={'100%'} borderRadius={50} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={14} borderColor={'#e30f50'} backgroundColor={'white'} borderWidth={2}
+                  titlecolor={'#e30f50'} />
+              </View> */}
+              {/* <TouchableOpacity onPress={() => setVisible(false)} style={{ marginTop: 15 }}>
+                <Text style={styles.text4}>
+                  NO THANKS
+                </Text>
+              </TouchableOpacity> */}
+            </View>
+
+
+          </View>
+
+        </View>
       </Modal>
+
 
       <Modal
         isVisible={showFilterModal}
@@ -1231,9 +1590,9 @@ const PeopleHome = (props) => {
         propagateSwipe={true}
         coverScreen={false}
         backdropColor='transparent'
-        style={{ justifyContent: 'flex-end', margin: 0, backgroundColor: 'rgba(0,0,0,0.5)' ,}}
+        style={{ justifyContent: 'flex-end', margin: 0, backgroundColor: 'rgba(0,0,0,0.5)', }}
       >
-        <View style={{ height: '70%', backgroundColor: '#fff5f7', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20,zIndex: 999 }}>
+        <View style={{ height: '70%', backgroundColor: '#fff5f7', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20, zIndex: -999 }}>
           <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
             {/* <View style={{alignItems:'center'}}> */}
             <View style={{ width: '90%', alignSelf: 'center', marginTop: 10, marginBottom: 40 }}>
@@ -1452,7 +1811,7 @@ const PeopleHome = (props) => {
                 sliderLength={320}
                 onValuesChange={distanceSliderValuesChange}
                 min={0}
-                max={100}
+                max={1000}
                 step={1}
                 allowOverlap={false}
                 minMarkerOverlapDistance={10}
@@ -1595,11 +1954,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  text1: {
-    fontSize: 12,
-    fontWeight: '400',
-    color: '#455A64'
-  },
+
   interestedView1: {
     // flexDirection:'row',
     backgroundColor: '#FF4989',
@@ -1686,8 +2041,8 @@ const styles = StyleSheet.create({
   showMeView: {
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent:'space-between',
-    width: 'auto',
+    justifyContent: 'space-between',
+    // width: 'auto',
     padding: 10,
     backgroundColor: '#fff1f6',
     // paddingHorizontal:15, 
@@ -1707,7 +2062,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     zIndex: -999
   },
-  buttonViewOne: { 
+  buttonViewOne: {
     backgroundColor: 'red',
     width: 90,
     height: 90,
@@ -1799,7 +2154,126 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     shadowOpacity: 0.2,
     elevation: 4,
+  },
+  Container: {
+    flex: 1,
+    margin: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 7
+  },
+  mainview: {
+    height: '49%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingTop: 30,
+    padding: 10
+  },
+  childview: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  profilestyle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+
+  },
+  profilePictureStyle: {
+    alignSelf: "center",
+    height: 110,
+    width: 110,
+    borderRadius: 60,
+    // top: -(60 + 10),
+    borderWidth: 7,
+    borderColor: "#fff",
+    shadowColor: '#000000',
+    shadowRadius: 1,
+    shadowOffset: {
+      height: 3,
+      width: 0
+    },
+    shadowOpacity: 1,
+    elevation: 3,
+  },
+  heartstyle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: -25,
+    backgroundColor: 'white',
+    height: 40,
+    width: 40,
+    borderRadius: 40,
+    shadowColor: '#000000',
+    shadowRadius: 1,
+    shadowOffset: {
+      height: 2,
+      width: 0
+    },
+    shadowOpacity: 0.1,
+    elevation: 4,
+    zIndex: -999
+  },
+  heartimages: {
+    top: 2,
+    height: 25,
+    width: 25
+  },
+  secondbox: {
+    width: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: -10
+  },
+  text1: {
+    color: 'black',
+    fontWeight: '800',
+    textAlign: 'center',
+    fontSize: 20
+  },
+  text2: {
+    color: 'black',
+    fontWeight: '400',
+    textAlign: 'center',
+    fontSize: 16,
+    marginTop: 6
+  },
+  buttonstyle1: {
+    width: '100%',
+    alignSelf: 'center',
+    marginTop: 30
+  },
+  Ortextlinestyle: {
+    flexDirection: 'row',
+    justifyContent: "center",
+    alignItems: "center",
+    width: '80%',
+    marginTop: 15
+  },
+  linestyle: {
+    backgroundColor: '#e0e0e0',
+    height: 1,
+    width: '50%',
+    marginTop: 5,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  text3: {
+    color: '#e0e0e0',
+    fontWeight: '400',
+    textAlign: 'center',
+    fontSize: 18,
+    paddingHorizontal: 10
+  },
+  buttonstyle2: {
+    width: '100%',
+    alignSelf: 'center',
+    marginTop: 20
+  },
+  text4: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: '600'
   }
+
 });
 export default PeopleHome
 

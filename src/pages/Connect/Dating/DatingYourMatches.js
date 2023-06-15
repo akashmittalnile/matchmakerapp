@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground,RefreshControl } from 'react-native';
+import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground, RefreshControl } from 'react-native';
 import { dimensions, Mycolors, } from '../../../utility/Mycolors';
 import { ImageSlider, ImageCarousel } from "react-native-image-slider-banner";
 import MyButtons from '../../../component/MyButtons';
@@ -10,11 +10,12 @@ import ViewMoreText from 'react-native-view-more-text';
 import MyAlert from '../../../component/MyAlert';
 import { useSelector, useDispatch } from 'react-redux';
 import { connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
+import { setdatingMatchData } from '../../../redux/actions/user_action';
 
 const DatingYourMatches = (props) => {
   const User = useSelector(state => state.user.user_details);
   const [loading, setLoading] = useState(false)
-
+  const dispatch = useDispatch();
   const [My_Alert, setMy_Alert] = useState(false)
   const [alert_sms, setalert_sms] = useState('')
   const [searchValue, setsearchValue] = useState('')
@@ -84,7 +85,7 @@ const DatingYourMatches = (props) => {
       GetSwipeProfile()
     })
     return unsubscribe;
-   
+
   }, []);
   const checkcon = () => {
     GetSwipeProfile()
@@ -107,19 +108,21 @@ const DatingYourMatches = (props) => {
     // console.log("SwipeProfile........",User.token );
     setLoading(true)
     const { responseJson, err } = await requestGetApi(connect_dating_swipe_profile, '', 'GET', User.token)
-    setLoading(false)
+
     console.log('the res==>>GetSwipeProfile', responseJson)
     if (responseJson.headers.success == 1) {
+      dispatch(setdatingMatchData(responseJson?.body?.data?.length))
       setmatchesprofile(responseJson?.body?.data)
     } else {
-      setalert_sms(responseJson.headers.message)
+      setalert_sms(responseJson.headers.message);
       setMy_Alert(true)
     }
+    setLoading(false)
   }
   const PutSwipeProfile = async (t, id) => {
     console.log("SwipeProfile........", t, id);
     setLoading(true)
-    // let message= 'Interest sent to ' + profiledata.fullname+ ' successfully awaiting response.'
+
     var data = {
       swipe_status: t  // Accepted, Rejected,
     }
@@ -149,10 +152,10 @@ const DatingYourMatches = (props) => {
         </View>
         <View style={{ flex: 1 }} />
       </View>
-      <View style={{width:dimensions.SCREEN_WIDTH, borderBottomColor: '#ffb0ba', borderBottomWidth: StyleSheet.hairlineWidth,left:-21}}/>  
+      <View style={{ width: dimensions.SCREEN_WIDTH, borderBottomColor: '#ffb0ba', borderBottomWidth: StyleSheet.hairlineWidth, left: -21 }} />
       {
         matchesprofile?.length > 0 ?
-          (<ScrollView 
+          (<ScrollView
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -205,18 +208,18 @@ const DatingYourMatches = (props) => {
           </ScrollView>)
           :
           (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: "center",top:-40 }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: "center", top: -20 }}>
               <Image source={require('../../../assets/icon-matches.png')}
-                style={{ height: 200, width: 200 }}
+                style={{ height: 250, width: 250 }}
               />
-              <View style={{width:'59%'}}>
-              <Text style={{ fontSize: 20, fontWeight: '600', color: '#31313f',textAlign:'center' }}>No Likes yet.</Text>
-              <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2',textAlign:'center' }}>Likes are more intentional on Kinengo, so don't fret, they'll come in soon.</Text>
+              <View style={{ width: '59%' }}>
+                <Text style={{ fontSize: 20, fontWeight: '600', color: '#31313f', textAlign: 'center' }}>No Likes yet.</Text>
+                <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2', textAlign: 'center' }}>Likes are more intentional on Kinengo, so don't fret, they'll come in soon.</Text>
               </View>
-             
+
 
               <View style={{ width: '50%', alignSelf: 'center', marginTop: 30 }}>
-                <MyButtons title="Go profile page" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={12}
+                <MyButtons title="Go to profile page" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={12}
                   titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
               </View>
             </View>

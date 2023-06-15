@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground ,RefreshControl} from 'react-native';
+import { View, Image, Text, StyleSheet, SafeAreaView, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground, RefreshControl } from 'react-native';
 import HomeHeaderRoundBottom from '../../../component/HomeHeaderRoundBottom';
 import HomeHeader from '../../../component/HomeHeader';
 import SearchInput2 from '../../../component/SearchInput2';
@@ -89,7 +89,7 @@ const DatingMoreInfo = (props) => {
   const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     ProfilePage()
-// console.log("DatingMoreInfo useeffect", props.route.params.selectprofile);
+    // console.log("DatingMoreInfo useeffect", props.route.params.selectprofile);
     // if (props.route.params.from == 'PeopleHome') {
     //   ProfilePage(props?.route?.params?.selectprofile?.userid)
     //   // setProfileData(props.route.params.selectprofile)
@@ -106,7 +106,7 @@ const DatingMoreInfo = (props) => {
   }
 
   const onRefresh = React.useCallback(() => {
-    
+
     checkcon()
     wait(2000).then(() => {
 
@@ -149,15 +149,17 @@ const DatingMoreInfo = (props) => {
     console.log('DatingMoreInfoid', id)
     // var check = props?.route?.params?.from == 'PeopleHome' ? id : User.userid
     setLoading(true)
-    const { responseJson, err } = await requestGetApi(connect_dating_profile , '', 'GET', User.token)
+    const { responseJson, err } = await requestGetApi(connect_dating_profile, '', 'GET', User.token)
     setLoading(false)
     console.log('the res==>>DatingMoreInfo', responseJson)
     if (responseJson.headers.success == 1) {
       // console.log('the res==>>DatingMoreInfo', responseJson.body)
       setProfileData(responseJson.body)
       var allimgs = [];
+
       for (let i = 1; i <= responseJson.body.images.length; i++) {
-        allimgs.push({ img: responseJson.body.images[i - 1].image })
+        allimgs.push({ img: responseJson.body.images[i - 1].image, attribute_code: responseJson.body.images[i - 1].attribute_code })
+        // allimgs.filter(el=>el.attribute_code == "image1")
       }
       setAllImg(allimgs)
     } else {
@@ -177,50 +179,64 @@ const DatingMoreInfo = (props) => {
     setupData([...updatedData])
   }
 
+  const data = allImg?.map(el => {
+    return {
+      ...el,
+      attribute_code: Number(el.attribute_code?.replace('image', ''))
+    }
+
+  })
+  const data2 = data.sort((a, b) => a.attribute_code - b.attribute_code);
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ backgroundColor: '#fff5f7', height: '100%' }}>
 
-      <ScrollView 
-       refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
 
-        />
-      }
+          />
+        }
       >
         <View style={{ height: dimensions.SCREEN_HEIGHT * 46 / 100, width: '100%' }}>
 
           <View style={{ overflow: 'hidden', width: '100%', alignSelf: 'center', zIndex: -999 }}>
-            <ImageSlider
-              //  localImg={true}
-              data={allImg}
-              // onClick={(item, index) => {alert('hello'+index)}}
-              // autoPlay={true}
-              // onItemChanged={(item) => console.log("item", item)}
+            {
+              allImg?.length > 0 ?
+                (<ImageSlider
+                  //  localImg={true}
+                  data={data2}
+                  // onClick={(item, index) => {alert('hello'+index)}}
+                  // autoPlay={true}
+                  // onItemChanged={(item) => console.log("item", item)}
 
-              // activeIndicatorStyle={{backgroundColor:'#FF4989'}}
-              indicatorContainerStyle={{ top: -5 }}
+                  // activeIndicatorStyle={{backgroundColor:'#FF4989'}}
+                  indicatorContainerStyle={{ top: -5 }}
 
-              caroselImageStyle={{ resizeMode: 'cover', height: 400 }}
-              closeIconColor="#fff"
-              headerStyle={{ padding: 0, backgroundColor: 'rgba(0,0,0, 0.6)', }}
-              showHeader
-            // preview={true}
-            />
+                  caroselImageStyle={{ resizeMode: 'cover', height: 400 }}
+                  closeIconColor="#fff"
+                  headerStyle={{ padding: 0, backgroundColor: 'rgba(0,0,0, 0.6)', }}
+                  showHeader
+                // preview={true}
+                />)
+                :
+                <Image style={{ height: 400, width: '100%' }} source={{ uri: `${'https://kinengo-dev.s3.us-west-1.amazonaws.com/images/camera-icon.jpg'}` }} />
+            }
+
 
           </View>
         </View>
-        {/* <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ position: 'absolute', top: 40, left: 20, backgroundColor:'#FFA5C5' ,borderRadius:50,height:30,justifyContent:'center',width:30,alignItems:'center' }}>
+        <TouchableOpacity onPress={() => { props.navigation.goBack() }} style={{ position: 'absolute', top: 40, left: 20, backgroundColor:'#FFA5C5' ,borderRadius:50,height:30,justifyContent:'center',width:30,alignItems:'center' }}>
           <Image source={require('../../../assets/images/dating-white-back-button.png')} style={{ width: 25, height: 15 ,  }} resizeMode='contain' />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
         <View style={{ width: '90%', alignSelf: 'center', marginTop: 20 }}>
 
           <View style={{ backgroundColor: '#fff5f7', padding: 20 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
                 <Text style={{ fontSize: 15, color: '#31313f', fontWeight: 'bold', }}>{profiledata?.fullname}, {profiledata?.age_preference}</Text>
-                {/* <Text style={{fontSize:10, color:'#e10f51', marginTop:5}}>@marry</Text> */}
+
                 <Text style={{ fontSize: 10, color: '#4a4c52', marginTop: 5 }}>{profiledata?.job_title}</Text>
               </View>
               {
@@ -234,7 +250,9 @@ const DatingMoreInfo = (props) => {
 
 
             </View>
+
             <View style={{ marginTop: 20 }} />
+
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
                 <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold' }}>Location</Text>
@@ -247,10 +265,11 @@ const DatingMoreInfo = (props) => {
                     <Text style={{ fontSize: 10, color: '#FF4989' }}>{Number(profiledata?.distance).toFixed(0)} mile</Text>
                   </View>)
                   :
-                  null}
+                  null
+              }
             </View>
             <View style={{ marginTop: 30 }} />
-            <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 7 }}>About</Text>
+
             {/* <ViewMoreText
               numberOfLines={3}
               renderViewMore={(onPress) => {
@@ -267,89 +286,115 @@ const DatingMoreInfo = (props) => {
             >
               <Text style={{ fontSize: 10, color: '#4a4c52' }}>{profiledata?.about}</Text>
             </ViewMoreText> */}
-            <View style={{ alignSelf: 'center', width: '100%', marginTop: 1, paddingHorizontal: 0 }}>
-              <Text style={{ fontSize: 11, color: Mycolors.TEXT_COLOR }}>{profiledata?.about}</Text>
-              {/* {profiledata?.about ?
-                <Text onPress={() => { setviewmore(!viewmore) }} style={{ color: '#dd2e44', textDecorationLine: "underline", fontSize: 10 }}>{viewmore ? 'Read more' : 'Read less'}</Text>
-                : null} */}
-            </View>
-            <View style={{ marginTop: 20 }}>
-              <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Passions</Text>
-              <View style={{ }}>
-                
-              <FlatList
-              // horizontsal
-                data={profiledata?.passions?.filter(el=>el.is_selected)}
-                showsHorizontalScrollIndicator={false}
-                numColumns={3}
-                keyExtractor={(item,index) =>index.toString() }
-                renderItem={({ item, index }) => {
-                  return (
+            {/* {profiledata?.about ?
+  <Text onPress={() => { setviewmore(!viewmore) }} style={{ color: '#dd2e44', textDecorationLine: "underline", fontSize: 10 }}>{viewmore ? 'Read more' : 'Read less'}</Text>
+  : null} */}
+            {
 
-                    <View key={item} style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', }]}>
-                      {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
-                      <View style={styles.showMeImageView}>
-                        <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
-                      </View>
-                      <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
-                    </View>
-                  )
-                   
-                  
-                }}
-              />
-              </View>
-             
-            </View>
-            <View style={{ marginTop: 20 }}>
-              <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Languages</Text>
-              <View style={{  }}>
-              <FlatList
-                data={profiledata?.languages?.filter(el=>el.is_selected)}
-                showsHorizontalScrollIndicator={false}
-                numColumns={3}
-                keyExtractor={item => item.id}
-                renderItem={({ item, index }) => {
-                  if(item.is_selected == 1){
-                  return (
-                    <View key={item.name} style={[styles.showMeView, {  marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
-                      {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
-                      <View style={styles.showMeImageView}>
-                        <Image source={{ uri: `${item.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
-                      </View>
-                      <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item.attribute_value}</Text>
-                    </View>
-                  )
-                  }
-                }}
-              />
-              </View>
-            </View>
+              profiledata?.about != null ?
+                (<>
+                  <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 7 }}>About</Text>
+                  <View style={{ alignSelf: 'center', width: '100%', marginTop: 1 }}>
+                    <Text style={{ fontSize: 11, color: Mycolors.TEXT_COLOR }}>{profiledata?.about}</Text>
+                  </View>
+                </>)
+                : null
+            }
+
+            {
+              profiledata?.passions?.filter(el => el.is_selected == 1).length > 0 ?
+                (<View style={{ marginTop: 20 }}>
+                  <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Passions</Text>
+                  <FlatList
+                    // horizontsal
+                    data={profiledata?.passions?.filter(el => el.is_selected)}
+                    showsHorizontalScrollIndicator={false}
+                    numColumns={3}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => {
+                      return (
+
+                        <View key={index} style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', }]}>
+
+                          <View style={styles.showMeImageView}>
+                            <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                          </View>
+                          <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item?.attribute_value}</Text>
+                        </View>
+                      )
+
+
+                    }}
+                  />
+
+                </View>)
+                : null
+            }
+
+            {
+              profiledata?.languages?.filter(el => el.is_selected == 1).length > 0 ?
+                (<View style={{ marginTop: 20 }}>
+                  <Text style={{ fontSize: 12, color: '#31313f', fontWeight: 'bold', marginBottom: 10 }}>Languages</Text>
+
+                  <FlatList
+                    data={profiledata?.languages?.filter(el => el.is_selected)}
+                    showsHorizontalScrollIndicator={false}
+                    numColumns={3}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => {
+                      if (item.is_selected == 1) {
+                        return (
+                          <View key={index} style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+
+                            <View style={styles.showMeImageView}>
+                              <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
+                            </View>
+                            <Text style={[styles.showMeText, { marginLeft: 7 }]}>{item?.attribute_value}</Text>
+                          </View>
+                        )
+                      }
+                    }}
+                  />
+
+                </View>)
+                : null
+            }
+
 
             <View style={{ width: '90%', marginTop: 10 }}>
               <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', marginBottom: 10 }}>My basics</Text>
             </View>
+
             <View style={{
               flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
               borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
             }}>
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icon-company.png')} style={{ height: 20, width: 20, marginRight: 7 }} />
-                  <View style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text numberOfLines={1} style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.job_company}</Text>
-                  </View>
+              {
+                profiledata?.job_company != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center', }}>
+                      <Image resizeMode='contain' source={require('../../../assets/icon-company.png')} style={{ height: 20, width: 20, marginRight: 7 }} />
+                      <View style={{ height: 40, alignItems: 'center', justifyContent: 'center' }}>
+                        <Text numberOfLines={1} style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.job_company}</Text>
+                      </View>
 
-                </View>
-              </View>
+                    </View>
+                  </View>)
+                  : null
+              }
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icon-equality.png')} style={{ height: 20, width: 25, marginRight: 6, top: 1 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.gender}</Text>
-                </View>
-              </View>
+              {
+                profiledata?.gender != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/icon-equality.png')} style={{ height: 20, width: 25, marginRight: 6, top: 1 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.gender}</Text>
+                    </View>
+                  </View>)
+                  : null
+              }
+
               {profiledata?.height != null ?
                 (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
                   <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
@@ -360,24 +405,34 @@ const DatingMoreInfo = (props) => {
                 :
                 null
               }
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icon-school.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.university}</Text>
-                </View>
-              </View>
-              <View style={[styles.showMeView, { backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icon-degree.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.qualification}</Text>
-                </View>
-              </View>
+              {
+                profiledata?.university != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/icon-school.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.university}</Text>
+                    </View>
+                  </View>)
+                  : null
+              }
+
+              {
+                profiledata?.qualification != null ?
+                  (<View style={[styles.showMeView, { backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/icon-degree.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.qualification}</Text>
+                    </View>
+                  </View>)
+                  : null
+              }
+
             </View>
 
             <View style={{ width: '90%', marginTop: 10, marginBottom: 10 }}>
-              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869', }}>More about me</Text>
-
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#3e5869' }}>More about me</Text>
             </View>
+
             <View style={{
               flexDirection: "row", width: '100%', flexWrap: 'wrap', borderColor: '#ffb0cb', borderRadius: 30,
               borderWidth: 0.5, padding: 10, paddingLeft: 16, paddingTop: 20
@@ -391,66 +446,75 @@ const DatingMoreInfo = (props) => {
                   <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.intrest_in}</Text>
                 </View>
               </View> */}
+              {
+                profiledata?.smoking != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.smoking}</Text>
+                    </View>
+                  </View>)
+                  : null
+              }
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/no-smoking.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.smoking}</Text>
-                </View>
-              </View>
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.kids}</Text>
-                </View>
-              </View>
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.politics}</Text>
-                </View>
-              </View>
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.drinking}</Text>
-                </View>
-              </View>
+              {
+                profiledata.kids != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/icons-pacifier.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.kids}</Text>
+                    </View>
+                  </View>)
+                  : null
+              }
+
+              {
+                profiledata.politics != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/icons-elections.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.politics}</Text>
+                    </View>
+                  </View>) :
+                  null
+              }
+
+              {
+                profiledata?.drinking != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/beer-mug.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.drinking}</Text>
+                    </View>
+                  </View>)
+                  : null
+              }
 
 
 
-              <View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
-                <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
-                  <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
-                  <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata.zodiac}</Text>
-                </View>
-              </View>
-
-              
-
-
-
+              {
+                profiledata?.zodiac != null ?
+                  (<View style={[styles.showMeView, { marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f', height: 40 }]}>
+                    <View style={{ justifyContent: 'flex-start', flexDirection: 'row', alignItems: 'center' }}>
+                      <Image resizeMode='contain' source={require('../../../assets/crystal-ball.png')} style={{ height: 24, width: 20, marginRight: 7 }} />
+                      <Text style={{ fontSize: 12, color: '#4a4c52', }}>{profiledata?.zodiac}</Text>
+                    </View>
+                  </View>)
+                  :
+                  null
+              }
             </View>
-            {
-
-              profiledata.userid != User.userid ?
-                (<View style={styles.buttonsRow}>
+            {/* <View style={styles.buttonsRow}>
                   <TouchableOpacity onPress={() => { SwipeProfile('L') }} style={styles.buttonViewOne}>
                     <Image source={require('../../../assets/images/dating-more-info-reject.png')} style={{ width: 20, height: 20, top: 0, }} resizeMode='contain' />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => { SwipeProfile('R') }} style={styles.buttonViewTwo}>
                     <Image source={require('../../../assets/images/dating-more-info-heart.png')} style={{ width: 40, height: 40, top: 0, }} resizeMode='contain' />
                   </TouchableOpacity>
-                  {/* <TouchableOpacity onPress={() => { }} style={styles.buttonViewOne}>
+                  <TouchableOpacity onPress={() => { }} style={styles.buttonViewOne}>
                     <Image source={require('../../../assets/images/dating-yellow-star.png')} style={{ width: 20, height: 20, top: 0, }} resizeMode='contain' />
-                  </TouchableOpacity> */}
-                </View>)
-                :
-                null
-            }
-
-
-
+                  </TouchableOpacity>
+                </View> */}
           </View>
 
 
@@ -458,6 +522,7 @@ const DatingMoreInfo = (props) => {
         <View style={{ height: 60 }} />
 
       </ScrollView>
+
       <Modal
         isVisible={showChooseMilesModal}
         swipeDirection="down"
@@ -681,7 +746,7 @@ const styles = StyleSheet.create({
   showMeView: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     // width: 100,
     padding: 10,
     backgroundColor: '#fff1f6',

@@ -13,9 +13,8 @@ import Modal from 'react-native-modal';
 import Toast from 'react-native-toast-message';
 import Geocoder from "react-native-geocoding";
 import { useSelector, useDispatch } from "react-redux";
-import { GoogleApiKey } from '../../../WebApi/GoogleApiKey';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
- 
+import messaging from '@react-native-firebase/messaging';
+
 const PeopleHome = (props) => {
   const [searchValue,setsearchValue]=useState('')
   const dispatch = useDispatch();
@@ -79,7 +78,56 @@ const PeopleHome = (props) => {
   const distanceSliderValuesChange = (values) => {setDistanceSliderValue(values)}
   useEffect(()=>{
 
- },[])
+ },[]);
+
+ messaging().onMessage(remoteMessage => {
+  const data = remoteMessage.data
+  console.log('onMessage remoteMessage',remoteMessage)
+ if(remoteMessage.notification.body=='Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+  props.navigation.navigate('DatingChat',{ data: remoteMessage.data })
+  // setRemoteMessageData(remoteMessage.data)
+ }else if(remoteMessage.notification.body=='new message'){
+    //  dispatch(setMessageCount(mapdata.messagecount+1))
+    props.navigation.navigate('DatingChat',{ data: remoteMessage.data })
+
+ }
+ 
+});
+messaging().onNotificationOpenedApp(remoteMessage => {
+  const data = remoteMessage.data
+  console.log('Notification caused app to open from background state:',remoteMessage)
+  if(remoteMessage.notification.title=='Kinengo Dating has accepted your request to connect click to initiate the chat.'){
+    if(remoteMessage.notification.body=='Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+      props.navigation.navigate('DatingChat',{ data: remoteMessage.data })
+     }else{
+      props.navigation.navigate('DatingChat',{ data: remoteMessage.data })
+     } 
+    
+   }else if(remoteMessage.notification.body=='new message'){
+    props.navigation.navigate('DatingChat',{ data: remoteMessage.data })
+    // dispatch(setMessageCount(mapdata.messagecount+1))
+  }
+});
+
+
+messaging()
+  .getInitialNotification()
+  .then(remoteMessage => {
+    console.log('====================================');
+    console.log(remoteMessage);
+    console.log('====================================');
+    if(remoteMessage.notification.title=='Kinengo Dating has accepted your request to connect click to initiate the chat.'){
+      if(remoteMessage.notification.body=='Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+        props.navigation.navigate('DatingChat',{ data: remoteMessage.data })
+       }else{
+        props.navigation.navigate('DatingChat',{ data: remoteMessage.data })
+       }         
+     }else if(remoteMessage.notification.body=='new message'){
+      // dispatch(setMessageCount(mapdata.messagecount+1))
+      props.navigation.navigate('DatingChat',{ data: remoteMessage.data })
+
+    }
+  });
 
  const changeSaved = (id) => {
   const updataCopy = [...upData]

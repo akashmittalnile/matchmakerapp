@@ -14,15 +14,18 @@ import LinearGradient from 'react-native-linear-gradient';
 import Loader from '../../../WebApi/Loader';
 import MyAlert from '../../../component/MyAlert';
 import { useSelector, useDispatch } from 'react-redux';
-import { connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
+import { connect_dating_chat_list, connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
 import { TextInput } from 'react-native-gesture-handler';
+
+import { setdatingmessagecount } from '../../../redux//actions/user_action';
 
 const image1 = require('../../../assets/images/people-following-person.png')
 const onlinePersonImageWidth = 70
 const onlineDotWidth = 12
 
 const DatingMessages = (props) => {
-  const User = useSelector(state => state.user.user_details)
+  const User = useSelector(state => state.user.user_details);
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [My_Alert, setMy_Alert] = useState(false)
   const [alert_sms, setalert_sms] = useState('')
@@ -34,6 +37,7 @@ const DatingMessages = (props) => {
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100])
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
   const [alluserdata, setUsersdata] = useState([]);
+  const [driver_id, setDriverid] = useState([]);
   const [searchtext, setsearchtext] = useState('')
   const [upData, setupData] = useState([
     {
@@ -101,10 +105,115 @@ const DatingMessages = (props) => {
     },
   ]);
   const [refreshing, setRefreshing] = useState(false);
+
+
   useEffect(() => {
-    GetSwipeProfile()
-    console.log("DatingMessagetoken", User.token);
+    const unsubscribe = props.navigation.addListener('focus', () => {
+      GetSwipeProfile()
+    })
+    return unsubscribe;
   }, []);
+
+  const [isRead, setIsRead] = useState(false);
+
+
+  // const getAllChatCount = async () => {
+  //   console.log("asdad", driver_id?.connect_userid, User?.userid);
+    
+       
+  //       if (User?.userid != User?.userid) {
+  //         let totalCount = 0;
+  //         await driver_id.map(item => {
+  //           firestore()
+  //             .collection('groups')
+  //             .doc(item.connect_userid.toString())
+  //             .collection('users')
+  //             .where('id', '==', userInfo.id)
+  //             .get()
+  //             .then(querySnapshot => {
+  //               querySnapshot.forEach(doc => {
+  //                 const unreadCount = doc.data().unread_count;
+  //                 totalCount += unreadCount;
+  //                 // Perform any further operations with the unreadCount
+  //               });
+  //               setMessagesCount(totalCount);
+  //               return;
+  //             })
+  //             .catch(error => {
+  //               // Handle any errors that occur during the retrieval
+  //               console.error('Error getting users:', error);
+  //             });
+  //         });
+  //       }
+        
+  //   };
+   
+  useEffect(() => {
+
+    const docid =
+      driver_id?.connect_userid > User?.userid ? User?.userid + "-" + driver_id?.connect_userid : driver_id?.connect_userid + "-" + User?.userid;
+
+    console.log("asdad", driver_id?.connect_userid, User?.userid);
+
+     const unSubscribe =
+      firestore()
+        .collection('Matchmakingapp')
+        .doc(docid)
+        .collection('Messages')
+        .where('isRead', '==', '')
+        .onSnapshot((snapshot) => {
+          const count = snapshot.size;
+          dispatch(setdatingmessagecount(count))
+          console.log('New_Messages:', count);
+          // setNewMessageCount(count);
+        });
+
+
+    // const MessageRef = 
+    //   firestore()
+    //   .collection('Matchmakingapp')
+    //   .doc(docid)
+    //   .collection('Messages')
+    //.orderBy('isRead', 'desc');
+    //   const unSubscribe = MessageRef.onSnapshot(querySnap => {
+    //     if (querySnap != null) {
+    //       const AllMsg = querySnap.docs.map(docSnap => {
+    //         const data = docSnap.data();
+    //         console.log("MessageRef::=>>>", data);
+    //         if (data.isRead && data.userId == driver_id?.swipe_by ) {
+    //           return {
+    //             ...docSnap.data(),
+    //             isRead: docSnap.data().isRead.toDate(),
+    //           };
+    //         } else {
+    //           return {
+    //             ...docSnap.data(),
+    //             isRead: new Date(),
+    //           };
+    //         }
+    //       });
+
+    //       {
+    //         // console.log("MessagesData.length::=>>>", AllMsg)
+    //       }
+    //       // setMessagesData(AllMsg);
+
+    //     } 
+    //   });
+    // const unSubscribe =
+    //   firestore()
+    //     .collection('Matchmakingapp')
+    //     .doc(docid)
+    //     .collection('Messages')
+    //     .onSnapshot((snapshot) => {
+    //       const messageCount = snapshot.docs.length;
+    //       dispatch(setdatingmessagecount(messageCount))
+    //       console.log('New_Messages:', messageCount);
+    //       // setMessageCount(snapshot.docs.length);
+    //     });
+
+    return () => { unSubscribe };
+  }, [driver_id?.connect_userid]);
 
   const checkcon = () => {
     GetSwipeProfile()
@@ -126,11 +235,13 @@ const DatingMessages = (props) => {
   const GetSwipeProfile = async () => {
 
     setLoading(true)
-    const { responseJson, err } = await requestGetApi(connect_dating_swipe_profile + '?swipe_status=Accepted', '', 'GET', User.token)
+    const { responseJson, err } = await requestGetApi(connect_dating_chat_list, '', 'GET', User.token)
     setLoading(false)
     console.log('the res==>>DatingMessages', responseJson)
     if (responseJson?.headers?.success == 1) {
       setUserList(responseJson?.body?.data)
+      console.log('the_driveridcheck', responseJson?.body?.data[0]?.swipe_by)
+      setDriverid(responseJson?.body?.data)
     } else {
       setalert_sms(responseJson?.headers?.message)
       setMy_Alert(true)
@@ -138,18 +249,22 @@ const DatingMessages = (props) => {
   }
 
   const Search = async (text) => {
- 
+    // if(text.trim().length != 0){
+
+    // }
     setLoading(true)
-    const { responseJson, err } = await requestGetApi(connect_dating_swipe_profile + '?swipe_status=Accepted' + '&name=' + text, '', 'GET', User.token)
+    const { responseJson, err } = await requestGetApi(connect_dating_chat_list + '?name=' + text, '', 'GET', User.token)
     setLoading(false)
     console.log('the res==>>Search', responseJson)
     if (responseJson?.headers?.success == 1) {
       setUserList(responseJson?.body?.data)
-    } else {
-      setalert_sms(responseJson?.headers?.message)
-      setMy_Alert(true)
     }
-  }
+    // else {
+    //   setalert_sms(responseJson?.headers?.message)
+    //   setMy_Alert(true)
+    // }
+  };
+
   return (
     <SafeAreaView scrollEnabled={scrollEnabled} style={{ flex: 1 }}>
       <LinearGradient
@@ -178,19 +293,19 @@ const DatingMessages = (props) => {
         </View>
 
         <View style={{ width: '92%', alignSelf: 'center' }}>
-          <View style={{ width: '98%', height: 50, borderRadius: 10, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: 10, justifyContent: "space-between" }}
+          <View style={{ width: '98%', height: 55, borderRadius: 10, backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: 10, justifyContent: "space-between" }}
             onPress={() => { props.navigation.navigate('', { datas: [], from: 'search' }) }}>
 
-            <View style={{ padding: 5, width: '80%', }}>
+            <View style={{ padding: 5, width: '85%', }}>
               <TextInput
                 placeholder='Search'
-                placeholderTextColor={'black'}
+                placeholderTextColor={'#808080'}
                 onChangeText={(text) => {
                   Search(text)
                   setsearchtext(text)
                 }}
-                
-                style={{ color: 'black', fontSize: 14 }}
+
+                style={{ color: '#ff5e96', fontSize: 14, paddingLeft: 5 }}
               >
               </TextInput>
 
@@ -218,22 +333,22 @@ const DatingMessages = (props) => {
                   numColumns={1}
                   renderItem={({ item, index }) => {
                     return (
-                      <TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: item, from: 'DatingMessages' }) }} style={{ width: '100%', marginBottom: 20, borderRadius: 5 }}>
+                      <TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: item, from: 'DatingMessages' }) }} style={{ width: '100%', marginBottom: 4, borderRadius: 5 }}>
                         <View
                           style={styles.flatlistMainView}>
                           <View style={{
                             borderColor: '#e1194d', borderRadius: onlinePersonImageWidth + 4 / 2,
                             borderWidth: 2, padding: 3, backgroundColor: '#FFFFFF'
                           }}>
-                            <Image source={{ uri: item?.profile_image }} style={styles.onlinePerson} />
+                            <Image source={{ uri: `${item?.profile_image != null ? item?.profile_image : 'https://kinengo-dev.s3.us-west-1.amazonaws.com/images/camera-icon.jpg'}` }} style={styles.onlinePerson} />
                             {item.activity_status ?
                               <View style={styles.onlineDot} />
                               : null}
                           </View>
-                          <View style={{ flex: 6, marginLeft: 15, justifyContent: 'center', top: -7 }}>
+                          <View style={{ flex: 6, marginLeft: 15, justifyContent: 'center', top: -3 }}>
                             <Text style={{ fontSize: 16, fontWeight: '700', color: '#e42f5e', lineHeight: 20 }}>{item.fullname}</Text>
                             <View style={{}}>
-                              <Text style={styles.numberStyle}>{item.about.substring(0, 100)}</Text>
+                              <Text style={styles.numberStyle}>{item.about.substring(0, 60)}</Text>
                             </View>
                           </View>
 
@@ -254,44 +369,44 @@ const DatingMessages = (props) => {
             </ScrollView>)
             :
             <>
-            {
-              searchtext !='' ?
-              (
-                <View style={{   justifyContent: 'center', alignItems: "center", top: 50 }}>
-                  <Image source={require('../../../assets/icon-nochat.png')}
-                    style={{ height: 200, width: 200 }}
-                  />
-                  <View style={{ width: '59%' }}>
-                    <Text style={{ fontSize: 20, fontWeight: '600', color: '#31313f', textAlign: 'center' }}>No results found</Text>
-                    {/* <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2', textAlign: 'center' }}>Likes are more intentional on Kinengo, so dont't fret, they'll come in soon.</Text> */}
-                  </View>
-  
-  
-                  {/* <View style={{ width: '50%', alignSelf: 'center', marginTop: 30 }}>
+              {
+                searchtext != '' ?
+                  (
+                    <View style={{ justifyContent: 'center', alignItems: "center", top: 50 }}>
+                      <Image source={require('../../../assets/icon_chatOnline.png')}
+                        style={{ height: 280, width: 280, alignSelf: 'center' }}
+                      />
+                      <View style={{ width: '59%' }}>
+                        <Text style={{ fontSize: 20, fontWeight: '600', color: '#31313f', textAlign: 'center' }}>No results found</Text>
+                        {/* <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2', textAlign: 'center' }}>Likes are more intentional on Kinengo, so dont't fret, they'll come in soon.</Text> */}
+                      </View>
+
+
+                      {/* <View style={{ width: '50%', alignSelf: 'center', marginTop: 30 }}>
                     <MyButtons title="Go profile page" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={12}
                       titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
                   </View> */}
-                </View>
-              )
-              :
-              (
-              <View style={{   justifyContent: 'center', alignItems: "center", top: 40 }}>
-                <Image source={require('../../../assets/icon-nochat.png')}
-                  style={{ height: 200, width: 200 }}
-                />
-                <View style={{ width: '59%' }}>
-                  <Text style={{ fontSize: 20, fontWeight: '600', color: '#31313f', textAlign: 'center' }}>You're new here! No chat yet.</Text>
-                  <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2', textAlign: 'center' }}>Likes are more intentional on Hinge, so dont't fret, they'll come in soon.</Text>
-                </View>
+                    </View>
+                  )
+                  :
+                  (
+                    <View style={{ justifyContent: 'center', alignItems: "center", top: 40 }}>
+                      <Image source={require('../../../assets/icon_chatOnline.png')}
+                        style={{ height: 250, width: 250 }}
+                      />
+                      <View style={{ width: '59%' }}>
+                        <Text style={{ fontSize: 20, fontWeight: '600', color: '#31313f', textAlign: 'center' }}>No chat yet.</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2', textAlign: 'center' }}>Likes are more intentional on Kinenge, so dont't fret, they'll come in soon.</Text>
+                      </View>
 
 
-                <View style={{ width: '50%', alignSelf: 'center', marginTop: 30 }}>
-                  <MyButtons title="Go profile page" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={12}
-                    titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
-                </View>
-              </View>
-            )
-            }
+                      <View style={{ width: '50%', alignSelf: 'center', marginTop: 30 }}>
+                        <MyButtons title="Go to profile page" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={12}
+                          titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
+                      </View>
+                    </View>
+                  )
+              }
             </>
         }
 

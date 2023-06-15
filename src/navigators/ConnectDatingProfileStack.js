@@ -20,8 +20,8 @@ const ConnectDatingProfileStack=(props)=>{
            <Stack.Navigator
             screenOptions={{ headerShown:false,}}
              >
-            {/* <Stack.Screen component = {DatingProfile} name="DatingProfile" />
-            <Stack.Screen component = {DatingEditProfile} name="DatingEditProfile" /> */}
+            <Stack.Screen component = {DatingProfile} name="DatingProfile" />
+            <Stack.Screen component = {DatingEditProfile} name="DatingEditProfile" />
             <Stack.Screen component = {DatingMoreInfo} name="DatingMoreInfo" />
 
             {/* <Stack.Screen component = {DatingHome} name="DatingHome" />

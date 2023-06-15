@@ -43,3 +43,7 @@ export const VERDERDETAILS = "VERDERDETAILS";
 export const RESTORENTLOCATION = "RESTORENTLOCATION";
 
 export const DASHDATA = "DASHDATA";
+
+export const MATCHDATA = "MATCHDATA";
+
+export const CHATDATA= "CHATDATA";

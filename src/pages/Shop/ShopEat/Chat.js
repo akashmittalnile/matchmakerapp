@@ -85,6 +85,8 @@ const getAllMessages = async ()=>{
         setMessages(allmsg)
 
 }
+
+ 
 const senNoti= async()=>{
       let notidata={
         'data': {},
@@ -96,7 +98,7 @@ const senNoti= async()=>{
        // console.log('result')
 }
 const onSend = (messageArray) => {
-   senNoti()
+  //  senNoti()
   const msg=messageArray[0]
   const mymsg={
     ...msg,

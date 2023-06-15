@@ -86,7 +86,7 @@ const DatingBlockUserScreen = (props) => {
     setLoading(false);
     console.log("the res==>>UnBloackUser=>", responseJson);
     if (responseJson?.headers?.success == 1) {
-      Toast.show({ text1: responseJson.headers.message });
+      Toast.show({ text1: "User Unblocked Successfully" });
       GetSwipeProfile()
       // props.navigation.goBack('');
       // console.log("the res==>>GetProfileImages", responseJson.headers.message);
@@ -140,12 +140,12 @@ const DatingBlockUserScreen = (props) => {
                   numColumns={1}
                   renderItem={({ item, index }) => {
                     return (
-                      <View style={{ width: '100%', marginBottom: 20, borderRadius: 5 }}>
+                      <View style={{ width: '100%', marginBottom: 4, borderRadius: 5 }}>
                         <View
                           style={styles.flatlistMainView}>
                           <View style={{  borderColor: '#e1194d', borderRadius: onlinePersonImageWidth +4 / 2,
                             borderWidth: 2,padding:3,backgroundColor:'#FFFFFF' }}>
-                            <Image source={{ uri: item?.profile_image }} style={styles.onlinePerson} />
+                            <Image source={{ uri: `${item?.profile_image != null ? item?.profile_image :'https://kinengo-dev.s3.us-west-1.amazonaws.com/images/camera-icon.jpg'}` }} style={styles.onlinePerson} />
                             {/* {item.isOnline ?
                               <View style={styles.onlineDot} />
                               : null} */}
@@ -153,7 +153,7 @@ const DatingBlockUserScreen = (props) => {
                           <View style={{ flex: 4, marginLeft: 15, justifyContent: 'center',top:-4 }}>
                             <Text style={{ fontSize: 14, fontWeight: '500', color: '#e42f5e' }}>{item.fullname}</Text>
                             <View style={{}}>
-                              <Text style={styles.numberStyle}>{item.about}</Text>
+                              <Text style={styles.numberStyle}>{item.about.substring(0, 50)}</Text>
                             </View>
                           </View>
 
@@ -187,17 +187,17 @@ const DatingBlockUserScreen = (props) => {
             :
             (
               <View style={{ flex: 1, justifyContent: 'center', alignItems: "center", top: -40 }}>
-                <Image source={require('../../../assets/icon-Blockempty.png')}
-                  style={{ height: 200, width: 230 }}
+                <Image source={require('../../../assets/icon-Blockempty1.png')}
+                  style={{ height: 270, width: 280 }}
                 />
                 <View style={{ width: '59%' }}>
-                  <Text style={{ fontSize: 20, fontWeight: '600', color: '#31313f', textAlign: 'center' }}>You're new here! No blocked account yet.</Text>
+                  <Text style={{ fontSize: 20, fontWeight: '600', color: '#31313f', textAlign: 'center' }}>No blocked account yet.</Text>
                   {/* <Text style={{ fontSize: 16, fontWeight: '400', color: '#a7a2a2',textAlign:'center' }}>Likes are more intentional on Hinge, so dont't fret, they'll come in soon.</Text> */}
                 </View>
 
 
                 <View style={{ width: '50%', alignSelf: 'center', marginTop: 30 }}>
-                  <MyButtons title="Go profile page" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={12}
+                  <MyButtons title="Go to profile page" height={60} width={'100%'} borderRadius={10} alignSelf="center" press={() => { props.navigation.navigate('DatingProfile') }} marginHorizontal={20} fontSize={12}
                     titlecolor={Mycolors.BG_COLOR} hLinearColor={['#8d046e', '#e30f50']} />
                 </View>
               </View>

@@ -136,12 +136,13 @@ const DatingProfile = (props) => {
             flexDirection: "row",
             alignItems: "center",
             height: 55,
-            padding: 20,
+            padding: 10,
             borderBottomLeftRadius: 25,
             borderBottomRightRadius: 25,
           }}
         >
-          <TouchableOpacity
+          <View style={{ flex: 1 }}></View>
+          {/* <TouchableOpacity
             onPress={() => {
               props.navigation.goBack();
             }}
@@ -152,7 +153,7 @@ const DatingProfile = (props) => {
               style={{ width: 25, height: 15 }}
               resizeMode="contain"
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <View
             style={{ flex: 3, flexDirection: "row", justifyContent: "center" }}
           >
@@ -177,7 +178,7 @@ const DatingProfile = (props) => {
               <ImageBackground
                 source={require("../../../assets/images/dating-edit-profile-top-image.png")}
                 style={{ width: "100%", height: 220 }}
-              ><TouchableOpacity  >
+              ><TouchableOpacity onPress={()=>{props.navigation.navigate('DatingMoreInfo')}} >
                   <Image 
                     source={{uri:`${profiledata?.profile_image != null ? profiledata?.profile_image : 'data:image/jpeg;base64,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' }`}}
                     style={styles.profilePictureStyle}
