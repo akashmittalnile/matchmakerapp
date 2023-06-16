@@ -16,7 +16,7 @@ import MyAlert from '../../../component/MyAlert';
 import { useSelector, useDispatch } from 'react-redux';
 import { connect_dating_chat_list, connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
 import { TextInput } from 'react-native-gesture-handler';
-
+import messaging from '@react-native-firebase/messaging';
 import { setdatingmessagecount } from '../../../redux//actions/user_action';
 
 const image1 = require('../../../assets/images/people-following-person.png')
@@ -37,7 +37,7 @@ const DatingMessages = (props) => {
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100])
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
   const [alluserdata, setUsersdata] = useState([]);
-  const [driver_id, setDriverid] = useState([]);
+  const [driverrs, setDriverid] = useState([]);
   const [searchtext, setsearchtext] = useState('')
   const [upData, setupData] = useState([
     {
@@ -107,6 +107,89 @@ const DatingMessages = (props) => {
   const [refreshing, setRefreshing] = useState(false);
 
 
+  const [arraya, setarraya] = useState([{ id: '', count: '' }]);
+
+  messaging().onMessage(async remoteMessage => {
+    console.log('Chat Screen Notification==>>', remoteMessage.data)
+    var id = remoteMessage.data.userid;
+
+    var myid = User.userid
+
+    const docid = id > myid ? myid + "-" + id : id + "-" + myid;
+
+    var dummyarray = arraya
+    var abc = false;
+
+    for (let i = 0; i < dummyarray.length; i++) {
+      if (dummyarray[i].id == docid) {
+        dummayy[i].count = dummayy[i].count + 1
+        abc = true
+      }
+    }
+    if (abc == true) {
+      dummyarray.push({ id: docid, count: 1 })
+    }
+    setarraya(dummyarray)
+
+  });
+
+  messaging().onNotificationOpenedApp(remoteMessage => {
+    const data = remoteMessage.data
+    // console.log('Notification caused app to open from background state:', remoteMessage)
+    if (remoteMessage?.notification.title == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+      var id = remoteMessage.data.userid;
+
+      var myid = User.userid
+
+      const docid = id > myid ? myid + "-" + id : id + "-" + myid;
+
+      var dummyarray = arraya
+      var abc = false;
+
+      for (let i = 0; i < dummyarray.length; i++) {
+        if (dummyarray[i].id == docid) {
+          dummayy[i].count = dummayy[i].count + 1
+          abc = true
+        }
+      }
+      if (abc == true) {
+        dummyarray.push({ id: docid, count: 1 })
+      }
+      setarraya(dummyarray)
+    }
+  });
+
+
+  messaging()
+    .getInitialNotification()
+    .then(remoteMessage => {
+      // console.log('====================================');
+      // console.log(remoteMessage);
+      // console.log('====================================');
+      if (remoteMessage?.notification.title == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+        var id = remoteMessage.data.userid;
+
+        var myid = User.userid
+    
+        const docid = id > myid ? myid + "-" + id : id + "-" + myid;
+    
+        var dummyarray = arraya
+        var abc = false;
+    
+        for (let i = 0; i < dummyarray.length; i++) {
+          if (dummyarray[i].id == docid) {
+            dummayy[i].count = dummayy[i].count + 1
+            abc = true
+          }
+        }
+        if (abc == true) {
+          dummyarray.push({ id: docid, count: 1 })
+        }
+        setarraya(dummyarray)
+
+      }
+    });
+
   useEffect(() => {
     const unsubscribe = props.navigation.addListener('focus', () => {
       GetSwipeProfile()
@@ -117,56 +200,55 @@ const DatingMessages = (props) => {
   const [isRead, setIsRead] = useState(false);
 
 
-  // const getAllChatCount = async () => {
-  //   console.log("asdad", driver_id?.connect_userid, User?.userid);
-    
-       
-  //       if (User?.userid != User?.userid) {
-  //         let totalCount = 0;
-  //         await driver_id.map(item => {
-  //           firestore()
-  //             .collection('groups')
-  //             .doc(item.connect_userid.toString())
-  //             .collection('users')
-  //             .where('id', '==', userInfo.id)
-  //             .get()
-  //             .then(querySnapshot => {
-  //               querySnapshot.forEach(doc => {
-  //                 const unreadCount = doc.data().unread_count;
-  //                 totalCount += unreadCount;
-  //                 // Perform any further operations with the unreadCount
-  //               });
-  //               setMessagesCount(totalCount);
-  //               return;
-  //             })
-  //             .catch(error => {
-  //               // Handle any errors that occur during the retrieval
-  //               console.error('Error getting users:', error);
-  //             });
-  //         });
-  //       }
-        
-  //   };
-   
+  const getAllChatCount = (item) => {
+    console.log("asdadgetAllChatCount......");
+    var arraya1 = arraya
+    for (let i = 0; i < arraya1.length; i++) {
+      if (arraya1[i].id == item.docid) {
+        return arraya1[i].count
+      }
+    }
+    // dispatch(setdatingmessagecount(totalCount));
+    return 0
+  };
+
   useEffect(() => {
 
-    const docid =
-      driver_id?.connect_userid > User?.userid ? User?.userid + "-" + driver_id?.connect_userid : driver_id?.connect_userid + "-" + User?.userid;
+    // const docid =
+    //   driver_id?.connect_userid > User?.userid ? User?.userid + "-" + driver_id?.connect_userid : driver_id?.connect_userid + "-" + User?.userid;
 
-    console.log("asdad", driver_id?.connect_userid, User?.userid);
+    // console.log("DATINGMESSAGESCREENID's::::::", driver_id?.connect_userid, User?.userid);
+    // let totalCount = 0;
+    // const unSubscribe =
+    //   firestore()
+    //     .collection('Matchmakingapp')
+    //     .doc(docid)
+    //     .collection('Messages')
+    //     .get()
+    // .where('userId', '==', driver_id?.connect_userid)
+    // .then(querySnapshot => {
+    //   querySnapshot.forEach(doc => {
+    //     console.log('ID_Messages:', doc.data().userId);
+    //     // if(doc.data().userId == driver_id?.connect_userid ){
+    //     const unreadCount = doc.data().unread_count;
+    //     totalCount += unreadCount;
+    //     console.log('New_Messages:', totalCount);
+    //     // dispatch(setdatingmessagecount(totalCount));
+    //     // } 
 
-     const unSubscribe =
-      firestore()
-        .collection('Matchmakingapp')
-        .doc(docid)
-        .collection('Messages')
-        .where('isRead', '==', '')
-        .onSnapshot((snapshot) => {
-          const count = snapshot.size;
-          dispatch(setdatingmessagecount(count))
-          console.log('New_Messages:', count);
-          // setNewMessageCount(count);
-        });
+
+    //     // Perform any further operations with the unreadCount
+    //   });
+
+    //   // setMessagesCount(totalCount);
+    //   return;
+    // })
+    // .onSnapshot((snapshot) => {
+    //   const count = snapshot.size;
+    //   dispatch(setdatingmessagecount(count))
+    //   console.log('New_Messages:', count);
+    //   // setNewMessageCount(count);
+    // });
 
 
     // const MessageRef = 
@@ -212,8 +294,8 @@ const DatingMessages = (props) => {
     //       // setMessageCount(snapshot.docs.length);
     //     });
 
-    return () => { unSubscribe };
-  }, [driver_id?.connect_userid]);
+    // return () => { unSubscribe };
+  }, []);
 
   const checkcon = () => {
     GetSwipeProfile()
@@ -237,11 +319,21 @@ const DatingMessages = (props) => {
     setLoading(true)
     const { responseJson, err } = await requestGetApi(connect_dating_chat_list, '', 'GET', User.token)
     setLoading(false)
-    console.log('the res==>>DatingMessages', responseJson)
+    // console.log('the res==>>DatingMessages', responseJson)
     if (responseJson?.headers?.success == 1) {
       setUserList(responseJson?.body?.data)
-      console.log('the_driveridcheck', responseJson?.body?.data[0]?.swipe_by)
-      setDriverid(responseJson?.body?.data)
+      // console.log('the_driveridcheckforchat', responseJson?.body?.data)
+
+      var dummyarray = responseJson?.body?.data
+      var myarray = []
+      for (let i = 0; i < dummyarray.length; i++) {
+        var driverids = dummyarray[i].connect_userid
+        var myid = User?.userid
+        const docid = driverids > myid ? myid + "-" + driverids : driverids + "-" + myid;
+        myarray.push({ ...dummyarray[i], docid: docid })
+      }
+
+      setDriverid(myarray)
     } else {
       setalert_sms(responseJson?.headers?.message)
       setMy_Alert(true)
@@ -255,7 +347,7 @@ const DatingMessages = (props) => {
     setLoading(true)
     const { responseJson, err } = await requestGetApi(connect_dating_chat_list + '?name=' + text, '', 'GET', User.token)
     setLoading(false)
-    console.log('the res==>>Search', responseJson)
+    // console.log('the res==>>Search', responseJson)
     if (responseJson?.headers?.success == 1) {
       setUserList(responseJson?.body?.data)
     }
@@ -342,7 +434,11 @@ const DatingMessages = (props) => {
                           }}>
                             <Image source={{ uri: `${item?.profile_image != null ? item?.profile_image : 'https://kinengo-dev.s3.us-west-1.amazonaws.com/images/camera-icon.jpg'}` }} style={styles.onlinePerson} />
                             {item.activity_status ?
-                              <View style={styles.onlineDot} />
+                              <View style={{ height: 15, width: 15, position: 'absolute', top: 0, right: 2, backgroundColor: "pink",borderRadius:50 }}
+                              // style={styles.onlineDot}
+                              >
+                                <Text style={{ fontSize: 14, color: 'black' }}>{getAllChatCount(item)}</Text>
+                              </View>
                               : null}
                           </View>
                           <View style={{ flex: 6, marginLeft: 15, justifyContent: 'center', top: -3 }}>

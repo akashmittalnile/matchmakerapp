@@ -234,10 +234,20 @@ const PeopleHome = (props) => {
     setCounterStart(responseJson?.body)
     if (responseJson?.headers?.success == 1) {
       if (type == "R") {
-        if (distanceSliderValue[0] > '51' || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "") {
+        // console.log('===re=================================');
+        // console.log(distanceSliderValue[0] > '51' && ageRangeSliderValue[1] == ageRangeSliderValue[1] && interstedInselect != "" && filterBySelect != "" && smokingselect != "" && drinkingselect != "" && kidsSelect != "" );
+        console.log('================er====================');
+        console.log('===2case================================');
+        console.log(distanceSliderValue[0] > '51' ||ageRangeSliderValue[1] == ageRangeSliderValue[1] || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "" );
+        console.log('================e2case====================');
+
+        if (distanceSliderValue[0] > '51' ||ageRangeSliderValue[1] == ageRangeSliderValue[1] || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != ""  ) {
           Profilelist();
         }
-        Profiledatas();
+        else{
+          Profiledatas();
+        }
+     
 
         if (isprofiles.length == 0) {
           setIncrement(1)
@@ -245,7 +255,7 @@ const PeopleHome = (props) => {
           setIncrement(increments + 1)
         }
 
-        //  console.log("counterStart?.totalSwipe+++++",responseJson?.body?.totalSwipe+ '=='+ responseJson?.body?.swipeLimit);
+         
         if (responseJson?.body?.totalSwipe == responseJson?.body?.swipeLimit) {
           setVisible(true);
         }
@@ -258,12 +268,19 @@ const PeopleHome = (props) => {
 
         // console.log('incrementdy.vendors', increments)
       } else if (type == "L") {
-        if (distanceSliderValue[0] > '51' || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "") {
+        if (distanceSliderValue[0] > '51' || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "" ||ageRangeSliderValue[1] == ageRangeSliderValue[1]) {
           Profilelist();
           setIncrement(increments + 1)
+        }else{
+          Profiledatas();
         }
-        Profiledatas();
-        setIncrement(increments + 1)
+        
+        if (isprofiles.length == 0) {
+          setIncrement(1)
+        } else {
+          setIncrement(increments + 1)
+        }
+
         // console.log('incrementdy.vtype == "L"endors')
       }
 

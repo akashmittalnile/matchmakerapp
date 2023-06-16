@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Image, Text, StyleSheet, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground, Keyboard, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
+import { View, Image, Text, StyleSheet, TextInput, FlatList, Alert, TouchableOpacity, ScrollView, ImageBackground, Keyboard, KeyboardAvoidingView, ActivityIndicator,verticalScale } from 'react-native';
 import { dimensions, Mycolors } from '../../../utility/Mycolors';
 import { ImageSlider, ImageCarousel } from "react-native-image-slider-banner";
 import MyButtons from '../../../component/MyButtons';
@@ -120,7 +120,8 @@ const DatingChat = (props) => {
             .collection('Messages')
             .add({ ...Data, createdAt: firestore.FieldValue.serverTimestamp() });
           const tempMsg = message;
-          // senNoti(message);
+          Keyboard.dismiss();
+          senNoti(message);
           setmessage('');
           // try {
           //   // const data = {
@@ -266,10 +267,7 @@ const DatingChat = (props) => {
   const docid =
   driver_id?.connect_userid  > UserId ? UserId + "-" + driver_id?.connect_userid : driver_id?.connect_userid  + "-" + UserId;
 
-  messaging().onMessage(async remoteMessage => {
-    console.log('Home Notification==>>',remoteMessage)
-   
-    }); 
+
 
   
 
@@ -279,10 +277,10 @@ const DatingChat = (props) => {
       return
 }
     let notidata={
-      'data': "data",
+      'data': user_details,
       'title':'Message from '+user_details.first_name,
       'body': mess,
-      'token':props.route.params.data.driver_device_id
+      'token':props?.route?.params?.Reciver_id?.device_id
     }
     let result= await sendNotification.sendNotification(notidata)
     //  console.log('result')
@@ -392,19 +390,20 @@ useEffect(() => {
       <View style={{ borderBottomColor: "red", borderWidth: 0.5, width: dimensions.SCREEN_WIDTH }} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScrollView>
+       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        {/* <ScrollView> */}
 
-          <View style={{ width: '90%', alignSelf: 'center', marginTop: 20,marginBottom:90 }}>
+          <View style={{ width: '90%', alignSelf: 'center', marginTop: 20,paddingBottom:90 }}>
 
 
             <View style={{ width: '100%', alignSelf: 'center', marginTop: 20, backgroundColor: '#fff5f7' }}>
               {MessagesData.length > 0 ? (
                 <FlatList
-                  inverted
-                  ref={flatListRef}
-                  // onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: false })}
+                inverted 
+                  ref={flatListRef}  
+                  // onContentSizeChange={() => flatListRef?.current?.scrollToEnd({ animated: false })}
                   // onLayout={() => flatListRef.current.scrollToEnd({ animated: false })}
+         
                   showsVerticalScrollIndicator={false}
                   data={MessagesData}
                   renderItem={chatRenderFunction}
@@ -425,7 +424,7 @@ useEffect(() => {
           </View>
           <View style={{ height: 100 }} />
 
-        </ScrollView>
+        {/* </ScrollView> */}
       </KeyboardAvoidingView>
       <View style={styles.addCommentContainer}>
         <View style={styles.addCommentView}>
