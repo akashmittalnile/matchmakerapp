@@ -15,13 +15,14 @@ import Geocoder from "react-native-geocoding";
 import { GoogleApiKey } from '../../../WebApi/GoogleApiKey';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useSelector, useDispatch } from 'react-redux';
+import firestore from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
-import { setRestorentLocation, setdatingMatchData } from '../../../redux/actions/latLongAction';
+import { setRestorentLocation, setdatingMatchData,setdatingmessagecount } from '../../../redux/actions/latLongAction';
 import Loader from '../../../WebApi/Loader';
 import Svg from 'react-native-svg';
 import imageSvg from '../../../assets/lovematching_icon.svg';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { connect_dating_active_status, connect_dating_home_data, connect_dating_location, connect_dating_profile, connect_dating_profile_list, connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
+import { connect_dating_active_status, connect_dating_chat_list, connect_dating_home_data, connect_dating_location, connect_dating_profile, connect_dating_profile_list, connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
 import DatingCard from "../../../component/DatingCard";
 import MyAlert from '../../../component/MyAlert';
 import messaging from '@react-native-firebase/messaging';
@@ -73,7 +74,7 @@ const PeopleHome = (props) => {
   const [profiledata, setProfileData] = useState("");
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false);
-
+  const [filterselected, setfilterselected] = useState(false);
 
   const [counterStart, setCounterStart] = useState('');
   const [upData, setupData] = useState([
@@ -125,7 +126,19 @@ const PeopleHome = (props) => {
   ])
 
   const [timecounter, setTimecounter] = useState('');
+  useEffect(() => {
+   setVisible(false);
+    Geodummy()
+    Activestatus()
+    const unsubscribe = props.navigation.addListener('focus', () => {
+      GetMessageProfile(); // use this function before come dating home screen 
+      GetmatchesProfile(); // use this function before come dating home screen
+      Profiledatas()
+      ProfilePage()
+    })
+    return unsubscribe;
 
+  }, []);
 
   const calcc = async () => {
     // const likescount = await AsyncStorage.getItem("Datingcounter");
@@ -216,46 +229,70 @@ const PeopleHome = (props) => {
   // const interactionHandle = InteractionManager.createInteractionHandle();
 
   const SwipeProfile = async (type) => {
-    console.warn("SwipeProfile:");
-    // increment()
-    console.log("uuuunnnuuuu::", increments);
-    setLoading(true)
-    let message = 'Interest sent to ' + isprofiles[0]?.fullname + ' successfully awaiting response.'
-    var data = {
-      userid: isprofiles[0].userid,
-      swipe_type: type
+    console.warn("SwipeProfile:", type);
+    if (type == "L") {
+      if (filterselected == true) {
+        Profilelist();
+        console.log("Filter-call.......")
+      }
+      else {
+        console.log("homeAPI-call.......")
+        Profiledatas();
+      }
+      // if (distanceSliderValue[0] > '51' && interstedInselect != "" && filterBySelect != "" && smokingselect != "" && drinkingselect != "" && kidsSelect != "" && ageRangeSliderValue[1] == ageRangeSliderValue[1]) {
+      //   Profilelist();
+      //   console.log("hFilter-call.......")
+      //   // setIncrement(increments + 1)
+      // }
+      // else {
+      //   console.log("homeAPI-call.......")
+      //   Profiledatas();
+      // }
+      // setIncrement(increments + 1)
+      if (isprofiles.length == 0) {
+        setIncrement(1)
+      } else {
+        setIncrement(increments + 1)
+      }
     }
-    console.log("addres........", data);
-    const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile, data, 'POST', User.token)
-    setLoading(false)
-    console.log('the res==>>SwipeProfileDATA', responseJson?.body)
-    // console.log("1212121", increments);
-    // AsyncStorage.setItem("Datingcounter", responseJson?.body);
-    setCounterStart(responseJson?.body)
-    if (responseJson?.headers?.success == 1) {
-      if (type == "R") {
-        // console.log('===re=================================');
-        // console.log(distanceSliderValue[0] > '51' && ageRangeSliderValue[1] == ageRangeSliderValue[1] && interstedInselect != "" && filterBySelect != "" && smokingselect != "" && drinkingselect != "" && kidsSelect != "" );
-        console.log('================er====================');
-        console.log('===2case================================');
-        console.log(distanceSliderValue[0] > '51' ||ageRangeSliderValue[1] == ageRangeSliderValue[1] || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "" );
-        console.log('================e2case====================');
+    else if (type == "R") {
+      console.log("uuuunnnuuuu::", increments);
+      setLoading(true)
+      let message = 'Interest sent to ' + isprofiles[0]?.fullname + ' successfully awaiting response.'
+      var data = {
+        userid: isprofiles[0].userid,
+        swipe_type: "R"
+      }
+      console.log("addres........", data);
+      const { responseJson, err } = await requestPostApi(connect_dating_swipe_profile, data, 'POST', User.token)
+      setLoading(false)
+      console.log('the res==>>SwipeProfileDATA', responseJson?.body)
+      // console.log("1212121", increments);
+      // AsyncStorage.setItem("Datingcounter", responseJson?.body);
+      setCounterStart(responseJson?.body)
+      if (responseJson?.headers?.success == 1) {
 
-        if (distanceSliderValue[0] > '51' ||ageRangeSliderValue[1] == ageRangeSliderValue[1] || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != ""  ) {
-          Profilelist();
-        }
-        else{
-          Profiledatas();
-        }
-     
-
-        if (isprofiles.length == 0) {
-          setIncrement(1)
+        // console.log('================er====================');
+        // console.log('===2case================================');
+        // console.log(distanceSliderValue[0] > '51' || ageRangeSliderValue[1] == ageRangeSliderValue[1] || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "");
+        // console.log('================e2case====================');
+        if (filterselected == true) {
+          if (distanceSliderValue[0] > '51' || ageRangeSliderValue[1] == ageRangeSliderValue[1] || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "") {
+            Profilelist();
+          }
+          
         } else {
-          setIncrement(increments + 1)
+          Profiledatas();
+          
         }
-
+        setIncrement(increments + 1)
+        
+        // if (isprofiles.length == 0) {
+        //   setIncrement(1)
+        // } else {
          
+        // }
+
         if (responseJson?.body?.totalSwipe == responseJson?.body?.swipeLimit) {
           setVisible(true);
         }
@@ -266,34 +303,17 @@ const PeopleHome = (props) => {
         Toast.show({ text2: message });
 
 
-        // console.log('incrementdy.vendors', increments)
-      } else if (type == "L") {
-        if (distanceSliderValue[0] > '51' || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "" ||ageRangeSliderValue[1] == ageRangeSliderValue[1]) {
-          Profilelist();
-          setIncrement(increments + 1)
-        }else{
-          Profiledatas();
-        }
-        
-        if (isprofiles.length == 0) {
-          setIncrement(1)
-        } else {
-          setIncrement(increments + 1)
-        }
 
-        // console.log('incrementdy.vtype == "L"endors')
-      }
-
-    } else {
-      if (counterStart?.totalSwipe == counterStart?.swipeLimit) {
-        setVisible(true);
       }
       else {
+
         setVisible(false);
+
+        // setalert_sms(err)
+        // setMy_Alert(true)
       }
-      // setalert_sms(err)
-      // setMy_Alert(true)
     }
+
   }
 
 
@@ -307,19 +327,79 @@ const PeopleHome = (props) => {
   //   return unsubscribe1;
   // }, []);
 
-  useEffect(() => {
-    setVisible(false);
-    GetmatchesProfile()
-    Geodummy()
-    Activestatus()
-    const unsubscribe = props.navigation.addListener('focus', () => {
+  
+  const GetMessageProfile = async () => {
 
-      Profiledatas()
-      ProfilePage()
-    })
-    return unsubscribe;
+    setLoading(true);
+    const { responseJson, err } = await requestGetApi(connect_dating_chat_list, '', 'GET', User.token)
+    setLoading(false)
+    // console.log('the res==>>DatingMessages', responseJson)
+    if (responseJson?.headers?.success == 1) {
+      // setUserList(responseJson?.body?.data)
+      var dummyarray = responseJson?.body?.data
+      var myarray = []
+      for (let i = 0; i < dummyarray.length; i++) {
+        var driverids = dummyarray[i].connect_userid
+        var myid = User?.userid
+        const docid = driverids > myid ? myid + "-" + driverids : driverids + "-" + myid;
+        // console.log('=GetSwipeProfile===================================');
+        // console.log("GetSwipeProfile", docid);
+        // console.log('===============GetSwipeProfile=====================');
+        myarray.push({ ...dummyarray[i], docid: docid })
+      }
+      // setUserList(myarray)
+      console.log('res_GetMessageProfile =>>>>>', myarray);
 
-  }, []);
+      let totalCount = 0;
+      myarray.map(item => {
+        firestore()
+          .collection('Matchmakingapp')
+          .doc(item.docid.toString())
+          // .doc(item.docid)
+          .collection('users')
+          .where('userId', '==', User.userid)
+          .get()
+          .then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+              const unreadCount = doc.data().unread_count;
+              totalCount += unreadCount;
+              console.error('GetSwipeProfile------:', totalCount);
+              // Perform any further operations with the unreadCount
+            });
+            dispatch(setdatingmessagecount(totalCount));
+            // setMessagesCount(totalCount);
+            return;
+          })
+          .catch(error => {
+            // Handle any errors that occur during the retrieval
+            console.error('Error getting users:', error);
+          });
+      });
+
+      // setDriverid(myarray)
+    } else {
+      setalert_sms(responseJson?.headers?.message)
+      setMy_Alert(true)
+    }
+  };
+
+  const GetmatchesProfile = async () => {
+
+    setLoading(true)
+    const { responseJson, err } = await requestGetApi(connect_dating_swipe_profile, '', 'GET', User.token)
+
+    // console.log('the res==>>GetmatchesProfile', responseJson?.body?.data?.length)
+    if (responseJson.headers.success == 1) {
+      dispatch(setdatingMatchData(responseJson?.body?.data?.length))
+      // setmatchesprofile(responseJson?.body?.data)
+    } else {
+      setalert_sms(responseJson.headers.message);
+      setMy_Alert(true)
+    }
+    setLoading(false)
+  }
+
+
 
   messaging().onMessage(remoteMessage => {
     const data = remoteMessage.data
@@ -389,21 +469,8 @@ const PeopleHome = (props) => {
 
     });
   }, []);
-  const GetmatchesProfile = async () => {
 
-    setLoading(true)
-    const { responseJson, err } = await requestGetApi(connect_dating_swipe_profile, '', 'GET', User.token)
-
-    // console.log('the res==>>GetmatchesProfile', responseJson?.body?.data?.length)
-    if (responseJson.headers.success == 1) {
-      dispatch(setdatingMatchData(responseJson?.body?.data?.length))
-      // setmatchesprofile(responseJson?.body?.data)
-    } else {
-      setalert_sms(responseJson.headers.message);
-      setMy_Alert(true)
-    }
-    setLoading(false)
-  }
+  
 
 
 
@@ -588,10 +655,10 @@ const PeopleHome = (props) => {
 
   const Profiledatas = async () => {
     console.log('========Profiledatas============================');
-    console.log("ProfiledatasProfiledatas");
+    console.log("ProfiledatasProfiledatas",increments,isprofiles.length);
     console.log('============Profiledatas========================');
-    if (isprofiles.length == 0) {
-      setIncrement(1)
+    if ( increments == '2') {
+      setIncrement(increments - 1)
     }
     // setIncrement(increments + 1)
     // var pageup = increments + 1;
@@ -610,7 +677,9 @@ const PeopleHome = (props) => {
     setLoading(false);
     console.log("the res==>>ProfileHOMEPage", responseJson?.body?.profiles);
     if (responseJson?.headers?.success == 1) {
-
+      if (increments == '2') {
+        setIncrement(1)
+      }
       setProfiles(responseJson?.body?.profiles);
       var allimgs = [];
       for (let i = 1; i <= responseJson?.body?.profiles[0].images.length; i++) {
@@ -653,22 +722,13 @@ const PeopleHome = (props) => {
   }
 
   const Profilelist = async () => {
+    setfilterselected(true);
     if (isprofiles.length == 0) {
       setIncrement(1)
     }
-    // if (isprofiles.length == 0) {
-    //   setIncrement(2);
-    //   var pageup = 2
-    // } else {
-    //   setIncrement(increments + 1)
-    //   var pageup = increments + 1;
-    // }
-    // setIncrement(increments + 1)
-    // var pageup = increments + 1;
+    
     setShowFilterModal(false);
-    console.log('Profilelist====================================Profilelist');
-    console.log("Profilelist", kidsSelect);
-    console.log('=Profilelist===================================Profilelist');
+
     console.log("the res==>>Profilelist------::", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0], increments);
     setLoading(true);
 
@@ -1648,7 +1708,7 @@ const PeopleHome = (props) => {
                 }}
               />
               <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 20 }}>I'm intersted in</Text>
-              <View style={{ width: '99%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
+              <View style={{ width: "100%", alignSelf: 'center', marginTop: 9, justifyContent: "center", flex: 1 }}>
 
 
                 <FlatList
@@ -1672,7 +1732,7 @@ const PeopleHome = (props) => {
 
 
               <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 10 }}>Filter by</Text>
-              <View style={{ width: '100%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
+              <View style={{ width: '100%', alignSelf: 'center', marginTop: 9, justifyContent: "center", flex: 1 }}>
                 <FlatList
                   horizontal
                   data={filterByStatus}
@@ -1693,7 +1753,7 @@ const PeopleHome = (props) => {
 
 
               <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 20 }}>Smoking</Text>
-              <View style={{ width: '99%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
+              <View style={{ width: '100%', alignSelf: 'center', marginTop: 9, justifyContent: "center", flex: 1 }}>
 
 
                 <FlatList
@@ -1716,14 +1776,13 @@ const PeopleHome = (props) => {
               </View>
 
               <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 20 }}>Drinking</Text>
-              <View style={{ width: '99%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
+              <View style={{ width: '100%', alignSelf: 'center', marginTop: 9, justifyContent: "center", flex: 1 }}>
                 <FlatList
                   data={drinkingValue}
                   horizontal
                   keyExtractor={item => item.id}
                   renderItem={({ item, index }) => {
                     return (
-
                       <TouchableOpacity onPress={() => { onChangeDrinking(item) }} style={[styles.interestedView1, { width: 110, marginBottom: 1, backgroundColor: drinkingselect == item ? '#FF4989' : '#fff' }]}>
                         <Text style={drinkingselect == item ? styles.interestedText1 : styles.interestedText2}>{item}</Text>
 
@@ -1735,7 +1794,7 @@ const PeopleHome = (props) => {
               </View>
 
               <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#3e5869', marginTop: 20 }}>Kid's</Text>
-              <View style={{ width: '99%', alignSelf: 'center', marginTop: 9, justifyContent: "center" }}>
+              <View style={{ width: '100%', alignSelf: 'center', marginTop: 9, justifyContent: "center", flex: 1 }}>
                 <FlatList
                   data={kidsValue}
                   horizontal
@@ -1973,9 +2032,10 @@ const styles = StyleSheet.create({
   },
 
   interestedView1: {
+    flex: 1,
     // flexDirection:'row',
     backgroundColor: '#FF4989',
-    width: '33%',
+    // width: '33%',
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',

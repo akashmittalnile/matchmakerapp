@@ -8,7 +8,7 @@ import Toast from 'react-native-toast-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector, useDispatch } from 'react-redux';
 import firestore from '@react-native-firebase/firestore';
-import messaging from '@react-native-firebase/messaging';
+ 
 import Loader from '../../../WebApi/Loader';
 // import auth from '@react-native-firebase/auth';
 //third parties
@@ -19,10 +19,13 @@ import Hyperlink from 'react-native-hyperlink';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { connect_dating_block_profile, requestPostApi } from '../../../WebApi/Service'
 import sendNotification from '../../../component/SendNotification';
+ 
 
 const DatingChat = (props) => {
   const flatListRef = useRef();
-  const user_details = useSelector(state => state.user.user_details)
+  
+  const user_details = useSelector(state => state.user.user_details);
+  const mapdata = useSelector(state => state.maplocation)
   const [searchValue, setsearchValue] = useState('');
   const [showLoader, setshowLoader] = useState(false);
   const [MessagesData, setMessagesData] = useState([]);
@@ -83,25 +86,6 @@ const DatingChat = (props) => {
     setShowAttachment(true);
   };
 
-   
-// const resetChatCount = async () => {
-  //   try {
-  //     const data = {
-  //       receiver_id: UserId,
-  //     };
-  //     const resp = await Server.postApiWithToken(
-  //       userToken,
-  //       Server.READ_MSG,
-  //       data,
-  //     );
-  //     if (resp.data.status) {
-  //       dispatch(UserAction.setChatCount(0));
-  //     }
-  //   } catch (error) {
-  //     console.log('error in resetChatCount', error);
-  //   }
-  // };
-
   const sendMessage = async () => {
     if (message == '' && ChatImage == '' && ChatDocument == '') {
     } else {
@@ -110,7 +94,6 @@ const DatingChat = (props) => {
           const Data = {
             userId: driver_id?.connect_userid,
             message: message,
-            unread_count:0,
             name: driver_id?.fullname,
             createdAt: new Date(),
           };
@@ -118,10 +101,47 @@ const DatingChat = (props) => {
             .collection('Matchmakingapp')
             .doc(docid)
             .collection('Messages')
-            .add({ ...Data, createdAt: firestore.FieldValue.serverTimestamp() });
+            .add({ ...Data, createdAt: firestore.FieldValue.serverTimestamp() })
+            .then((doc)=>{
+            // console.log("message send succsssss!!");
+            })
+            .catch(()=>{
+              // console.log("error!!!!");
+            })
+
+            const Data1= {
+              userId: driver_id?.connect_userid,
+              name: driver_id?.fullname,
+              unread_count:0,
+              createdAt: new Date(),
+            };
+             
+           const frndunreadcount  = await firestore()
+            .collection('Matchmakingapp')
+            .doc(docid)  
+            .collection('users')
+            .doc(String(driver_id?.connect_userid))
+            .get()
+            .then((querySnapshot)=>{
+             console.log("frndunreadcount======",querySnapshot.data());
+             return querySnapshot.data().unread_count;
+            })
+            .catch((error)=>{
+              console.debug(" 2 error",error);
+            })
+
+            console.log("frndunreadcount===s22===", frndunreadcount);
+
+            firestore()
+            .collection('Matchmakingapp')
+            .doc(docid)  
+            .collection('users')
+            .doc(String(driver_id?.connect_userid))
+            .set({ ...Data1, unread_count: frndunreadcount + 1 });
+   
           const tempMsg = message;
           Keyboard.dismiss();
-          senNoti(message);
+          senNoti(tempMsg);
           setmessage('');
           // try {
           //   // const data = {
@@ -267,15 +287,24 @@ const DatingChat = (props) => {
   const docid =
   driver_id?.connect_userid  > UserId ? UserId + "-" + driver_id?.connect_userid : driver_id?.connect_userid  + "-" + UserId;
 
+  const resetMyUnreadCount = () => {
+    firestore()
+      .collection('Matchmakingapp')
+      .doc(docid)
+      .collection('users')
+      .doc(String(UserId))
+      .update({
+        unread_count: 0,
+      });
+  };
 
-
-  
-
+    
 
   const senNoti= async(mess)=>{
-    if(message.trim().length>0){
-      return
-}
+    //  console.log("mess_notidataCHATSCREEN:",props?.route?.params?.Reciver_id?.device_id)
+//     if(message.trim().length > 0){
+//       return false
+// }
     let notidata={
       'data': user_details,
       'title':'Message from '+user_details.first_name,
@@ -283,35 +312,31 @@ const DatingChat = (props) => {
       'token':props?.route?.params?.Reciver_id?.device_id
     }
     let result= await sendNotification.sendNotification(notidata)
-    //  console.log('result')
+    //  console.log("notidataCHATSCREEN:",notidata)
 }
 
   //useEffect
 useEffect(() => {
-  // senNoti()
-    var UserId = user_details.userid
-    // resetChatCount();
-    
-   
+  resetMyUnreadCount()
+  var UserId = user_details.userid
     if (props?.route?.params?.from == 'DatingMessages') {
-      console.log("DatingMessagesDatingMessagesopen:::",props.route.params.Reciver_id);
+      // console.log("DatingMessagesDatingMessagesopen:::",props.route.params.Reciver_id);
       // const driver_id = props?.route?.params?.Reciver_id?.connect_userid
       setDriverid(props.route.params.Reciver_id)
     } else {
       var notidatas = props?.route?.params?.data
       setDriverid(notidatas);
 
-      console.log("notificationDATA", notidatas);
+      console.log("notificationDATA------", notidatas);
     }
-    console.log("Reciver_id",driver_id?.connect_userid , UserId);
+    console.log("Reciver_id",UserId,driver_id?.connect_userid);
 
     const docid =
     driver_id?.connect_userid  > UserId ? UserId + "-" + driver_id?.connect_userid : driver_id?.connect_userid  + "-" + UserId;
 
     setuid(UserId)
-
-
-    const MessageRef = firestore()
+    
+const MessageRef = firestore()
       .collection('Matchmakingapp')
       .doc(docid)
       .collection('Messages')
@@ -332,19 +357,14 @@ useEffect(() => {
             };
           }
         });
-        // console.log("MessageRef::=>>>", data);
-        {
-          console.log("MessagesData.length::=>>>", AllMsg.length)
-        }
         setMessagesData(AllMsg);
-
-      } else {
+} else {
         setMessagesData([]);
       }
     });
 
     // Stop listening for updates when no longer required
-    return () => unSubscribe();
+    return () =>{ unSubscribe();resetMyUnreadCount()};
   }, [driver_id?.connect_userid]); 
 
 
@@ -390,13 +410,13 @@ useEffect(() => {
       <View style={{ borderBottomColor: "red", borderWidth: 0.5, width: dimensions.SCREEN_WIDTH }} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+       behavior={Platform.OS === 'ios' ? 'padding' : 'height-1'}>
         {/* <ScrollView> */}
 
-          <View style={{ width: '90%', alignSelf: 'center', marginTop: 20,paddingBottom:90 }}>
+          <View style={{ width: '90%', alignSelf: 'center', paddingBottom:0 }}>
 
 
-            <View style={{ width: '100%', alignSelf: 'center', marginTop: 20, backgroundColor: '#fff5f7' }}>
+            <View style={{ width: '100%', alignSelf: 'center',  backgroundColor: '#fff5f7',paddingBottom:75 }}>
               {MessagesData.length > 0 ? (
                 <FlatList
                 inverted 
@@ -422,7 +442,7 @@ useEffect(() => {
 
             </View>
           </View>
-          <View style={{ height: 100 }} />
+          {/* <View style={{ height: 100 }} /> */}
 
         {/* </ScrollView> */}
       </KeyboardAvoidingView>

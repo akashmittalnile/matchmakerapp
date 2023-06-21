@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Image, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import WeelStack from './WeelStack';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,7 +20,7 @@ const DatingBottomNav = ({ userToken }) => {
   const User = useSelector(state => state.user.match_profiledata);
   const chatindictor = useSelector(state => state.user.chat_counter);
   console.log("ajdajsbdja", User);
-  console.log("ajdajschat", chatindictor);
+  console.log("chatindictor", chatindictor);
   //variables
   const Tab = createBottomTabNavigator();
   const screenOptions = {
@@ -28,6 +28,16 @@ const DatingBottomNav = ({ userToken }) => {
     headerShown: false,
     tabBarShowLabel: false,
     tabBarStyle: styles.navigatorStyle,
+  };
+  const getTabBarVisibility = (route) => {
+    const routeName = getFocusedRouteNameFromRoute(route) ?? '';
+    // const routeName = route.state
+    //   ? route.state.routes[route.state.index].name
+    //   : '';
+    if (routeName === "DatingChat") {
+      return 'none';
+    }
+    return 'flex';
   };
   return (
     <Tab.Navigator
@@ -52,7 +62,7 @@ const DatingBottomNav = ({ userToken }) => {
       <Tab.Screen
         name={'ConnectDatingMatchesStack'}
         component={ConnectDatingMatchesStack}
-         
+
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabStyle}>
@@ -91,13 +101,46 @@ const DatingBottomNav = ({ userToken }) => {
       <Tab.Screen
         name={'ConnectDatingChatListStack'}
         component={ConnectDatingChatListStack}
-        options={{
-
+        options={ ({route})=>({
+          tabBarStyle:{display: getTabBarVisibility(route), height: 70,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            borderTopColor: '#FFA5C5',
+            borderLeftColor: '#FFA5C5',
+            borderRightColor: '#FFA5C5',
+            borderWidth: 2,
+            backgroundColor: Mycolors.BG_COLOR,
+            shadowColor: '#FFA5C5',
+            shadowOffset: {
+              width: 0,
+              height: 3
+            },
+            shadowRadius: 5,
+            shadowOpacity: 1,
+            justifyContent: 'center',
+            elevation: 5},
+          
           tabBarIcon: ({ focused }) => (
             <View style={styles.tabStyle}>
               {focused
-                ? <Image source={require('../assets/message_Vector_red.png')} style={{ width: 26, height: 24, }} />
-                // <Ionicons name={"chatbox-outline"} color={'#FFA5C5'} size={28} />
+                ? 
+                 <>
+                  {
+                    chatindictor > 0 ?
+                 
+               ( <View>
+                  <View
+                                style={{ height: 20, width: 20, position: 'absolute',backgroundColor: "#e42f5e", borderRadius: 50,position: 'absolute', right: -8, top: -8, elevation: 1, overflow: 'hidden',alignSelf:'center' }}
+                              // style={styles.onlineDot}
+                              >
+                                <Text style={{ top: 1, fontSize: 11, color: '#ffff', textAlign: 'center', fontWeight: '500',left:0.7 }}>{chatindictor}</Text>
+                              </View>
+                              <Image source={require('../assets/message_Vector_red.png')} style={{ width: 26, height: 24, }} />
+                  </View>)
+                :
+                (<Image source={require('../assets/message_Vector_red.png')} style={{ width: 26, height: 24, }} />)
+               }
+</>
                 :
                 <View>
                   {
@@ -105,12 +148,15 @@ const DatingBottomNav = ({ userToken }) => {
 
 
                       (<View>
-                        <View style={{ position: 'absolute', right: -5, top: -5, elevation: 1, overflow: 'hidden', width: 12, height: 12, borderRadius: 10, backgroundColor: 'transparent' }}>
-                          <Image source={require('../assets/Ellipse_red_dot.png')} style={{ height: '100%', width: '100%' }} />
-                        </View>
+                         
+                        <View
+                                style={{ height: 20, width: 20, position: 'absolute',backgroundColor: "#e42f5e", borderRadius: 50,position: 'absolute', right: -8, top: -8, elevation: 1, overflow: 'hidden',alignSelf:'center' }}
+                              // style={styles.onlineDot}
+                              >
+                                <Text style={{ top: 1, fontSize: 11, color: '#ffff', textAlign: 'center', fontWeight: '500',left:0.7 }}>{chatindictor}</Text>
+                              </View>
                         <Image source={require('../assets/message_Vector.png')} style={{ width: 26, height: 24, }} />
-                      </View>
-                      )
+                      </View>)
                       :
                       (<Image source={require('../assets/message_Vector.png')} style={{ width: 26, height: 24, }} />
                         // <Ionicons name={"chatbox-outline"} color={'gray'} size={28} />
@@ -126,7 +172,7 @@ const DatingBottomNav = ({ userToken }) => {
 
             </View>
           ),
-        }}
+        })}
       />
 
 

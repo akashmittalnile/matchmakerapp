@@ -812,7 +812,7 @@ const DatingEditProfile = (props) => {
                       <TouchableOpacity onPress={() => {
                         setFirstimagevalue("image1")
                         openLibrary1("image1")
-                      }} style={{ marginBottom: 1, height: 280, width: '62%', marginLeft: 6, }} >
+                      }} style={{ marginBottom: 1, height: 282, width: '62%', marginLeft: 6, }} >
                         <Image resizeMode='cover' source={{ uri: `${allimages[0].image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
                         {/* <TouchableOpacity onPress={() => {
                           //  DeleteProfileImages(allimages[0]?.id)
@@ -841,7 +841,7 @@ const DatingEditProfile = (props) => {
                       backgroundColor: '#fde7eb',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      height: 280,
+                      height: 282,
                       width: '62%',
                       borderRadius: 10
                     }}>
@@ -913,7 +913,7 @@ const DatingEditProfile = (props) => {
                   {
                     allimages?.length > 0 && allimages[2].image != null ?
                       (
-                        <View style={{ height: 138, width: '100%', marginLeft: 6, marginTop: 0 }} >
+                        <View style={{ height: 137, width: '100%', marginLeft: 6}} >
                           <Image resizeMode='cover' source={{ uri: `${allimages[2]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
                           <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[2]?.id) }} style={{
                             justifyContent: 'center',
@@ -965,7 +965,7 @@ const DatingEditProfile = (props) => {
               <View style={{ alignItems: 'flex-start', justifyContent: 'flex-start', flexDirection: "row", marginTop: 0 }}>
                 {allimages?.length > 0 && allimages[3].image != null ?
                   (
-                    <View style={{ marginBottom: 1, marginTop: 12, height: 133, width: '62%', marginLeft: 6, }} >
+                    <View style={{ marginBottom: 1, marginTop: 12, height: 133, width: '30.5%', marginLeft: 6, }} >
                       <Image resizeMode='cover' source={{ uri: `${allimages[3]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
                       <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[3]?.id) }} style={{
                         justifyContent: 'center',
@@ -992,7 +992,7 @@ const DatingEditProfile = (props) => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     height: 133,
-                    width: '62%',
+                    width: '30.5%',
                     borderRadius: 10
                   }}>
                     <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
@@ -1005,7 +1005,55 @@ const DatingEditProfile = (props) => {
                       backgroundColor: '#ff3b7f',
                       position: 'absolute',
                       bottom: -10,
-                      left: 99
+                      left: 42
+                    }}>
+                      <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                    </View>
+                  </TouchableOpacity>)
+                }
+                {allimages?.length > 0 && allimages[4].image != null ?
+                  (
+                    <View style={{ marginBottom: 1, marginTop: 12, height: 133, width: '30%', marginLeft: 6, }} >
+                      <Image resizeMode='cover' source={{ uri: `${allimages[4]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+                      <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[4]?.id) }} style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: 30,
+                        height: 30,
+                        borderRadius: 50 / 2,
+                        backgroundColor: '#ff001e',
+                        position: 'absolute',
+                        top: -1,
+                        right: 0
+                      }}>
+                        <Image source={require('../../../assets/images/dating-delete-photo-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
+                      </TouchableOpacity>
+                    </View>)
+                  :
+                  (<TouchableOpacity onPress={() => {
+                    setFirstimagevalue("image5")
+                    openLibrary("image5")
+                  }} style={{
+                    marginTop: 12,
+                    marginLeft: 6,
+                    backgroundColor: '#fde7eb',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 133,
+                    width: '30%',
+                    borderRadius: 10
+                  }}>
+                    <Image source={require('../../../assets/images/dating-upload-camera-icon.png')} style={{ width: 30, height: 30, }} resizeMode='contain' />
+                    <View style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: 30,
+                      height: 30,
+                      borderRadius: 50 / 2,
+                      backgroundColor: '#ff3b7f',
+                      position: 'absolute',
+                      bottom: -10,
+                      left: 42
                     }}>
                       <Image source={require('../../../assets/images/dating-upload-plus-icon.png')} style={styles.deleteIcon} resizeMode='contain' />
                     </View>
@@ -1015,8 +1063,8 @@ const DatingEditProfile = (props) => {
                   allimages?.length > 0 && allimages[4].image != null ?
                     (
                       <View style={{ height: 133, width: '34%', marginLeft: 6, marginTop: 12 }} >
-                        <Image resizeMode='cover' source={{ uri: `${allimages[4]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
-                        <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[4]?.id) }} style={{
+                        <Image resizeMode='cover' source={{ uri: `${allimages[5]?.image}` }} style={{ width: "100%", height: "100%", borderRadius: 10 }} />
+                        <TouchableOpacity onPress={() => { DeleteProfileImages(allimages[5]?.id) }} style={{
                           justifyContent: 'center',
                           alignItems: 'center',
                           width: 30,
@@ -1032,8 +1080,8 @@ const DatingEditProfile = (props) => {
                       </View>)
                     :
                     (<TouchableOpacity onPress={() => {
-                      setFirstimagevalue("image5")
-                      openLibrary("image5")
+                      setFirstimagevalue("image6")
+                      openLibrary("image6")
                     }} style={{
                       marginTop: 12,
                       marginLeft: 6,
@@ -1169,7 +1217,7 @@ const DatingEditProfile = (props) => {
               placeholder={'Type here.....'}
               placeholderTextColor="#ff5e96"
               multiline={true}
-              maxLength={100}
+              maxLength={500}
               // keyboardType="number-pad"
               autoCapitalize='none'
               fontStyle='italic'
@@ -1533,8 +1581,8 @@ const DatingEditProfile = (props) => {
               </View>
 
               <View style={{ width: '95%', alignSelf: 'center' }}>
-                <Text style={{ color: '#4a4c52', fontSize: 12, marginBottom: 10 }}>
-                  Select passions that you would like to share. Choose a minimum of 3.
+                <Text style={{ color: '#4a4c52', fontSize: 12, marginBottom: 10,textAlign:'center' }}>
+                  Select passions that you would like to share.
                 </Text>
 
 
@@ -1590,8 +1638,8 @@ const DatingEditProfile = (props) => {
               </View>
 
               <View style={{ width: '95%', alignSelf: 'center' }}>
-                <Text style={{ color: '#4a4c52', fontSize: 12, marginBottom: 10 }}>
-                  Select language that you would like to share. Choose a minimum of 2.
+                <Text style={{ color: '#4a4c52', fontSize: 12, marginBottom: 10,textAlign:'center' }}>
+                  Select language that you would like to share.
                 </Text>
                 {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, marginBottom: 10 }}>
                       <Text style={{ color: '#4a4c52', fontSize: 12, fontWeight: '500' }}>Language's</Text>

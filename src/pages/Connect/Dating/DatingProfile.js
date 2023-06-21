@@ -12,6 +12,7 @@ import {
   ScrollView,
   ImageBackground,
   Keyboard,
+  RefreshControl
 } from "react-native";
 import HomeHeaderRoundBottom from "../../../component/HomeHeaderRoundBottom";
 import SearchInput2 from "../../../component/SearchInput2";
@@ -59,6 +60,7 @@ const DatingProfile = (props) => {
   const [scrollEnabled, setScrollEnabled] = useState(false);
   const myTextInput = useRef();
   const dispatch = useDispatch();
+  const [refreshing, setRefreshing] = useState(false);
   const [userMessage, setUserMessage] = useState("");
   const [multiSliderValue, setMultiSliderValue] = useState([0, 100]);
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false);
@@ -95,6 +97,23 @@ const DatingProfile = (props) => {
   ]);
   useEffect(() => {
     ProfilePage();
+  }, []);
+
+  const checkcon = () => {
+    ProfilePage()
+  }
+  const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  }
+
+  const onRefresh = React.useCallback(() => {
+
+    checkcon()
+    wait(2000).then(() => {
+
+      setRefreshing(false)
+
+    });
   }, []);
 
   const logoutDriver = async () => {
@@ -165,7 +184,15 @@ const DatingProfile = (props) => {
           </View>
           <View style={{ flex: 1 }} />
         </View>
-        <ScrollView>
+        <ScrollView 
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+
+          />
+        }
+        >
           <View style={{ width: "90%", alignSelf: "center" }}>
             {/* <View style={styles.topContainer}> */}
             <View

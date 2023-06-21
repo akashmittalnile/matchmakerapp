@@ -38,7 +38,8 @@ const DatingMessages = (props) => {
   const [showChooseMilesModal, setShowChooseMilesModal] = useState(false)
   const [alluserdata, setUsersdata] = useState([]);
   const [driverrs, setDriverid] = useState([]);
-  const [searchtext, setsearchtext] = useState('')
+  const [searchtext, setsearchtext] = useState('');
+  const [arraya, setarraya] = useState([]);
   const [upData, setupData] = useState([
     {
       id: '1',
@@ -105,90 +106,85 @@ const DatingMessages = (props) => {
     },
   ]);
   const [refreshing, setRefreshing] = useState(false);
+  const [messagescount, setMessagesCount] = useState(0);
 
 
-  const [arraya, setarraya] = useState([{ id: '', count: '' }]);
+  // messaging().onMessage(async remoteMessage => {
+  //   // console.log('Chat_Screen Notification==>>', remoteMessage.data);
+  //   var id = remoteMessage.data.userid;
+  //   var myid = User.userid
+  // });
 
-  messaging().onMessage(async remoteMessage => {
-    console.log('Chat Screen Notification==>>', remoteMessage.data)
-    var id = remoteMessage.data.userid;
+  // messaging().onNotificationOpenedApp(remoteMessage => {
+  //   const data = remoteMessage.data
+  //   // console.log('Notification caused app to open from background state:', remoteMessage)
+  //   if (remoteMessage?.notification.title == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+  //     //  console.log('Chat_Screen Notification==>>', remoteMessage.data);
+  //     var id = remoteMessage.data.userid;
+  //     // console.log('NOTIFICATION_id==>>', remoteMessage.data.userid);
 
-    var myid = User.userid
+  //     // console.log('NOTIFICATION_myid==>>', User.userid);
+  //     var myid = User.userid
 
-    const docid = id > myid ? myid + "-" + id : id + "-" + myid;
+  //     // const docid = id > myid ? myid + "-" + id : id + "-" + myid;
+  //     // console.log('NOTIFICATION_docid==>>', docid);
 
-    var dummyarray = arraya
-    var abc = false;
+  //     // var dummayy = arraya
+  //     // var abc = false;
 
-    for (let i = 0; i < dummyarray.length; i++) {
-      if (dummyarray[i].id == docid) {
-        dummayy[i].count = dummayy[i].count + 1
-        abc = true
-      }
-    }
-    if (abc == true) {
-      dummyarray.push({ id: docid, count: 1 })
-    }
-    setarraya(dummyarray)
+  //     // for (let i = 0; i < dummayy.length; i++) {
+  //     //   if (dummayy[i].id == docid) {
+  //     //     dummayy[i].count = dummayy[i].count + 1;
+  //     //     console.log("123=321", dummayy[i].count);
+  //     //     abc = true
+  //     //   }
+  //     // }
+  //     // if (abc == true) {
+  //     //   dummayy.push({ id: docid, count: 1 })
+  //     // }
 
-  });
-
-  messaging().onNotificationOpenedApp(remoteMessage => {
-    const data = remoteMessage.data
-    // console.log('Notification caused app to open from background state:', remoteMessage)
-    if (remoteMessage?.notification.title == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
-      var id = remoteMessage.data.userid;
-
-      var myid = User.userid
-
-      const docid = id > myid ? myid + "-" + id : id + "-" + myid;
-
-      var dummyarray = arraya
-      var abc = false;
-
-      for (let i = 0; i < dummyarray.length; i++) {
-        if (dummyarray[i].id == docid) {
-          dummayy[i].count = dummayy[i].count + 1
-          abc = true
-        }
-      }
-      if (abc == true) {
-        dummyarray.push({ id: docid, count: 1 })
-      }
-      setarraya(dummyarray)
-    }
-  });
+  //     // console.log('=dummayy==================================2=', dummayy);
+  //     // setarraya(dummayy)
+  //   }
+  // });
 
 
-  messaging()
-    .getInitialNotification()
-    .then(remoteMessage => {
-      // console.log('====================================');
-      // console.log(remoteMessage);
-      // console.log('====================================');
-      if (remoteMessage?.notification.title == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
-        var id = remoteMessage.data.userid;
+  // messaging()
+  //   .getInitialNotification()
+  //   .then(remoteMessage => {
+  //     // console.log('====================================');
+  //     // console.log(remoteMessage);
+  //     // console.log('====================================');
+  //     if (remoteMessage?.notification.title == 'Kinengo Dating has accepted your request to connect click to initiate the chat.') {
+  //       // console.log('Chat_Screen Notification==>>', remoteMessage.data);
+  //       var id = remoteMessage.data.userid;
+  //       // console.log('NOTIFICATION_id==>>', remoteMessage.data.userid);
 
-        var myid = User.userid
-    
-        const docid = id > myid ? myid + "-" + id : id + "-" + myid;
-    
-        var dummyarray = arraya
-        var abc = false;
-    
-        for (let i = 0; i < dummyarray.length; i++) {
-          if (dummyarray[i].id == docid) {
-            dummayy[i].count = dummayy[i].count + 1
-            abc = true
-          }
-        }
-        if (abc == true) {
-          dummyarray.push({ id: docid, count: 1 })
-        }
-        setarraya(dummyarray)
+  //       // console.log('NOTIFICATION_myid==>>', User.userid);
+  //       var myid = User.userid
 
-      }
-    });
+  //       const docid = id > myid ? myid + "-" + id : id + "-" + myid;
+  //       // console.log('NOTIFICATION_docid==>>', docid);
+
+  //       //   var dummayy = arraya
+  //       //   var abc = false;
+
+  //       //   for (let i = 0; i < dummayy.length; i++) {
+  //       //     if (dummayy[i].id == docid) {
+  //       //       dummayy[i].count = dummayy[i].count + 1;
+  //       //       console.log("123=321", dummayy[i].count);
+  //       //       abc = true
+  //       //     }
+  //       //   }
+  //       //   if (abc == true) {
+  //       //     dummayy.push({ id: docid, count: 1 })
+  //       //   }
+  //       //   console.log('=dummayy==================================3=', dummayy);
+
+  //       //   setarraya(dummayy)
+
+  //     }
+  //   });
 
   useEffect(() => {
     const unsubscribe = props.navigation.addListener('focus', () => {
@@ -197,14 +193,14 @@ const DatingMessages = (props) => {
     return unsubscribe;
   }, []);
 
-  const [isRead, setIsRead] = useState(false);
-
 
   const getAllChatCount = (item) => {
-    console.log("asdadgetAllChatCount......");
+    console.log("asdadgetAllChatCount......", item.docid);
     var arraya1 = arraya
+
     for (let i = 0; i < arraya1.length; i++) {
       if (arraya1[i].id == item.docid) {
+        console.log("asdadgetAllChatCount......", arraya1[i].count);
         return arraya1[i].count
       }
     }
@@ -212,89 +208,45 @@ const DatingMessages = (props) => {
     return 0
   };
 
+  // const getAllMyClubs = async () => {
+
+  //       let totalCount = 0;
+  //         userlist.map(item => {
+  //         firestore()
+  //           .collection('Matchmakingapp')
+  //           .doc(item.docid.toString())
+  //           // .doc(item.docid)
+  //           .collection('users')
+  //           .where('userId', '==', User.userid)
+  //           .get()
+  //           .then(querySnapshot => {
+  //             querySnapshot.forEach(doc => {
+  //               const unreadCount = doc.data().unread_count;
+  //               totalCount += unreadCount;
+  //               // Perform any further operations with the unreadCount
+  //             });
+  //             dispatch(setdatingmessagecount(totalCount));
+  //             // setMessagesCount(totalCount);
+  //             return;
+  //           })
+  //           .catch(error => {
+  //             // Handle any errors that occur during the retrieval
+  //             console.error('Error getting users:', error);
+  //           });
+  //       });
+
+
+  // };
+
+
+
+
+
+
+
   useEffect(() => {
 
-    // const docid =
-    //   driver_id?.connect_userid > User?.userid ? User?.userid + "-" + driver_id?.connect_userid : driver_id?.connect_userid + "-" + User?.userid;
 
-    // console.log("DATINGMESSAGESCREENID's::::::", driver_id?.connect_userid, User?.userid);
-    // let totalCount = 0;
-    // const unSubscribe =
-    //   firestore()
-    //     .collection('Matchmakingapp')
-    //     .doc(docid)
-    //     .collection('Messages')
-    //     .get()
-    // .where('userId', '==', driver_id?.connect_userid)
-    // .then(querySnapshot => {
-    //   querySnapshot.forEach(doc => {
-    //     console.log('ID_Messages:', doc.data().userId);
-    //     // if(doc.data().userId == driver_id?.connect_userid ){
-    //     const unreadCount = doc.data().unread_count;
-    //     totalCount += unreadCount;
-    //     console.log('New_Messages:', totalCount);
-    //     // dispatch(setdatingmessagecount(totalCount));
-    //     // } 
-
-
-    //     // Perform any further operations with the unreadCount
-    //   });
-
-    //   // setMessagesCount(totalCount);
-    //   return;
-    // })
-    // .onSnapshot((snapshot) => {
-    //   const count = snapshot.size;
-    //   dispatch(setdatingmessagecount(count))
-    //   console.log('New_Messages:', count);
-    //   // setNewMessageCount(count);
-    // });
-
-
-    // const MessageRef = 
-    //   firestore()
-    //   .collection('Matchmakingapp')
-    //   .doc(docid)
-    //   .collection('Messages')
-    //.orderBy('isRead', 'desc');
-    //   const unSubscribe = MessageRef.onSnapshot(querySnap => {
-    //     if (querySnap != null) {
-    //       const AllMsg = querySnap.docs.map(docSnap => {
-    //         const data = docSnap.data();
-    //         console.log("MessageRef::=>>>", data);
-    //         if (data.isRead && data.userId == driver_id?.swipe_by ) {
-    //           return {
-    //             ...docSnap.data(),
-    //             isRead: docSnap.data().isRead.toDate(),
-    //           };
-    //         } else {
-    //           return {
-    //             ...docSnap.data(),
-    //             isRead: new Date(),
-    //           };
-    //         }
-    //       });
-
-    //       {
-    //         // console.log("MessagesData.length::=>>>", AllMsg)
-    //       }
-    //       // setMessagesData(AllMsg);
-
-    //     } 
-    //   });
-    // const unSubscribe =
-    //   firestore()
-    //     .collection('Matchmakingapp')
-    //     .doc(docid)
-    //     .collection('Messages')
-    //     .onSnapshot((snapshot) => {
-    //       const messageCount = snapshot.docs.length;
-    //       dispatch(setdatingmessagecount(messageCount))
-    //       console.log('New_Messages:', messageCount);
-    //       // setMessageCount(snapshot.docs.length);
-    //     });
-
-    // return () => { unSubscribe };
   }, []);
 
   const checkcon = () => {
@@ -316,24 +268,53 @@ const DatingMessages = (props) => {
 
   const GetSwipeProfile = async () => {
 
-    setLoading(true)
+    setLoading(true);
     const { responseJson, err } = await requestGetApi(connect_dating_chat_list, '', 'GET', User.token)
     setLoading(false)
     // console.log('the res==>>DatingMessages', responseJson)
     if (responseJson?.headers?.success == 1) {
-      setUserList(responseJson?.body?.data)
-      // console.log('the_driveridcheckforchat', responseJson?.body?.data)
-
+      // setUserList(responseJson?.body?.data)
       var dummyarray = responseJson?.body?.data
       var myarray = []
       for (let i = 0; i < dummyarray.length; i++) {
         var driverids = dummyarray[i].connect_userid
         var myid = User?.userid
         const docid = driverids > myid ? myid + "-" + driverids : driverids + "-" + myid;
+        // console.log('=GetSwipeProfile===================================');
+        // console.log("GetSwipeProfile", docid);
+        // console.log('===============GetSwipeProfile=====================');
         myarray.push({ ...dummyarray[i], docid: docid })
       }
+      setUserList(myarray)
+      console.log('res_GetSwipeProfile =>>>>>', myarray);
 
-      setDriverid(myarray)
+      let totalCount = 0;
+      myarray.map(item => {
+        firestore()
+          .collection('Matchmakingapp')
+          .doc(item.docid.toString())
+          // .doc(item.docid)
+          .collection('users')
+          .where('userId', '==', User.userid)
+          .get()
+          .then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+              const unreadCount = doc.data().unread_count;
+              totalCount += unreadCount;
+              console.debug('GetSwipeProfile------:', totalCount);
+              // Perform any further operations with the unreadCount
+            });
+            dispatch(setdatingmessagecount(totalCount));
+            // setMessagesCount(totalCount);
+            return;
+          })
+          .catch(error => {
+            // Handle any errors that occur during the retrieval
+            console.error('Error getting users:', error);
+          });
+      });
+
+      // setDriverid(myarray)
     } else {
       setalert_sms(responseJson?.headers?.message)
       setMy_Alert(true)
@@ -424,8 +405,30 @@ const DatingMessages = (props) => {
                   showsHorizontalScrollIndicator={false}
                   numColumns={1}
                   renderItem={({ item, index }) => {
+                    firestore()
+                      .collection('Matchmakingapp')
+                      .doc(item?.docid)
+                      .collection('users')
+                      .where('userId', '==', User?.userid)
+                      .get()
+                      .then(querySnapshot => {
+                        querySnapshot.forEach(doc => {
+                          // console.log("UserLIST_DOC::----------", doc.data());
+                          var unreadCount = doc.data().unread_count;
+                          setMessagesCount(unreadCount);
+                          console.log("UserLIST_COUNTVALUE::---------", unreadCount);
+                          //    totalCount += unreadCount ;
+                          // Perform any further operations with the unreadCount
+                        });
+                        return;
+                      })
+                      .catch(error => {
+                        // Handle any errors that occur during the retrieval
+                        console.error('Error getting users:', error);
+                      });
+
                     return (
-                      <TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: item, from: 'DatingMessages' }) }} style={{ width: '100%', marginBottom: 4, borderRadius: 5 }}>
+                      <TouchableOpacity onPress={() => { props.navigation.navigate('DatingChat', { Reciver_id: item, from: 'DatingMessages' }) }} style={{ width: '100%', marginBottom: 4, borderRadius: 5, }}>
                         <View
                           style={styles.flatlistMainView}>
                           <View style={{
@@ -434,10 +437,11 @@ const DatingMessages = (props) => {
                           }}>
                             <Image source={{ uri: `${item?.profile_image != null ? item?.profile_image : 'https://kinengo-dev.s3.us-west-1.amazonaws.com/images/camera-icon.jpg'}` }} style={styles.onlinePerson} />
                             {item.activity_status ?
-                              <View style={{ height: 15, width: 15, position: 'absolute', top: 0, right: 2, backgroundColor: "pink",borderRadius:50 }}
+                              <View
+                                style={{ height: 18, width: 18, position: 'absolute', top: 0, right: 0, backgroundColor: "white", borderRadius: 50 }}
                               // style={styles.onlineDot}
                               >
-                                <Text style={{ fontSize: 14, color: 'black' }}>{getAllChatCount(item)}</Text>
+                                <Text style={{ top: 1, fontSize: 11, color: '#e42f5e', textAlign: 'center', fontWeight: '500' }}>{messagescount}</Text>
                               </View>
                               : null}
                           </View>

@@ -11,6 +11,7 @@ import MyAlert from '../../../component/MyAlert';
 import { useSelector, useDispatch } from 'react-redux';
 import { connect_dating_swipe_profile, connect_dating_swipe_profile_id_delete, requestGetApi, requestPostApi } from '../../../WebApi/Service';
 import { setdatingMatchData } from '../../../redux/actions/user_action';
+import firestore from '@react-native-firebase/firestore';
 
 const DatingYourMatches = (props) => {
   const User = useSelector(state => state.user.user_details);
@@ -79,7 +80,7 @@ const DatingYourMatches = (props) => {
     },
 
   ])
-
+  const [unReadcount, setUnReadCount] = useState(0);
   useEffect(() => {
     const unsubscribe = props.navigation.addListener('focus', () => {
       GetSwipeProfile()
@@ -87,6 +88,31 @@ const DatingYourMatches = (props) => {
     return unsubscribe;
 
   }, []);
+
+  const matchprofileRadCount = async(item)=>{
+    console.log('=========intitialcount===========================',item);
+    firestore()
+    .collection('Matchmakingapp')
+    .doc(item.docid.toString())
+    .collection('users')
+    .doc(String(item.swipe_by))
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        var { unread_count } = doc.data();
+        console.log('=========intitialcount===========================');
+        console.log("intitialcount", unread_count);
+        console.log('====================================',unReadcount);
+        setUnReadCount(unread_count);
+      }
+    })
+    .catch(error => {
+      console.error(error);
+    })
+  }
+
+
+
   const checkcon = () => {
     GetSwipeProfile()
   }
@@ -111,8 +137,43 @@ const DatingYourMatches = (props) => {
 
     console.log('the res==>>GetSwipeProfile', responseJson)
     if (responseJson.headers.success == 1) {
-      dispatch(setdatingMatchData(responseJson?.body?.data?.length))
-      setmatchesprofile(responseJson?.body?.data)
+      dispatch(setdatingMatchData(responseJson?.body?.data?.length));
+
+      var dummyarray = responseJson?.body?.data
+      var myarray = []
+      for (let i = 0; i < dummyarray.length; i++) {
+        var driverids = dummyarray[i].swipe_by
+        var myid = User?.userid
+        const docid = driverids > myid ? myid + "-" + driverids : driverids + "-" + myid;
+        console.log('=GetSwipeProfile===================================');
+        console.log("GetSwipeProfile", docid, driverids);
+        console.log('===============GetSwipeProfile=====================',);
+        myarray.push({ ...dummyarray[i], docid: docid })
+      }
+      // setUserList(myarray)
+      console.log('res_GetSwipeProfilematch =>>>>>', myarray);
+      setmatchesprofile(myarray);
+
+      // myarray.map(item => {
+      //     firestore()
+      //     .collection('Matchmakingapp')
+      //     .doc(item.docid.toString())
+      //     .collection('users')
+      //     .doc(String(item.swipe_by))
+      //     .get()
+      //     .then(doc => {
+      //       if (doc.exists) {
+      //         var { unread_count } = doc.data();
+      //         console.log('=========intitialcount===========================');
+      //         console.log("intitialcount", unread_count);
+      //         console.log('====================================');
+      //         setUnReadCount(unread_count);
+      //       }
+      //     })
+      //     .catch(error => {
+      //       console.error(error);
+      //     })
+      // })
     } else {
       setalert_sms(responseJson.headers.message);
       setMy_Alert(true)
@@ -191,7 +252,7 @@ const DatingYourMatches = (props) => {
                             <TouchableOpacity onPress={() => { PutSwipeProfile('Rejected', item.id) }} style={styles.buttonView}>
                               <Image source={require('../../../assets/images/dating-matches-reject-icon.png')} />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { PutSwipeProfile('Accepted', item.id) }} style={styles.buttonView}>
+                            <TouchableOpacity onPress={() => { PutSwipeProfile('Accepted', item.id);matchprofileRadCount(item) }} style={styles.buttonView}>
                               <Image source={require('../../../assets/images/dating-matches-love-icon.png')} />
                             </TouchableOpacity>
                           </View>
