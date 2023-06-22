@@ -16,7 +16,17 @@ import { Use } from 'react-native-svg';
 import ConnectDatingMatchesStack from './ConnectDatingMatchesStack';
 import ConnectDatingChatListStack from './ConnectDatingChatListStack';
 
-const DatingBottomNav = ({ userToken }) => {
+const DatingBottomNav = (props,{ userToken }) => {
+  React.useEffect(()=>{
+    props.navigation.reset({
+      index: 1,
+      routes: [
+        {name: 'WeelStack'},
+        {name: 'ConnectDatingMatchesStack'},
+      ],
+    })
+  },[]);
+
   const User = useSelector(state => state.user.match_profiledata);
   const chatindictor = useSelector(state => state.user.chat_counter);
   console.log("ajdajsbdja", User);

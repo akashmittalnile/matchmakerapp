@@ -726,7 +726,8 @@ const DatingEditProfile = (props) => {
     setLoading(false);
     // console.log("the res==>>DeleteProfileImages=>", responseJson);
     if (responseJson.headers.success == 1) {
-      GetProfileImages()
+      Toast.show({ text1: "Image removed successfully" });
+      GetProfileImages();
       // console.log("the res==>>GetProfileImages", responseJson.body);
 
     } else {
@@ -1710,7 +1711,7 @@ const DatingEditProfile = (props) => {
                   data={attribute2}
                   showsHorizontalScrollIndicator={false}
                   numColumns={3}
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     const ff = item.is_selected != 1
                     return (
@@ -1781,7 +1782,7 @@ const DatingEditProfile = (props) => {
                   data={kidsValue}
                   showsHorizontalScrollIndicator={false}
                   // numColumns={3}
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     return (
                       <TouchableOpacity onPress={() => { changeSelectedKids(item) }} style={[styles.showMeView, { width: '100%', marginBottom: 10, backgroundColor: kidsSelect == item ? '#fff1f6' : '#fff', borderColor: kidsSelect == item ? '#ff3b7f' : '#e3d0d7' }]}>
@@ -1837,7 +1838,7 @@ const DatingEditProfile = (props) => {
                   data={drinkingValue}
                   showsHorizontalScrollIndicator={false}
                   // numColumns={3}
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     return (
                       <TouchableOpacity onPress={() => { changeSelectedDrinking(item) }} style={[styles.showMeView, { marginBottom: 10, backgroundColor: drinkingselect == item ? '#fff1f6' : '#fff', borderColor: drinkingselect == item ? '#ff3b7f' : '#e3d0d7' }]}>
@@ -1895,7 +1896,7 @@ const DatingEditProfile = (props) => {
                   data={smokingValue}
                   showsHorizontalScrollIndicator={false}
                   // numColumns={3}
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     return (
                       <TouchableOpacity onPress={() => { changeSelectedSmoking(item) }} style={[styles.showMeView, { width: '100%', marginBottom: 10, backgroundColor: smokingdata == item ? '#fff1f6' : '#fff', borderColor: smokingdata == item ? '#ff3b7f' : '#e3d0d7' }]}>
@@ -1954,7 +1955,7 @@ const DatingEditProfile = (props) => {
                   data={showMeValue}
                   showsHorizontalScrollIndicator={false}
                   // numColumns={3}
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     return (
                       <TouchableOpacity onPress={() => { changeSelectedShowme(item) }} style={[styles.showMeView, { width: '100%', marginBottom: 10, backgroundColor: showMeselect == item ? '#fff1f6' : '#fff', borderColor: showMeselect == item ? '#ff3b7f' : '#e3d0d7' }]}>
@@ -2010,7 +2011,7 @@ const DatingEditProfile = (props) => {
                   data={politicsValue}
                   showsHorizontalScrollIndicator={false}
                   // numColumns={3}
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     return (
                       <TouchableOpacity onPress={() => { changeSelectedPolitics(item) }} style={[styles.showMeView, { width: '100%', marginBottom: 10, backgroundColor: politicsselect == item?.attribute_value ? '#fff1f6' : '#fff', borderColor: politicsselect == item?.attribute_value ? '#ff3b7f' : '#e3d0d7' }]}>
@@ -2215,7 +2216,7 @@ const DatingEditProfile = (props) => {
                   data={genderValue}
                   showsHorizontalScrollIndicator={false}
                   // numColumns={3}
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     return (
                       <TouchableOpacity onPress={() => { changeSelectedGender(item) }} style={[styles.showMeView, { width: '100%', marginBottom: 10, backgroundColor: genderselect == item ? '#fff1f6' : '#fff', borderColor: genderselect == item ? '#ff3b7f' : '#e3d0d7' }]}>
@@ -2333,7 +2334,7 @@ const DatingEditProfile = (props) => {
                 // showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
                 style={{ height: 100, width: '100%' }}
-                keyExtractor={item => item.id}
+                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item, index }) => {
                   return (
                    

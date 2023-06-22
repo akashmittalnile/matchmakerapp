@@ -17,7 +17,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { useSelector, useDispatch } from 'react-redux';
 import firestore from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
-import { setRestorentLocation, setdatingMatchData,setdatingmessagecount } from '../../../redux/actions/latLongAction';
+import { setRestorentLocation, setdatingMatchData, setdatingmessagecount } from '../../../redux/actions/latLongAction';
 import Loader from '../../../WebApi/Loader';
 import Svg from 'react-native-svg';
 import imageSvg from '../../../assets/lovematching_icon.svg';
@@ -67,6 +67,8 @@ const PeopleHome = (props) => {
   const [kidsSelect, setKidsSelect] = useState('');
   const [viewmore, setviewmore] = useState(true)
   const [isprofiles, setProfiles] = useState([]);
+  const [totalpagecount, SetTotalpageCount] = useState('')
+
   const [increments, setIncrement] = useState(1);
   const [allImg, setAllImg] = useState([{ img: '' }])
   const [filterByStatus, setFilterByStatus] = useState(['All', 'Online', 'New']);
@@ -126,18 +128,25 @@ const PeopleHome = (props) => {
   ])
 
   const [timecounter, setTimecounter] = useState('');
+
   useEffect(() => {
-   setVisible(false);
+    const unsubscribe = props.navigation.addListener('blur', () => {
+      setShowFilterModal(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    setVisible(false);
     Geodummy()
     Activestatus()
     const unsubscribe = props.navigation.addListener('focus', () => {
-      GetMessageProfile(); // use this function before come dating home screen 
+      //  GetMessageProfile(); // use this function before come dating home screen 
       GetmatchesProfile(); // use this function before come dating home screen
       Profiledatas()
       ProfilePage()
     })
-    return unsubscribe;
-
+    return () => unsubscribe();
   }, []);
 
   const calcc = async () => {
@@ -229,8 +238,10 @@ const PeopleHome = (props) => {
   // const interactionHandle = InteractionManager.createInteractionHandle();
 
   const SwipeProfile = async (type) => {
+
     console.warn("SwipeProfile:", type);
     if (type == "L") {
+      console.log("skipProfile,totalpagecount::", increments, totalpagecount);
       if (filterselected == true) {
         Profilelist();
         console.log("Filter-call.......")
@@ -239,24 +250,10 @@ const PeopleHome = (props) => {
         console.log("homeAPI-call.......")
         Profiledatas();
       }
-      // if (distanceSliderValue[0] > '51' && interstedInselect != "" && filterBySelect != "" && smokingselect != "" && drinkingselect != "" && kidsSelect != "" && ageRangeSliderValue[1] == ageRangeSliderValue[1]) {
-      //   Profilelist();
-      //   console.log("hFilter-call.......")
-      //   // setIncrement(increments + 1)
-      // }
-      // else {
-      //   console.log("homeAPI-call.......")
-      //   Profiledatas();
-      // }
-      // setIncrement(increments + 1)
-      if (isprofiles.length == 0) {
-        setIncrement(1)
-      } else {
-        setIncrement(increments + 1)
-      }
+ 
     }
     else if (type == "R") {
-      console.log("uuuunnnuuuu::", increments);
+      console.log("uuuunnnuuuu,totalpagecount::", increments, totalpagecount);
       setLoading(true)
       let message = 'Interest sent to ' + isprofiles[0]?.fullname + ' successfully awaiting response.'
       var data = {
@@ -280,19 +277,11 @@ const PeopleHome = (props) => {
           if (distanceSliderValue[0] > '51' || ageRangeSliderValue[1] == ageRangeSliderValue[1] || interstedInselect != "" || filterBySelect != "" || smokingselect != "" || drinkingselect != "" || kidsSelect != "") {
             Profilelist();
           }
-          
         } else {
           Profiledatas();
-          
-        }
-        setIncrement(increments + 1)
-        
-        // if (isprofiles.length == 0) {
-        //   setIncrement(1)
-        // } else {
-         
-        // }
 
+        }
+        
         if (responseJson?.body?.totalSwipe == responseJson?.body?.swipeLimit) {
           setVisible(true);
         }
@@ -306,7 +295,7 @@ const PeopleHome = (props) => {
 
       }
       else {
-
+        Toast.show({ text1: responseJson?.headers?.message });
         setVisible(false);
 
         // setalert_sms(err)
@@ -327,7 +316,7 @@ const PeopleHome = (props) => {
   //   return unsubscribe1;
   // }, []);
 
-  
+
   const GetMessageProfile = async () => {
 
     setLoading(true);
@@ -453,6 +442,7 @@ const PeopleHome = (props) => {
 
 
   const checkcon = () => {
+    setIncrement(1)
     Profiledatas()
     Resetallinputfield()
   }
@@ -470,7 +460,7 @@ const PeopleHome = (props) => {
     });
   }, []);
 
-  
+
 
 
 
@@ -654,36 +644,38 @@ const PeopleHome = (props) => {
   }
 
   const Profiledatas = async () => {
+
     console.log('========Profiledatas============================');
-    console.log("ProfiledatasProfiledatas",increments,isprofiles.length);
+    console.log("ProfiledatasProfiledatas", increments, totalpagecount);
     console.log('============Profiledatas========================');
-    if ( increments == '2') {
-      setIncrement(increments - 1)
+     
+    if (totalpagecount == increments && totalpagecount < increments) {
+      setIncrement(increments + 1);
+      var pageup = 1
+    } else {
+      setIncrement(increments + 1)
+      var pageup = increments;
+
     }
-    // setIncrement(increments + 1)
-    // var pageup = increments + 1;
-    // if (isprofiles.length == 0) {
-    //   setIncrement(1);
-    //   var pageup = 1
-    // } else {
-    //   setIncrement(increments + 1)
-    //   var pageup = increments + 1;
-    // }
-    console.log("the res==>>ProfileHOMEPage---------", distanceSliderValue[0], increments)
+    if (totalpagecount < increments) {
+      setIncrement(1)
+      var pageup = 1;
+    }
+    console.log("the res==>>ProfileHOMEPage---------", distanceSliderValue[0], pageup)
     setLoading(true);
 
     const { responseJson, err } = await requestGetApi(connect_dating_home_data
-      + 'lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&limit=' + 1 + '&page=' + increments, "", "GET", User.token);
+      + 'lat=' + 28.5355 + '&long=' + 77.3910 + '&distance=' + distanceSliderValue[0] + '&limit=' + 1 + '&page=' + pageup, "", "GET", User.token);
     setLoading(false);
-    console.log("the res==>>ProfileHOMEPage", responseJson?.body?.profiles);
+    console.log("the res==>>ProfileHOMEPage", responseJson?.body?.data);
     if (responseJson?.headers?.success == 1) {
-      if (increments == '2') {
-        setIncrement(1)
+      if (responseJson?.body?.page == responseJson?.body?.totalCount) {
+        setIncrement(1);
       }
-      setProfiles(responseJson?.body?.profiles);
+      setProfiles(responseJson?.body?.data);
       var allimgs = [];
-      for (let i = 1; i <= responseJson?.body?.profiles[0].images.length; i++) {
-        allimgs.push({ img: responseJson?.body?.profiles[0].images[i - 1].image })
+      for (let i = 1; i <= responseJson?.body?.data[0].images.length; i++) {
+        allimgs.push({ img: responseJson?.body?.data[0].images[i - 1].image })
       }
       setAllImg(allimgs)
     } else {
@@ -723,25 +715,42 @@ const PeopleHome = (props) => {
 
   const Profilelist = async () => {
     setfilterselected(true);
-    if (isprofiles.length == 0) {
-      setIncrement(1)
-    }
-    
     setShowFilterModal(false);
+    console.log("the res==>>Profilelist------::", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0], totalpagecount, increments);
 
-    console.log("the res==>>Profilelist------::", ageRangeSliderValue[0], ageRangeSliderValue[1], interstedInselect, filterBySelect, distanceSliderValue[0], increments);
+    
+    if (totalpagecount == increments && totalpagecount < increments) {
+      setIncrement(increments + 1);
+      var pageup = 1
+    } else {
+      setIncrement(increments + 1)
+      var pageup = increments;
+
+    }
+    if (totalpagecount < increments) {
+      setIncrement(1)
+      var pageup = 1;
+    }
+
+    console.log("PAGEUP_value::---", pageup);
+
+
+
     setLoading(true);
 
 
-    const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5758384 + '&long=' + 77.320955 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&smoking=' + smokingselect + '&drinking=' + drinkingselect + '&kids=' + kidsSelect + '&activity_status=' + filterBySelect + '&limit=' + 1 + '&page=' + increments, "", "GET", User.token);
+    const { responseJson, err } = await requestGetApi(connect_dating_profile_list + '?lat=' + 28.5758384 + '&long=' + 77.320955 + '&distance=' + distanceSliderValue[0] + '&intrest_in=' + interstedInselect + '&age_from=' + ageRangeSliderValue[0] + '&age_to=' + ageRangeSliderValue[1] + '&smoking=' + smokingselect + '&drinking=' + drinkingselect + '&kids=' + kidsSelect + '&activity_status=' + filterBySelect + '&limit=' + 1 + '&page=' + pageup, "", "GET", User.token);
     setLoading(false);
-    // console.log("the res==>>Profilelist", responseJson,  );
+    console.log("the res==>>Profilefilter_list", responseJson?.body?.totalCount);
     if (responseJson?.headers?.success == 1) {
       setProfiles(responseJson?.body?.data);
+      SetTotalpageCount(responseJson?.body?.totalCount)
+      if (responseJson?.body?.page == responseJson?.body?.totalCount) {
+        setIncrement(1);
+      }
 
       console.log("the res==>>Profilefilter", responseJson.body.data);
-      // setIncrement(increments + 1)
-      // var pageup = increments + 1;
+
       var allimgs = [];
       for (let i = 1; i <= responseJson?.body?.data[0].images.length; i++) {
         allimgs.push({ img: responseJson?.body?.data[0].images[i - 1].image })
@@ -1130,11 +1139,11 @@ const PeopleHome = (props) => {
                               data={isprofiles[0]?.passions?.filter(el => el.is_selected)}
                               showsHorizontalScrollIndicator={false}
                               numColumns={3}
-                              keyExtractor={item => item.id}
+                              keyExtractor={(item, index) => index.toString()}
                               renderItem={({ item, index }) => {
                                 // if(item.mutual){
                                 return (
-                                  <View key={index} style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+                                  <View style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
                                     {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
                                     <View style={styles.showMeImageView}>
                                       <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
@@ -1158,11 +1167,11 @@ const PeopleHome = (props) => {
                               data={isprofiles[0]?.languages?.filter(el => el.is_selected)}
                               showsHorizontalScrollIndicator={false}
                               numColumns={3}
-                              keyExtractor={item => item.id}
+                              keyExtractor={(item, index) => index.toString()}
                               renderItem={({ item, index }) => {
                                 // if(item.mutual){
                                 return (
-                                  <View key={index} style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
+                                  <View style={[styles.showMeView, { marginHorizontal: index % 3 === 1 ? 10 : 0, marginBottom: 10, backgroundColor: '#fff1f6', borderColor: '#ff3b7f' }]}>
                                     {/* <Image source={require('../../../assets/images/dating-tick-icon.png')} style={styles.showMeImage} resizeMode='contain' /> */}
                                     <View style={styles?.showMeImageView}>
                                       <Image source={{ uri: `${item?.attribute_image}` }} style={styles.showMeImage} resizeMode='contain' />
@@ -1432,10 +1441,7 @@ const PeopleHome = (props) => {
       {
         isprofiles?.length > 0 ?
           (<View style={styles.buttonsRow1}>
-            <TouchableOpacity onPress={() => {
-              console.log('will_be_called'),
-                SwipeProfile('L')
-            }} style={styles.buttonViewOne}>
+            <TouchableOpacity onPress={() => { SwipeProfile('L') }} style={styles.buttonViewOne}>
               <Image source={require('../../../assets/images/dating-more-info-reject.png')} style={{ width: 25, height: 45, top: 0, }} resizeMode='contain' />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { SwipeProfile('R') }} style={styles.buttonViewTwo}>
@@ -1715,7 +1721,7 @@ const PeopleHome = (props) => {
                   data={interstedInValue}
                   // showsHorizontalScrollIndicator={false}
                   horizontal
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
 
                   renderItem={({ item, index }) => {
                     return (
@@ -1760,7 +1766,7 @@ const PeopleHome = (props) => {
                   data={smokingValue}
                   // showsHorizontalScrollIndicator={false}
                   horizontal
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
 
                   renderItem={({ item, index }) => {
                     return (
@@ -1780,7 +1786,7 @@ const PeopleHome = (props) => {
                 <FlatList
                   data={drinkingValue}
                   horizontal
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     return (
                       <TouchableOpacity onPress={() => { onChangeDrinking(item) }} style={[styles.interestedView1, { width: 110, marginBottom: 1, backgroundColor: drinkingselect == item ? '#FF4989' : '#fff' }]}>
@@ -1798,7 +1804,7 @@ const PeopleHome = (props) => {
                 <FlatList
                   data={kidsValue}
                   horizontal
-                  keyExtractor={item => item.id}
+                  keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => {
                     return (
 
@@ -1943,7 +1949,7 @@ const PeopleHome = (props) => {
             </View>
 
             <View style={{ width: '95%', alignSelf: 'center' }}>
-              <TouchableOpacity onPress={() => Profilelist()} style={styles.applyButtonStyle}>
+              <TouchableOpacity onPress={() => { Profilelist(); setIncrement(1) }} style={styles.applyButtonStyle}>
                 <Text style={{ fontSize: 11.3, fontWeight: 'bold', color: '#fff', }}>Apply</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => { Resetallinputfield(), setShowFilterModal(false) }} style={{ marginTop: 20, marginBottom: 50 }}>
@@ -2151,6 +2157,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     shadowOpacity: 0.07,
     elevation: 1,
+    zIndex: -999
   },
   showMeImage: {
     height: 18,
@@ -2163,12 +2170,13 @@ const styles = StyleSheet.create({
     borderRadius: 60 / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    // marginHorizontal: 15,
+
     shadowColor: '#E94057',
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 1,
     shadowOpacity: 0.07,
     elevation: 1,
+    zIndex: -999
   },
   cameraButtonView: {
     paddingHorizontal: 20,

@@ -364,7 +364,7 @@ const MessageRef = firestore()
     });
 
     // Stop listening for updates when no longer required
-    return () =>{ unSubscribe();resetMyUnreadCount()};
+    return () =>{ unSubscribe();resetMyUnreadCount()}
   }, [driver_id?.connect_userid]); 
 
 
